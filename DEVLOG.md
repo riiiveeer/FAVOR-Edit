@@ -670,6 +670,44 @@
 
 ## 记录模板
 
+### 2026-08-12｜本地仓库同步前完整性回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成日期：2026-08-12（Asia/Shanghai）
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- Python：项目虚拟环境 `.venv\Scripts\python.exe`
+
+**步骤 ID**
+
+- `LOCAL-git-sync-verify-v01`
+
+**操作与关键配置**
+
+- 在提交 `4efa9e7`（`Prepare local repository for synchronization`）上执行 Git 对象完整性检查；
+- 运行完整本地测试集；
+- 关键命令：`git fsck --full`、`.venv\Scripts\python.exe -m pytest -q`、`git status --short --branch`。
+
+**结果与产物**
+
+- `git fsck --full` 通过，无对象错误；
+- Pytest：18 项测试全部通过；
+- 验证结束时工作区 clean，当前分支为 `main`；
+- 产物路径：`D:\lab idea\.git`、`D:\lab idea\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 提交本条验证记录；
+2. 获取 GitHub 空仓库 URL 后设置 `origin` 并推送 `main`。
+
+---
+
 ### 2026-08-12｜本地 Git 仓库同步基线整理
 
 **状态：DONE**
