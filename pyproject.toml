@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "robust-v2v-w1"
+version = "0.1.0"
+description = "Reproducible W1 pipeline for robust preference-based video editing research"
+readme = "README.md"
+requires-python = ">=3.9,<3.13"
+dependencies = [
+  "imageio>=2.34,<3",
+  "imageio-ffmpeg>=0.5,<1",
+  "numpy>=1.24,<3",
+  "pillow>=10,<12",
+  "pydantic>=2.7,<3",
+  "pyyaml>=6,<7",
+  "typer>=0.12,<1",
+]
+
+[project.scripts]
+w1 = "w1_pipeline.cli:app"
+
+[dependency-groups]
+dev = [
+  "pytest>=8,<9",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/w1_pipeline"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+

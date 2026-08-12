@@ -1,0 +1,17 @@
+dataset: DAVIS-2017
+split: train
+year: 2017
+resolution: 480p
+seeds: [101, 202, 303, 404, 505]
+inputs:
+  - {sample_id: bear-white, sequence: bear, task_type: attribute, instruction: "Make the bear white", target_caption: "A white bear walking"}
+  - {sample_id: bus-red, sequence: bus, task_type: attribute, instruction: "Make the bus red", target_caption: "A red bus driving on the road"}
+  - {sample_id: elephant-pink, sequence: elephant, task_type: attribute, instruction: "Make the elephant pink", target_caption: "A pink elephant walking"}
+  - {sample_id: classic-car-blue, sequence: classic-car, task_type: attribute, instruction: "Make the classic car blue", target_caption: "A blue classic car driving"}
+  - {sample_id: dog-tiger, sequence: dog-gooses, task_type: object, instruction: "Turn the dog into a tiger", target_caption: "A tiger running among geese"}
+  - {sample_id: horse-zebra, sequence: horsejump-low, task_type: object, instruction: "Turn the horse into a zebra", target_caption: "A zebra jumping over an obstacle"}
+  - {sample_id: mallard-swan, sequence: mallard-water, task_type: object, instruction: "Turn the mallard into a swan", target_caption: "A swan swimming on the water"}
+  - {sample_id: hiker-backpack, sequence: hike, task_type: local, instruction: "Add a red backpack to the hiker", target_caption: "A hiker wearing a red backpack"}
+  - {sample_id: rider-helmet, sequence: scooter-gray, task_type: local, instruction: "Add a yellow helmet to the rider", target_caption: "A scooter rider wearing a yellow helmet"}
+  - {sample_id: car-headlights, sequence: drift-turn, task_type: local, instruction: "Make the car headlights glow blue", target_caption: "A drifting car with glowing blue headlights"}
+
