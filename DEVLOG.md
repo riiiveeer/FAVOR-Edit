@@ -670,6 +670,47 @@
 
 ## 记录模板
 
+### 2026-08-12｜本地 Git 仓库同步基线整理
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 17:13:47 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未连接学校 A6000
+
+**步骤 ID**
+
+- `LOCAL-git-sync-baseline-v01`
+
+**操作与关键配置**
+
+- 检查现有 Git 历史、工作区、远程仓库、已跟踪文件及大文件；
+- 确认 `.venv/`、`.pytest_cache/` 和 `artifacts/` 均由 `.gitignore` 排除；
+- 确认唯一超过 50 MB 的扫描结果位于被忽略的 `.venv/` 内；
+- 将本地默认分支由 `master` 重命名为 `main`；
+- 关键命令：`git status --short --branch`、`git remote -v`、`git check-ignore -v`、`git branch -m master main`。
+
+**结果与产物**
+
+- 本地仓库已有 3 个历史提交，分支现为 `main`；
+- 工作区在整理前为 clean，尚未配置远程仓库；
+- 已跟踪文件数：33；未发现会被误提交的大型模型、数据集或虚拟环境文件；
+- 产物路径：`D:\lab idea\.git`、`D:\lab idea\.gitignore`、`D:\lab idea\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 尚未提供 GitHub 仓库 URL，因此本步骤不创建 `origin`，也不执行外部 push。
+
+**下一步**
+
+1. 提交本条日志并验证仓库完整性；
+2. 用户创建或指定 GitHub 空仓库后，添加 `origin` 并推送 `main`；
+3. 在学校服务器通过 GitHub（若可访问）或本地中转方式克隆。
+
+---
+
 复制以下区块到“每日记录”顶部或末尾：
 
 ````markdown
