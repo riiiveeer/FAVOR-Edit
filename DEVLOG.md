@@ -60,6 +60,82 @@
 
 ## 每日记录
 
+### 2026-08-12｜学校服务器离线交付手册与辅助工具验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 12:14:24 +08:00
+- 执行位置：本地 Windows；文档和静态/单元验证
+
+**实验 ID**
+
+- `W1-school-delivery-doc-v02`
+
+**行动与关键配置**
+
+- 将服务器流程改为完全离线优先：Git bundle、Linux conda-pack、两个本地模型 snapshot、十条 DAVIS 数据和全包 SHA-256 随交付包上传。
+- 明确 Windows prepared manifest 不能复用，必须在 Linux 服务器重新 `w1 prepare`。
+- 增加国内 PyPI/Anaconda 镜像作为环境包不可用时的备选，不允许运行时从 GitHub/Hugging Face 拉取代码或权重。
+- 增加离线模型软链接、`HF_HUB_OFFLINE`、双 smoke、逐帧复现门、50 候选批量、验收、故障处理和结果回传步骤。
+- 将 smoke-plan 核心逻辑移入 `w1_pipeline.delivery`，脚本保留薄入口；增加 preflight 和手册关键约束测试。
+- 命令：`uv run pytest`、`uv run python scripts/make_smoke_plan.py --help`、`uv run w1 validate`、`git diff --check`。
+
+**结果**
+
+- 18 个测试全部通过；smoke-plan CLI 和 W1 manifest 校验正常；diff 无空白错误。
+- 本机无可用 Linux bash，因此 `offline_preflight.sh` 的真实 bash 语法和运行仍需在学校 Linux 服务器首次执行时验证并记录。
+
+**产物路径**
+
+- `docs/SCHOOL_SERVER_DELIVERY.md`
+- `src/w1_pipeline/delivery.py`
+- `scripts/make_smoke_plan.py`
+- `scripts/offline_preflight.sh`
+- `tests/test_delivery_helpers.py`
+
+**下一步**
+
+1. 创建本次文档与工具的 Git 快照。
+2. 按手册在联网 Linux 机器制作模型/环境交付包；学校连接恢复后执行离线 preflight 和真实 smoke。
+
+### 2026-08-12｜学校服务器离线交付手册首次回归
+
+**状态：INVALID（产生有效诊断）**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 12:12:55 +08:00
+- 执行位置：本地 Windows；未使用远程 A6000
+
+**实验 ID**
+
+- `W1-school-delivery-doc-v01`
+
+**行动与关键配置**
+
+- 新增离线交付目录规范、联网侧资源打包、模型 snapshot、Linux 环境包、DAVIS 数据、服务器离线部署、双 smoke、50 候选、验收和结果回传手册。
+- 新增单候选 smoke plan 生成器和服务器离线 preflight 脚本。
+- 执行 `uv run pytest`、脚本 `--help`、`git diff --check` 和本机 bash 探测。
+
+**结果**
+
+- smoke plan CLI 的 `--help` 正常，diff 无空白错误。
+- pytest 收集失败：`scripts` 未声明为 Python 包，测试无法导入 `scripts.make_smoke_plan`。
+- 本机 `bash` 是未安装 WSL 的 Windows 占位程序，其输出不能作为有效 bash 语法验证证据。
+
+**产物路径**
+
+- `docs/SCHOOL_SERVER_DELIVERY.md`
+- `scripts/make_smoke_plan.py`
+- `scripts/offline_preflight.sh`
+
+**下一步**
+
+1. 增加 `scripts/__init__.py` 并重跑完整测试。
+2. 增加对离线 preflight 关键检查项的静态回归测试；真实 bash 语法需在 Linux/学校服务器执行。
+
 ### 2026-08-12｜远程 Runbook 与最终本地回归
 
 **状态：DONE**

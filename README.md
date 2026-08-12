@@ -32,7 +32,9 @@ uv run w1 verify --candidates <candidates.json>
 uv run w1 report --plan <plan.json> --candidates <candidates.json> --rewards <rewards.json> --output-dir <report-dir>
 ```
 
-See `docs/REMOTE_RUNBOOK.md` for the guarded A6000/AnyV2V workflow.
+See `docs/SCHOOL_SERVER_DELIVERY.md` for the offline school-server delivery and
+execution procedure. `docs/REMOTE_RUNBOOK.md` contains the shorter experiment
+gate summary.
 
 ## Research dependency boundary
 

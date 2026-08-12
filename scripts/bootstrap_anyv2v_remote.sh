@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "WARNING: this bootstrap script requires GitHub/Conda network access." >&2
+echo "For the offline school server, follow docs/SCHOOL_SERVER_DELIVERY.md instead." >&2
+
 if [[ $# -ne 3 ]]; then
   echo "usage: $0 <workspace> <anyv2v-commit> <experiment-id>" >&2
   exit 2

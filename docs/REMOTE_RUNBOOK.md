@@ -1,5 +1,7 @@
 # A6000 Runbook for W1
 
+> 学校服务器无法访问外网时，请不要执行本文旧版的在线 clone/bootstrap 流程。完整的离线交付、国内镜像备选、模型软链接、smoke 与批量验收步骤见 `docs/SCHOOL_SERVER_DELIVERY.md`。下文仅保留简要实验门控说明。
+
 The real W1 experiment must not start until the SSH preflight reports an
 NVIDIA A6000, enough free VRAM for the smoke test, and at least 100 GB free
 disk space. Current SSH aliases are listed in `scripts/probe_a6000.ps1`.
@@ -82,4 +84,3 @@ remain interface tests, not research measurements.
 
 Immediately append the final DEVLOG entry with status, runtime, peak VRAM,
 50/50 result, cache hits, exact paths, and observed failures.
-
