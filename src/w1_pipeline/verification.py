@@ -26,15 +26,24 @@ def _probe_candidate(candidate: CandidateRecord) -> List[str]:
         if [sha256_file(path) for path in frames] != candidate.frame_checksums:
             errors.append("frame checksum mismatch")
         reader = imageio.get_reader(video)
-        metadata = reader.get_meta_data()
-        decoded = list(reader)
-        reader.close()
-        if len(decoded) != 16:
-            errors.append(f"decoded frame count={len(decoded)}")
-        if decoded and decoded[0].shape[:2] != (512, 512):
-            errors.append(f"decoded dimensions={decoded[0].shape[:2]}")
-        if abs(float(metadata.get("fps", 0)) - 8.0) > 0.01:
-            errors.append(f"fps={metadata.get('fps')}")
+        try:
+            metadata = reader.get_meta_data()
+            decoded_count = 0
+            first_shape = None
+            for decoded_frame in reader:
+                decoded_count += 1
+                if first_shape is None:
+                    first_shape = decoded_frame.shape[:2]
+                if decoded_count > 16:
+                    break
+            if decoded_count != 16:
+                errors.append(f"decoded frame count={decoded_count}{'+' if decoded_count > 16 else ''}")
+            if first_shape != (512, 512):
+                errors.append(f"decoded dimensions={first_shape}")
+            if abs(float(metadata.get("fps", 0)) - 8.0) > 0.01:
+                errors.append(f"fps={metadata.get('fps')}")
+        finally:
+            reader.close()
     return errors
 
 
@@ -63,4 +72,3 @@ def verify_candidates(candidates_path: Path, expected: int = 50, compare_path: O
         if mismatches:
             errors["__reproducibility__"] = mismatches
     return {"valid": not errors, "count": len(candidates), "errors": errors, "reproducible": reproducible}
-

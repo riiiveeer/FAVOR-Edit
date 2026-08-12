@@ -25,6 +25,18 @@ class GenerationBackend(ABC):
         raise NotImplementedError
 
 
+def _replace_directory(source: Path, destination: Path, attempts: int = 10) -> None:
+    """Atomically publish a completed directory, tolerating short Windows AV/ffmpeg locks."""
+    for attempt in range(attempts):
+        try:
+            source.replace(destination)
+            return
+        except PermissionError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(0.2 * (attempt + 1))
+
+
 def _record(task: Dict[str, Any], status: CandidateStatus, **updates: Any) -> CandidateRecord:
     return CandidateRecord(
         candidate_id=task["candidate_id"],
@@ -72,7 +84,7 @@ class MockBackend(GenerationBackend):
         metadata = {"mock": True, "candidate_id": task["candidate_id"], "seed": config.seed, "research_result": False}
         (temp_dir / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         final_dir.parent.mkdir(parents=True, exist_ok=True)
-        temp_dir.replace(final_dir)
+        _replace_directory(temp_dir, final_dir)
         final_frames = [final_dir / path.name for path in frame_paths]
         final_video = final_dir / "video.mp4"
         return _record(
@@ -226,7 +238,7 @@ class AnyV2VBackend(GenerationBackend):
             "generation": config.model_dump(mode="json"), "anyv2v_checkout": self._checkout(),
         }
         (work_dir / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-        work_dir.replace(final_dir)
+        _replace_directory(work_dir, final_dir)
         final_frames = [final_dir / path.name for path in canonical_frames]
         final_video = final_dir / canonical_video.name
         return _record(

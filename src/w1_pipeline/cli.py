@@ -1,5 +1,6 @@
 """Command-line entry point for the W1 pipeline."""
 
+import json
 from pathlib import Path
 from typing import List, Optional
 

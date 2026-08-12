@@ -60,6 +60,253 @@
 
 ## 每日记录
 
+### 2026-08-12｜远程 Runbook 与最终本地回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 11:58:00 +08:00
+- 执行位置：本地
+
+**实验 ID**
+
+- `W1-local-final-regression-v01`
+
+**行动与关键配置**
+
+- 新增 A6000 preflight、精确 commit bootstrap、单候选双重复 smoke、复现门、50 候选批量运行和结束记录的完整 runbook。
+- 更新 README 的全部 CLI 示例和远程文档入口。
+- 执行 `uv run pytest`、`uv run w1 validate`、`git diff --check`。
+
+**结果**
+
+- 15 个测试全部通过；固定 manifest 校验为 10 inputs / 5 seeds；Git diff 无空白错误。
+- 本地 W1 框架、mock/replay、媒体与复现验收完成；真实 AnyV2V GPU 验证仍受 SSH reset 阻塞。
+
+**产物路径**
+
+- `docs/REMOTE_RUNBOOK.md`
+- `README.md`
+- 本地 mock 交付：`artifacts/E0-pipeline-mock-v01/`
+
+**下一步**
+
+1. 创建最终代码快照。
+2. A6000 恢复后按 runbook 先执行 `E0-anyv2v-smoke-v01`，通过后运行 `E0-anyv2v-w1-v01`。
+
+### 2026-08-12｜A6000 连通性复查
+
+**状态：BLOCKED（外部连接状态）**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 11:56:44 +08:00
+- 执行位置：本地到学校远程入口；只读探测
+
+**实验 ID**
+
+- `E0-a6000-preflight-v01`
+
+**行动与关键配置**
+
+- 执行 `scripts/probe_a6000.ps1`，依次探测三个现有 SSH alias。
+- 探测内容原计划为 hostname、GPU 型号/显存、Python 和磁盘；未进行任何远程写入。
+
+**结果**
+
+- `202.120.62.181-hfy-24100`、`202.120.62.181-sunyinan-24097`、`202.120.62.181-hfy-24095` 均在 SSH 密钥交换阶段被远端 reset。
+- 无法读取 GPU、Python 或磁盘状态；未启动远程环境安装、模型下载、smoke 或批量推理。
+
+**产物路径**
+
+- 探测脚本：`scripts/probe_a6000.ps1`
+- 无远程产物。
+
+**问题 / 失败**
+
+- 需要恢复校园网/VPN、端口映射或远程实例状态。
+- 在连通恢复前，W1 的 50 个真实 AnyV2V 候选仍未完成；当前仅有 50 个 mock 接口验收结果。
+
+**下一步**
+
+1. 连接恢复后重新运行 preflight，确认 A6000 与至少 100GB 空闲磁盘。
+2. 在 DEVLOG 写入确切 AnyV2V/model commit 和资源估计后，先跑单候选双重复 smoke，再提交 `E0-anyv2v-w1-v01`。
+
+### 2026-08-12｜Mock 逐帧复现性验证
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 11:56:00 +08:00
+- 执行位置：本地；CPU；独立输出目录和 SQLite 缓存
+
+**实验 ID**
+
+- `E0-pipeline-mock-v01-repeat`
+
+**行动与关键配置**
+
+- 使用同一 `plan.json` 在全新 `artifacts/E0-pipeline-mock-v01-repeat` 中重新生成 50 个候选。
+- 执行 `w1 verify --compare`，按 candidate ID 比较两次运行的 16 张逐帧 SHA-256。
+
+**结果**
+
+- 第二次运行 50/50 成功、0 cache hit。
+- 校验结果 `valid: true`、`reproducible: true`，所有逐帧校验和一致。
+
+**产物路径**
+
+- `artifacts/E0-pipeline-mock-v01-repeat/candidates.json`
+- `artifacts/E0-pipeline-mock-v01-repeat/cache.sqlite3`
+
+**下一步**
+
+1. 只读探测现有 A6000 SSH 入口。
+2. 更新远程运行文档和最终代码快照；真实 smoke 等连接恢复后执行。
+
+### 2026-08-12｜Mock E2E 50/50 媒体验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 11:55:06 +08:00
+- 执行位置：本地；CPU；合成数据
+
+**实验 ID**
+
+- `E0-pipeline-mock-v01-acceptance`
+
+**行动与关键配置**
+
+- 修复 verify CLI 的 JSON 导入并增加命令级回归测试。
+- 执行 `uv run pytest`、`w1 verify --expected 50` 和 `w1 report`。
+
+**结果**
+
+- 15 个测试全部通过。
+- verifier 报告 `valid: true`、`count: 50`、`errors: {}`；全部候选满足文件、校验和、16 帧、512×512 和 8 fps 要求。
+- 生成完整 mock 报告和 pipeline Mermaid/SVG；报告明确 mock/replay 不属于研究测量。
+
+**产物路径**
+
+- `artifacts/E0-pipeline-mock-v01/candidates.json`
+- `artifacts/E0-pipeline-mock-v01/rewards.json`
+- `artifacts/E0-pipeline-mock-v01/report/W1_REPORT.md`
+- `artifacts/E0-pipeline-mock-v01/report/pipeline.mmd`
+- `artifacts/E0-pipeline-mock-v01/report/pipeline.svg`
+
+**下一步**
+
+1. 以相同 plan 在独立输出/缓存中重新生成 50 条 mock 候选，逐帧比较复现性。
+2. 执行 A6000 只读探测，并记录真实 smoke 阻塞状态。
+
+### 2026-08-12｜Mock E2E 失败项恢复与 Verify 二次诊断
+
+**状态：INVALID（候选已补齐，CLI 输出仍需修复）**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 11:53:56 +08:00
+- 执行位置：本地；CPU
+
+**实验 ID**
+
+- `E0-pipeline-mock-v01-retry01`
+
+**行动与关键配置**
+
+- 查明两个失败项均为 Windows 临时目录发布时的短暂 `WinError 5`，为目录原子替换增加有界退避重试。
+- 将 verifier 从 `list(reader)` 改为最多解码 17 帧的流式计数，避免内存耗尽。
+- 重跑全部测试与 run/reward/verify/report；cache 跳过已有成功项。
+
+**结果**
+
+- 14 个测试通过；候选达到 50/50，其中 48 个 generation cache hit；reward 50 条，其中 48 个 cache hit。
+- 流式媒体校验完成，但 CLI 输出阶段因 `cli.py` 漏导入 `json` 触发 `NameError`，因此本次验收命令仍为失败状态。
+
+**产物路径**
+
+- `artifacts/E0-pipeline-mock-v01/`
+- 修复文件：`src/w1_pipeline/backends.py`、`verification.py`
+
+**下一步**
+
+1. 补充 `json` 导入并增加 CLI verifier 回归测试。
+2. 重新执行 verify/report，并进行第二份独立 mock run 的逐帧复现比较。
+
+### 2026-08-12｜完整 CLI Mock E2E 首次运行
+
+**状态：INVALID（产生有效诊断，待修复后重跑）**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 11:52:18 +08:00
+- 执行位置：本地；CPU；合成 10 输入数据
+
+**实验 ID**
+
+- `E0-pipeline-mock-v01`
+
+**行动与关键配置**
+
+- 生成 10 条合成 prepared 输入，依次执行 `w1 plan`、`run --backend mock`、`reward --backend mock`、`verify` 和 `report`。
+- 固定 5 seeds，共计划 10 inversions / 50 candidates。
+
+**结果**
+
+- plan 正确生成 10/50；run 仅成功 48/50；reward 对 48 个成功项生成 48 条非研究 mock 记录。
+- `verify` 在 `decoded = list(reader)` 处触发 `MemoryError`，ffmpeg 被终止；该实现不能用于批量验证。
+- report 虽生成，但基于不完整候选，因此不能作为合格交付物。
+
+**产物路径**
+
+- 诊断产物：`artifacts/E0-pipeline-mock-v01/`
+
+**问题 / 失败**
+
+- 需检查两个失败 candidate 的缓存错误。
+- verifier 必须改为逐帧流式检查，避免同时保留全部解码数组。
+
+**下一步**
+
+1. 读取 SQLite/candidates 中的失败原因。
+2. 修复 mock 后端或媒体编码问题以及流式 verifier，然后仅重试失败项并重新验收。
+
+### 2026-08-12｜W1 初始代码快照
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-12 11:50:56 +08:00
+- 执行位置：本地 Git 仓库
+
+**实验 ID**
+
+- `W1-code-snapshot-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`、`git add .` 和 `git commit -m "Implement W1 reproducible video editing pipeline"`。
+- 将文档、环境锁、源码、配置、脚本和测试纳入同一可追溯初始快照。
+
+**结果**
+
+- 创建 root commit `bb671dd`，27 个文件、3311 行。
+- 后续生成计划可记录实际 Git commit，而不是 `unversioned`。
+
+**产物路径**
+
+- Git commit：`bb671dd`
+
+**下一步**
+
+1. 使用该代码快照运行完整 CLI mock E2E。
+2. mock E2E 完成后立即记录产物、数量、耗时和验证结果。
+
 ### 2026-08-12｜Reward Mock/Replay、Verify 与报告接口
 
 **状态：DONE**

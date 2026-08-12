@@ -1,7 +1,10 @@
 import json
 from pathlib import Path
 
+from typer.testing import CliRunner
+
 from w1_pipeline.cache import Cache
+from w1_pipeline.cli import app
 from w1_pipeline.hashing import canonical_sha256
 from w1_pipeline.models import RewardRequest
 from w1_pipeline.rewards import reward_key
@@ -23,3 +26,11 @@ def test_reward_cache_roundtrip(tmp_path: Path) -> None:
     with Cache(tmp_path / "cache.sqlite3") as cache:
         cache.put_reward(key, "request", "succeeded", payload)
         assert cache.get_reward(key) == payload
+
+
+def test_verify_cli_prints_json_for_empty_manifest(tmp_path: Path) -> None:
+    manifest = tmp_path / "candidates.json"
+    manifest.write_text("[]", encoding="utf-8")
+    result = CliRunner().invoke(app, ["verify", "--candidates", str(manifest), "--expected", "0"])
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["valid"] is True
