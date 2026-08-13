@@ -670,6 +670,44 @@
 
 ## 记录模板
 
+### 2026-08-13｜GitHub 远端首次连通性探测
+
+**状态：BLOCKED**
+
+**时间与环境**
+
+- 完成时间：2026-08-13 10:20:08 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远端目标：`https://github.com/riiiveeer/FAVOR-Edit.git`
+
+**步骤 ID**
+
+- `LOCAL-github-probe-v01`
+
+**操作与关键配置**
+
+- 确认本地分支为 `main`、工作区 clean、尚无 Git remote；
+- 使用 `git ls-remote https://github.com/riiiveeer/FAVOR-Edit.git` 只读探测远端。
+
+**结果与产物**
+
+- 本地 HEAD：`f50426d`；
+- 远端探测失败，Git 尝试经 `127.0.0.1` 代理连接 GitHub 443 端口，但本机代理未监听；
+- 诊断信息已记录于 `D:\lab idea\DEVLOG.md`。
+
+**问题 / 失败**
+
+- `Failed to connect to github.com port 443 via 127.0.0.1`；
+- 本步骤未添加 `origin`，也未发生外部写入。
+
+**下一步**
+
+1. 检查 Git、环境变量和 Windows 代理来源；
+2. 使用可用网络路径重新只读探测；
+3. 连通后添加 `origin` 并推送 `main`。
+
+---
+
 ### 2026-08-12｜本地仓库同步前完整性回归
 
 **状态：DONE**
