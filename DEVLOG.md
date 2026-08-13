@@ -670,6 +670,41 @@
 
 ## 记录模板
 
+### 2026-08-13｜仓库级代理重复项诊断
+
+**状态：BLOCKED**
+
+**时间与环境**
+
+- 执行日期：2026-08-13（Asia/Shanghai）
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+
+**步骤 ID**
+
+- `LOCAL-github-proxy-override-v02`
+
+**操作与关键配置**
+
+- 在 `.git/config` 中新增真正的空 `http.proxy` 与 `https.proxy`；
+- 使用 `git config --local --get-regexp` 和 `git ls-remote origin` 验证。
+
+**结果与产物**
+
+- 发现此前写入的空格代理配置作为重复 section 仍然存在；
+- Git 同时读取空值和空格值，最终仍因空格值的畸形 URL 报错；
+- 未执行 push。
+
+**问题 / 失败**
+
+- `.git/config` 中存在两组 `[http]` / `[https]` proxy 项，需要精确删除 `proxy = " "` 的重复项。
+
+**下一步**
+
+1. 移除带空格的重复代理 section；
+2. 保留真正空值并再次验证远端。
+
+---
+
 ### 2026-08-13｜仓库级空代理参数第二次诊断
 
 **状态：INVALID**
