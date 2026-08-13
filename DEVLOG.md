@@ -670,6 +670,44 @@
 
 ## 记录模板
 
+### 2026-08-13｜添加 origin 与仓库级代理配置诊断
+
+**状态：DONE**
+
+**时间与环境**
+
+- 执行日期：2026-08-13（Asia/Shanghai）
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+
+**步骤 ID**
+
+- `LOCAL-github-origin-v01`
+
+**操作与关键配置**
+
+- 添加远端：`git remote add origin https://github.com/riiiveeer/FAVOR-Edit.git`；
+- 尝试通过 `git config --local http.proxy ""` 与 `https.proxy ""` 写入仓库级空代理覆盖；
+- 检查 `.git/config` 并重新运行 `git ls-remote origin`。
+
+**结果与产物**
+
+- `origin` 已正确配置为 GitHub 仓库；
+- PowerShell 调用 Git 时未持久化空字符串参数，`.git/config` 中没有生成代理覆盖项；
+- 因而普通 `git ls-remote origin` 仍继承失效的用户级 `127.0.0.1:7890` 代理并失败；
+- 产物路径：`D:\lab idea\.git\config`、`D:\lab idea\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 组合命令末尾因查询不存在的本地代理项返回退出码 1；此前的日志提交及 `origin` 添加均已成功；
+- 普通远端命令仍需显式空代理覆盖。
+
+**下一步**
+
+1. 直接在仓库配置中加入空代理值并验证其优先于用户级配置；
+2. 推送 `main`。
+
+---
+
 ### 2026-08-13｜GitHub 直连复查与代理隔离决策
 
 **状态：DONE**
