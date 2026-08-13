@@ -670,6 +670,43 @@
 
 ## 记录模板
 
+### 2026-08-13｜GitHub 首次推送完成
+
+**状态：DONE**
+
+**时间与环境**
+
+- 执行日期：2026-08-13（Asia/Shanghai）
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- GitHub 仓库：`https://github.com/riiiveeer/FAVOR-Edit.git`
+
+**步骤 ID**
+
+- `LOCAL-github-initial-push-v01`
+
+**操作与关键配置**
+
+- 在提交 `2ada91f` 上执行 `git push -u origin main`；
+- 将本地 `main` 设置为跟踪 `origin/main`。
+
+**结果与产物**
+
+- GitHub 成功创建远端 `main` 分支；
+- 项目代码、配置、测试、文档与截至本步骤前的 DEVLOG 已推送；
+- 远端地址：`https://github.com/riiiveeer/FAVOR-Edit.git`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 提交并推送本条日志；
+2. 核对本地 `HEAD` 与 `origin/main` 一致；
+3. 在学校服务器克隆该仓库并运行离线预检。
+
+---
+
 ### 2026-08-13｜项目级 GitHub 直连配置完成
 
 **状态：DONE**
