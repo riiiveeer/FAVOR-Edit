@@ -670,6 +670,41 @@
 
 ## 记录模板
 
+### 2026-08-13｜仓库级空代理参数第二次诊断
+
+**状态：INVALID**
+
+**时间与环境**
+
+- 执行日期：2026-08-13（Asia/Shanghai）
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+
+**步骤 ID**
+
+- `LOCAL-github-proxy-override-v01`
+
+**操作与关键配置**
+
+- 尝试将仓库级 `http.proxy` 与 `https.proxy` 写为空格，以覆盖用户级失效代理；
+- 运行 `git ls-remote origin` 验证。
+
+**结果与产物**
+
+- `.git/config` 成功写入空格值，但 Git 将其解析为代理 URL 而不是“无代理”；
+- 远端检查失败：`Unsupported proxy syntax in ' ': Malformed input to a URL function`。
+
+**问题 / 失败**
+
+- 空格代理值是无效配置，必须移除；
+- 本步骤未执行 push，GitHub 内容未改变。
+
+**下一步**
+
+1. 在 `.git/config` 中写入语法层面的空代理值；
+2. 验证普通 `git ls-remote origin` 无需命令级覆盖即可直连。
+
+---
+
 ### 2026-08-13｜添加 origin 与仓库级代理配置诊断
 
 **状态：DONE**
