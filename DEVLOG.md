@@ -670,6 +670,43 @@
 
 ## 记录模板
 
+### 2026-08-13｜GitHub 直连复查与代理隔离决策
+
+**状态：DONE**
+
+**时间与环境**
+
+- 执行日期：2026-08-13（Asia/Shanghai）
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远端目标：`https://github.com/riiiveeer/FAVOR-Edit.git`
+
+**步骤 ID**
+
+- `LOCAL-github-probe-v02`
+
+**操作与关键配置**
+
+- 检查 Git、环境变量、WinHTTP 与本机监听端口的代理配置；
+- 定位到用户级 `C:\Users\18531\.gitconfig` 配置了 `http.proxy` 与 `https.proxy` 为 `http://127.0.0.1:7890`，但端口未监听；
+- 使用命令级空代理覆盖执行 `git -c http.proxy= -c https.proxy= ls-remote https://github.com/riiiveeer/FAVOR-Edit.git`。
+
+**结果与产物**
+
+- GitHub HTTPS 直连成功；
+- `ls-remote` 无 refs 输出，目标仓库当前为空；
+- 决定只为本项目设置仓库级空代理覆盖，保留其他项目可能依赖的全局代理设置。
+
+**问题 / 失败**
+
+- 全局 Git 代理当前失效，但不在本步骤中修改用户级配置。
+
+**下一步**
+
+1. 为本仓库配置空代理覆盖并添加 `origin`；
+2. 将 `main` 首次推送至 GitHub。
+
+---
+
 ### 2026-08-13｜GitHub 远端首次连通性探测
 
 **状态：BLOCKED**
