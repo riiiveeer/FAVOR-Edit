@@ -670,6 +670,44 @@
 
 ## 记录模板
 
+### 2026-08-13｜项目级 GitHub 直连配置完成
+
+**状态：DONE**
+
+**时间与环境**
+
+- 执行日期：2026-08-13（Asia/Shanghai）
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远端：`origin = https://github.com/riiiveeer/FAVOR-Edit.git`
+
+**步骤 ID**
+
+- `LOCAL-github-proxy-override-v03`
+
+**操作与关键配置**
+
+- 从 `.git/config` 删除带单个空格的无效重复代理项；
+- 保留仓库级空 `http.proxy` 与 `https.proxy`，覆盖失效的用户级代理但不修改全局配置；
+- 使用普通 `git ls-remote origin` 验证，无需命令级 `-c` 参数。
+
+**结果与产物**
+
+- GitHub HTTPS 直连成功；
+- 远端无 refs，确认仓库仍为空；
+- 本地分支 `main`、工作区 clean；
+- 本地专用配置位于 `D:\lab idea\.git\config`（该文件不进入提交）。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 提交本条记录；
+2. 首次推送本地 `main` 至 `origin` 并设置 upstream。
+
+---
+
 ### 2026-08-13｜仓库级代理重复项诊断
 
 **状态：BLOCKED**
