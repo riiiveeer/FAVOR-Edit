@@ -60,6 +60,64 @@
 
 ## 每日记录
 
+### 2026-08-17｜E0-anyv2v-w1-v01 50 候选批量启动记录
+
+**状态：RUNNING**
+
+**时间与环境**
+
+- 启动时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，RTX A6000）
+- GPU 环境：`/DATA/DATA4/hfy/envs/anyv2v-cu118`；控制环境：`/DATA/DATA4/hfy/envs/w1-control`
+
+**实验 ID**
+
+- `E0-anyv2v-w1-v01`
+
+**目标**
+
+- 对全量 50 候选执行真实 AnyV2V 生成，先单候选复验 dict_file 首帧编辑路径，再批量恒等续跑，最终 `w1 verify --expected 50` 达到 50/50。
+
+**环境与输入**
+
+- Git commit / 代码版本：`4a46a8c`（`Drive edit_image via dict_file path (non-patch fix)`）
+- 全量计划：`/DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/plan.json`（10 inversions / 50 candidates，`code_snapshot=4a46a8c…`）
+- 数据 split：DAVIS-2017 train，10 输入 × 5 seeds（101/202/303/404/505）
+- 模型/checkpoint：与 smoke 一致（i2vgen-xl `39e1979e…`、instruct-pix2pix `31519b5c…`、AnyV2V `e23629bd…`）
+- 协议：512×512 / 16 帧 / 8 fps，inversion 500 / PnP 50 / CFG 9
+
+**命令或关键配置**
+
+```text
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+w1 run --backend anyv2v \
+  --plan /DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/plan.json \
+  --experiment-dir /DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01 \
+  --cache /DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/cache.sqlite3 \
+  --anyv2v-root /DATA/DATA4/hfy/external/AnyV2V \
+  --python-executable /DATA/DATA4/hfy/envs/anyv2v-cu118/bin/python
+```
+
+- 先以重建后的 `smoke-plan.json` 在 run-b 复用 inversion 做单候选 dict_file 复验（约 80s），确认无 `NameError`。
+- 复验通过后，对 50 候选批量按同一命令恒等续跑；中断后重跑同一命令，cache 跳过 succeeded、共享 inversion 复用、失败项自动重试。
+
+**结果**
+
+- 待执行。
+
+**观察与结论**
+
+- 无。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 单候选 dict_file 复验（run-b 复用 inversion）。
+2. 50 候选批量，`verify --expected 50`，然后 mock reward + report。
+
 ### 2026-08-17｜非补丁式重构：adapter 改用 dict_file 调用官方 edit_image.py
 
 **状态：DONE**
