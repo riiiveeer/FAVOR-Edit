@@ -60,6 +60,41 @@
 
 ## 每日记录
 
+### 2026-08-17｜dict_file 路径单候选真实 GPU 复验通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，RTX A6000）
+
+**实验 ID**
+
+- `E0-anyv2v-smoke-v01`（run-c 复验）
+
+**行动与关键配置**
+
+- 重构后以重建的 `smoke-plan.json`（`code_snapshot=4a46a8c…`）在全新 `run-c` 目录跑单候选 `bear-white-s101`，验证 adapter 新 `--dict_file` 路径。
+
+**结果**
+
+- `completed: 1/1 succeeded; cache hits: 1`，`status=succeeded`、`frames=16`、`error=None`。
+- `code_snapshot=4a46a8c1127cf8b32628e4aa6db85a6dc5677ccf`、`anyv2v_commit=e23629bd…`，与重建计划一致。
+- 证明非补丁 dict_file 首帧编辑路径在真实链路有效，外部 AnyV2V 无需任何补丁。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/run-c/candidates.json`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 启动 `E0-anyv2v-w1-v01` 50 候选批量。
+
 ### 2026-08-17｜E0-anyv2v-w1-v01 50 候选批量启动记录
 
 **状态：RUNNING**
