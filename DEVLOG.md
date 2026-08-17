@@ -60,6 +60,43 @@
 
 ## 每日记录
 
+### 2026-08-17｜修复官方 AnyV2V edit_image.py 的 video_filename 未定义
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+
+**步骤 ID**
+
+- `SERVER-anyv2v-editimage-fix-v01`
+
+**行动与关键配置**
+
+- run-a 在 inversion 完成后、调用官方 `edit_image.py` 时于第 145 行触发 `NameError: name 'video_filename' is not defined`，随后 `completed: 0/1 succeeded`。
+- 根因：`edit_image.py` 的 `__main__` 非 dict_file 分支中，`video_filename` 只在 `args.output_dir is None` 时定义；本 adapter 显式传入 `--output_dir`，走 `else` 分支后 `video_filename` 未定义，却被无条件 `print` 引用。
+- 最小修复：在非 dict_file 分支无条件先 `video_filename = os.path.basename(video_path)`，保持其余行为不变。
+
+**结果**
+
+- 修复后 `python -m py_compile edit_image.py` 通过。
+- AnyV2V 本地 HEAD 仍为 `e23629bde607183b8e7afd9a853d6e5ec756b8d9`（未提交，working tree 含 `edit_image.py` 修改与软链目录），`_checkout()` 的 commit 校验不受影响。
+- run-a 的 inversion latents 完整（`t=999` 已保存），重跑将复用 inversion，仅重跑首帧编辑与 PnP。
+
+**产物路径**
+
+- 修复文件：`/DATA/DATA4/hfy/external/AnyV2V/edit_image.py`
+
+**问题 / 失败**
+
+- 官方脚本在「显式传 output_dir」路径存在遗留 debug 打印 bug，首次真实链路运行才暴露（本地 mock 不覆盖）。
+
+**下一步**
+
+1. 重跑 run-a（复用 inversion），随后 run-b，再 `w1 verify --compare`。
+
 ### 2026-08-17｜E0-anyv2v-smoke-v01 启动记录（真实 GPU 双重复门）
 
 **状态：RUNNING**
