@@ -60,6 +60,71 @@
 
 ## 每日记录
 
+### 2026-08-17｜E0-anyv2v-smoke-v01 启动记录（真实 GPU 双重复门）
+
+**状态：RUNNING**
+
+**时间与环境**
+
+- 启动时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，RTX A6000）
+- GPU 环境：`/DATA/DATA4/hfy/envs/anyv2v-cu118`（torch 2.1.2+cu118，CUDA 11.8）
+- 控制环境：`/DATA/DATA4/hfy/envs/w1-control`
+
+**实验 ID**
+
+- `E0-anyv2v-smoke-v01`
+
+**目标**
+
+- 对单候选 `bear-white-s101` 执行两次独立真实 AnyV2V 生成，逐帧比较 16 帧 SHA-256，作为 50 候选批量（`E0-anyv2v-w1-v01`）的复现放行门。
+
+**环境与输入**
+
+- Git commit / 代码版本：`90a4c93`（`Record W1 candidate and smoke plan generation`）
+- smoke 计划：`/DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/smoke-plan.json`（`inv-bear-white` + `bear-white-s101`）
+- 模型与 checkpoint：
+  - I2VGen-XL：`ali-vilab/i2vgen-xl` revision `39e1979ea27be737b0278c06755e321f2b4360d5`（fp16）
+  - InstructPix2Pix：`timbrooks/instruct-pix2pix` revision `31519b5cb02a7fd89b906d88731cd4d6a7bbf88d`
+  - AnyV2V：本地固化 HEAD `e23629bde607183b8e7afd9a853d6e5ec756b8d9`（计划内 `anyv2v_commit`）
+- 数据 split / 样本数：DAVIS-2017 train，样本 `bear-white`，seed `101`
+- 随机种子：`101`
+
+**命令或关键配置**
+
+- 推理协议：512×512、16 帧、8 fps；DDIM inversion 500 步、PnP 50 步、CFG 9、`ddim_init_latents_t_idx=0`。
+- 离线开关：`HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`（模型经 AnyV2V 源码内软链解析）。
+
+```text
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+w1 run --backend anyv2v \
+  --plan /DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/smoke-plan.json \
+  --experiment-dir /DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/run-a \
+  --cache /DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/run-a/cache.sqlite3 \
+  --anyv2v-root /DATA/DATA4/hfy/external/AnyV2V \
+  --python-executable /DATA/DATA4/hfy/envs/anyv2v-cu118/bin/python
+```
+
+- run-b 使用独立 `--experiment-dir .../run-b` 与 `--cache .../run-b/cache.sqlite3`，其余参数相同。
+- 校验：`w1 verify --expected 1 --candidates run-a/candidates.json --compare run-b/candidates.json`。
+
+**结果**
+
+- 待执行。
+
+**观察与结论**
+
+- 无。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 依次执行 run-a、run-b。
+2. 对两次结果执行 `verify --compare`；逐帧一致（`reproducible=true`）即放行，否则如实记录并评估处理。
+
 ### 2026-08-17｜W1 候选计划与单候选 smoke 计划生成
 
 **状态：DONE**
