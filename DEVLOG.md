@@ -60,6 +60,52 @@
 
 ## 每日记录
 
+### 2026-08-17｜W1 候选计划与单候选 smoke 计划生成
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+- 控制环境：`/DATA/DATA4/hfy/envs/w1-control`
+
+**实验 ID**
+
+- `E0-anyv2v-plan-v01`
+
+**行动与关键配置**
+
+- 复核 AnyV2V 本地固化 HEAD = `e23629bde607183b8e7afd9a853d6e5ec756b8d9`，仓库 FAVOR-Edit HEAD = `8bd8657`（clean）。
+- 执行 `w1 plan --backend anyv2v`，`--model-commit 39e1979ea27be737b0278c06755e321f2b4360d5`（I2VGen-XL revision）、`--anyv2v-commit e23629bde607183b8e7afd9a853d6e5ec756b8d9`。
+- 执行 `scripts/make_smoke_plan.py` 生成单候选 smoke plan。
+
+**结果**
+
+- 全量计划：`planned 10 inversions and 50 candidates`。
+- 单候选 smoke plan：1 个 inversion `inv-bear-white` + 1 个 candidate `bear-white-s101`。
+- 计划内 `code_snapshot=8bd8657667f417da20cc43ac71bb65dc82493cfa`（无 `-dirty`）。
+- 计划内 `config.anyv2v_commit=e23629bde607183b8e7afd9a853d6e5ec756b8d9`、`config.model_commit=39e1979ea27be737b0278c06755e321f2b4360d5`。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/plan.json`（50 candidates）
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/smoke-plan.json`（1 candidate）
+
+**观察与结论**
+
+- 计划阶段完成，40 字符 commit 校验通过，smoke 候选固定为 `bear-white-s101`（seed 101）。
+- 产物按实验 ID 独立目录分布，与 AGENTS.md 的“不可覆盖/唯一目录”约定一致。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 按 AGENTS.md 在启动真实 GPU 前追加 `E0-anyv2v-smoke-v01` 的完整命令与资源估计记录。
+2. 两个独立目录各跑一次单候选 smoke，逐帧校验 16 帧 SHA-256，通过后进入 `E0-anyv2v-w1-v01`。
+
 ### 2026-08-17｜服务器 DAVIS 预处理与 W1 清单校验
 
 **状态：DONE**
