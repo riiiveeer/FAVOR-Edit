@@ -60,6 +60,235 @@
 
 ## 每日记录
 
+### 2026-08-13｜DAVIS-2017 数据下载与选择性解压
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-13 21:51（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+
+**步骤 ID**
+
+- `SERVER-davis-v01`
+
+**行动与关键配置**
+
+- 源：官方 ETH `https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-trainval-480p.zip`（832,766,765 字节）。
+- 下载经 `curl -C -` 断点续传（脚本 `scripts/prepare_davis.sh`）。
+- 排障：zip 内部有顶层目录 `DAVIS/`，首次解压通配缺少该前缀致 0 文件；改用 `scripts/extract_davis.sh` 按 `DAVIS/JPEGImages/480p/<seq>/*` 与 `DAVIS/Annotations/480p/<seq>/*` 正确解压。
+
+**结果**
+
+- 10 条序列逐序列帧/掩码数一致（均 ≥48，满足预处理要求）：
+
+| seq | frames | masks |
+| --- | --- | --- |
+| bear | 82 | 82 |
+| bus | 80 | 80 |
+| elephant | 80 | 80 |
+| classic-car | 63 | 63 |
+| dog-gooses | 86 | 86 |
+| horsejump-low | 60 | 60 |
+| mallard-water | 80 | 80 |
+| hike | 80 | 80 |
+| scooter-gray | 75 | 75 |
+| drift-turn | 64 | 64 |
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/data/DAVIS/JPEGImages/480p/<seq>`
+- `/DATA/DATA4/hfy/data/DAVIS/Annotations/480p/<seq>`
+- `/DATA/DATA4/hfy/data/DAVIS-2017-trainval-480p.zip`
+
+**下一步**
+
+1. 服务器跑 `w1 prepare --davis-root /DATA/DATA4/hfy/data/DAVIS`，再 `w1 validate --prepared`。
+2. 通过后生成 50 候选计划与单候选 smoke 计划，进入 `E0-anyv2v-smoke-v01`。
+
+### 2026-08-13｜模型离线软链与调度器加载自检
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-13 19:08（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+
+**步骤 ID**
+
+- `SERVER-model-symlink-v01`
+
+**行动与关键配置**
+
+- 在 AnyV2V 源码中建立模型相对 ID 的软链：
+  - `AnyV2V/i2vgen-xl/ali-vilab/i2vgen-xl -> /DATA/DATA4/hfy/models/i2vgen-xl`
+  - `AnyV2V/timbrooks/instruct-pix2pix -> /DATA/DATA4/hfy/models/instruct-pix2pix`
+- 设 `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`，用 GPU 环境只加载调度器配置（不加载完整权重）验证相对路径解析：
+  - `DDIMScheduler.from_pretrained("ali-vilab/i2vgen-xl", subfolder="scheduler", local_files_only=True)` → OK
+  - `EulerAncestralDiscreteScheduler.from_pretrained("timbrooks/instruct-pix2pix", subfolder="scheduler", local_files_only=True)` → OK
+
+**结果**
+
+- 两模型 `model_index.json` 经软链可解析；离线开关下无网络请求即成功，证明本地 snapshot 完整。
+
+**产物路径**
+
+- 软链：`/DATA/DATA4/hfy/external/AnyV2V/i2vgen-xl/ali-vilab/i2vgen-xl`、`/DATA/DATA4/hfy/external/AnyV2V/timbrooks/instruct-pix2pix`
+
+**下一步**
+
+1. 准备 10 条 DAVIS 序列并在服务器重跑 `w1 prepare`。
+2. 完成后进入 `E0-anyv2v-smoke-v01` 单候选真实 GPU 复现门。
+
+### 2026-08-13｜两个模型 snapshot 下载完成（经 hf-mirror）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-13 19:07（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+
+**步骤 ID**
+
+- `SERVER-models-v01`
+
+**行动与关键配置**
+
+- `ali-vilab/i2vgen-xl`（revision `39e1979ea27be737b0278c06755e321f2b4360d5`）：按 `variant="fp16"` 下载 fp16 safetensors 五组件 + scheduler/tokenizer/feature_extractor/config，完整 4.7G。
+- `timbrooks/instruct-pix2pix`（revision `31519b5cb02a7fd89b906d88731cd4d6a7bbf88d`）：标准 Diffusers snapshot（safety_checker=None 时不加载），text_encoder 492M / vae 335M / unet 3.44G，完整 4.0G。
+- 关键排障：`huggingface_hub 0.20.3` 在 **import 时**捕获 `HF_HOME`/`HF_HUB_CACHE`/`HF_ENDPOINT`，必须把这些环境变量放在 `import huggingface_hub` **之前**设置，并指向 `https://hf-mirror.com` 与 `/DATA/DATA4/hfy/caches/hf`，否则缓存落满根盘 `/`（0 字节可用）且端点落到被墙的 `huggingface.co`。
+- 最终改用 `curl -C -` 断点续传 + `.part` 原子改名（脚本 `scripts/download_missing.sh`），`setsid nohup` 后台防杀，直接写入 DATA4 目标路径，跳过 byte 级校验已完成的文件。
+
+**结果**
+
+- 两模型 `model_index.json` 齐全；i2vgen-xl 4.7G、instruct-pix2pix 4.0G。
+- 所有大权重字节数与 hf-mirror 返回的 `content-length` 一致。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/models/i2vgen-xl`
+- `/DATA/DATA4/hfy/models/instruct-pix2pix`
+- 下载脚本：`/DATA/DATA4/hfy/scripts/download_models.py`、`download_missing.sh`、`download_models_curl.sh`
+
+**下一步**
+
+1. 在 `AnyV2V/i2vgen-xl/ali-vilab/i2vgen-xl` 与 `AnyV2V/timbrooks/instruct-pix2pix` 建软链并设 `HF_HUB_OFFLINE=1` 做只加载配置的自检。
+2. 准备 10 条 DAVIS 数据并在服务器重跑 `w1 prepare`。
+
+### 2026-08-13｜AnyV2V 源码固化（GitHub git 对象传输被限流，改用 codeload 快照）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-13 13:20（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器
+
+**步骤 ID**
+
+- `SERVER-anyv2v-source-v01`
+
+**行动与关键配置**
+
+- 尝试 `git clone https://github.com/TIGER-AI-Lab/AnyV2V.git` 多次失败：`GnuTLS recv error (-110)`、`Operation too slow`（git 智能 HTTP 对象传输到 github.com 被限流，停在约 112KB）。
+- 改用 `codeload.github.com` 下载精确 commit tarball：`https://codeload.github.com/TIGER-AI-Lab/AnyV2V/tar.gz/bc540befacafddb9689ee86a396e7738bfed0e4f`（91MB）。
+- 解压到 `/DATA/DATA4/hfy/external/AnyV2V`，`git init` + 全量 commit 生成本地可定位 HEAD，变成本地可 `git rev-parse HEAD` 的可追溯快照。
+- 已确认关键入口存在：`edit_image.py`、`i2vgen-xl/run_group_ddim_inversion.py`、`i2vgen-xl/run_group_pnp_edit.py`。
+
+**结果**
+
+- upstream 精确 commit：`bc540befacafddb9689ee86a396e7738bfed0e4f`（2024-10-29）。
+- 本地固化 HEAD：`e23629bde607183b8e7afd9a853d6e5ec756b8d9`，`git status` clean。
+- 模型加载方式确认：
+  - I2VGen-XL：`I2VGenXLPipeline.from_pretrained("ali-vilab/i2vgen-xl", torch_dtype=fp16, variant="fp16")` + `DDIM( Inverse)Scheduler.from_pretrained(..., subfolder="scheduler")` → 需要 fp16 variant 权重 + `scheduler` 子目录。
+  - InstructPix2Pix：`StableDiffusionInstructPix2PixPipeline.from_pretrained("timbrooks/instruct-pix2pix", safety_checker=None)` → 标准 Diffusers snapshot。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/external/AnyV2V`（源码快照 + 本地 git）
+- 下载缓存 `/DATA/DATA4/hfy/external/anyv2v.tar.gz`
+
+**下一步**
+
+1. 经 hf-mirror 下载 `ali-vilab/i2vgen-xl`（含 fp16 variant）与 `timbrooks/instruct-pix2pix` 两个 Diffusers snapshot。
+2. 建 `AnyV2V/i2vgen-xl/ali-vilab/i2vgen-xl` 与 `AnyV2V/timbrooks/instruct-pix2pix` 软链，设离线开关验证加载。
+
+### 2026-08-13｜服务器两个 conda 环境建立（控制 + AnyV2V GPU）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-13 12:22（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，6×RTX A6000）
+- 网络：走清华 PyPI 镜像 + 官方 `download.pytorch.org/whl/cu118`
+
+**步骤 ID**
+
+- `SERVER-envs-v01`
+
+**行动与关键配置**
+
+- 控制环境 `/DATA/DATA4/hfy/envs/w1-control`（Python 3.11）：安装 pydantic 2.13.4、typer、pyyaml、imageio/imageio-ffmpeg、pillow、numpy、pytest 8.4.2、hatchling；`pip install --no-deps -e ~/FAVOR-Edit`。`pytest` 18/18 通过，`w1` 全部命令可见。
+- GPU 环境 `/DATA/DATA4/hfy/envs/anyv2v-cu118`（Python 3.9.25）：`torch==2.1.2+cu118`、`torchvision==0.16.2+cu118`，再固定 `diffusers==0.26.3`、`transformers==4.37.2`、`accelerate==0.27.2`、`huggingface_hub==0.20.3`、numpy 1.26.4、omegaconf、opencv-python-headless、moviepy 1.0.3、imageio/imageio-ffmpeg、safetensors。
+- 关键排障：首次 torch 安装报 `[Errno 28] No space left on device`，根因是 pip 仍用已满根盘 `/tmp` 作下载暂存；设置 `TMPDIR=/DATA/DATA4/hfy/tmp` 后重装成功。torch 2.1.2 又被 pip 拉到 numpy 2.0.2 触发 NumPy 1.x ABI 报错，再降级 `numpy<2`(1.26.4) 解决。
+- 全程设置 `CONDA_PKGS_DIRS` 与 `PIP_CACHE_DIR` 指向 DATA4，避免写满根盘。
+
+**结果**
+
+- GPU 环境自检：`torch 2.1.2+cu118 cuda 11.8 avail True`、`diffusers 0.26.3`、`transformers 4.37.2`、`accelerate 0.27.2`、`hf_hub 0.20.3`、`cv2 4.11.0`、`GPU NVIDIA RTX A6000`。
+- 控制环境 `w1` 命令与 18 项测试全部可用。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/envs/w1-control`
+- `/DATA/DATA4/hfy/envs/anyv2v-cu118`
+- 缓存：`/DATA/DATA4/hfy/caches/{conda-pkgs,pip}`、临时目录 `/DATA/DATA4/hfy/tmp`
+
+**下一步**
+
+1. 克隆官方 AnyV2V 并记录 40 位 HEAD SHA 作为 pinned commit。
+2. 经 hf-mirror 下载 `ali-vilab/i2vgen-xl` 与 `timbrooks/instruct-pix2pix` 两个 Diffusers snapshot，建离线软链。
+
+### 2026-08-13｜学校服务器工作区建立（改用 DATA4）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-13 12:04（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（Ubuntu 20.04.6，6×RTX A6000，192 核，503GB）
+- 主机：`ps`
+
+**步骤 ID**
+
+- `SERVER-workspace-setup-v01`
+
+**行动与关键配置**
+
+- 先探测全部大容量盘健康度，发现 `/DATA/DATA2`（`/dev/sdf`）出现硬件 I/O 错误：`dmesg` 报 `blk_update_request: I/O error`、`lost sync page write`、`EXT4-fs error while writing superblock`，`ls /DATA/DATA2` 返回 `Input/output error`，不可用。
+- 原计划使用 DATA2，经确认改为使用健康且可写的 `/DATA/DATA4`。
+- 建立工作区 `/DATA/DATA4/hfy/` 及子目录 `w1-workspace models envs data/DAVIS caches/conda-pkgs caches/pip`。
+- 命令：`mkdir -p` 各子目录；`touch .wtest` 写测试；`df -h /DATA/DATA4`。
+
+**结果**
+
+- 工作区目录创建成功，写测试通过；`/DATA/DATA4` 剩余 761G（95% 已用，总体健康可写）。
+- 根盘 `/` 仍满（2.8G free），按用户指示暂不删除 home 下大文件，所有工程数据均放 DATA4。
+- 网络结论：GitHub、PyPI、download.pytorch.org、hf-mirror.com、modelscope.cn 可达；huggingface.co DNS 被阻断。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/`（含 `w1-workspace models envs data/DAVIS caches/conda-pkgs caches/pip`）
+
+**下一步**
+
+1. 创建控制环境与 AnyV2V GPU conda 环境（放 `/DATA/DATA4/hfy/envs`），缓存目录指向 DATA4。
+2. 克隆并 pin AnyV2V，经 hf-mirror 下载两个模型 snapshot。
+
 ### 2026-08-12｜学校服务器离线交付手册与辅助工具验收
 
 **状态：DONE**
