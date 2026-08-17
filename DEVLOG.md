@@ -60,6 +60,127 @@
 
 ## 每日记录
 
+### 2026-08-17｜服务器 DAVIS 预处理与 W1 清单校验
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+- 控制环境：`/DATA/DATA4/hfy/envs/w1-control`（`w1` v0.1.0，editable 指向 `/home/sunyinan/FAVOR-Edit/src`）
+
+**步骤 ID**
+
+- `SERVER-w1-prepare-v01`
+
+**行动与关键配置**
+
+- 提交未提交的 08-13 服务器记录（`cf3409d`），确认 `w1_pipeline` 经 editable install 解析到 `/home/sunyinan/FAVOR-Edit/src/w1_pipeline`。
+- 执行 `w1 prepare --davis-root /DATA/DATA4/hfy/data/DAVIS --output-dir /DATA/DATA4/hfy/w1-workspace/prepared/w1`。
+- 执行 `w1 validate --prepared /DATA/DATA4/hfy/w1-workspace/prepared/w1/manifest.json`。
+
+**结果**
+
+- `prepare` → 10 inputs；`validate` → `source manifest valid: 10 inputs, 5 seeds`、`prepared manifest valid: 10 inputs`。
+- 每输入 16 帧 PNG + 16 mask PNG + 1 个 `source.mp4`；全部帧/mask/video 逐样本对齐一致。
+- 媒体协议复检：10 个输入首帧均为 512×512，`source.mp4` 均为 8 fps。
+
+| sample_id | frames | masks | video | size | fps |
+| --- | --- | --- | --- | --- | --- |
+| bear-white | 16 | 16 | 1 | 512×512 | 8 |
+| bus-red | 16 | 16 | 1 | 512×512 | 8 |
+| elephant-pink | 16 | 16 | 1 | 512×512 | 8 |
+| classic-car-blue | 16 | 16 | 1 | 512×512 | 8 |
+| dog-tiger | 16 | 16 | 1 | 512×512 | 8 |
+| horse-zebra | 16 | 16 | 1 | 512×512 | 8 |
+| mallard-swan | 16 | 16 | 1 | 512×512 | 8 |
+| hiker-backpack | 16 | 16 | 1 | 512×512 | 8 |
+| rider-helmet | 16 | 16 | 1 | 512×512 | 8 |
+| car-headlights | 16 | 16 | 1 | 512×512 | 8 |
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/w1-workspace/prepared/w1/`（10 个 sample 目录 + `manifest.json`）
+
+**观察与结论**
+
+- 数据预处理链路在服务器上首次真实通过，10 输入全部符合 W1 协议（16 帧/512×512/8fps + checksum）。
+- 前置障碍已清除，可进入真实 AnyV2V 计划与 smoke。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 生成 50 候选全量计划（`w1 plan --backend anyv2v`，填入真实 AnyV2V/model commit）。
+2. 用 `scripts/make_smoke_plan.py` 生成单候选 smoke plan。
+3. 执行 `E0-anyv2v-smoke-v01` 双重复逐帧复现门。
+
+### 2026-08-17｜E0-anyv2v-smoke-v01 真实 GPU smoke 前置记录
+
+**状态：RUNNING（前置记录；smoke 尚未执行）**
+
+**时间与环境**
+
+- 记录时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，6×RTX A6000）
+
+**实验 ID**
+
+- `E0-anyv2v-smoke-v01`
+
+**目标**
+
+- 在真实 AnyV2V（I2VGen-XL inversion + InstructPix2Pix + PnP）链路上跑通单候选，并用两次独立运行的 16 帧逐帧 SHA-256 校验复现性，作为 50 候选批量（`E0-anyv2v-w1-v01`）的放行门。
+
+**环境与输入**
+
+- Git commit / 代码版本：`cf3409d`（`Record A6000 env setup, model download, AnyV2V pin and DAVIS prep`）
+- 模型与 checkpoint：
+  - I2VGen-XL：`ali-vilab/i2vgen-xl`，revision `39e1979ea27be737b0278c06755e321f2b4360d5`（fp16 variant，4.7G）
+  - InstructPix2Pix：`timbrooks/instruct-pix2pix`，revision `31519b5cb02a7fd89b906d88731cd4d6a7bbf88d`（4.0G）
+  - AnyV2V：upstream `bc540befacafddb9689ee86a396e7738bfed0e4f`，本地固化 HEAD `e23629bde607183b8e7afd9a853d6e5ec756b8d9`
+- 数据 split / 样本数：DAVIS-2017 train，10 输入，种子 `101/202/303/404/505`（smoke 仅取 1 个单候选）
+- GPU / CUDA：RTX A6000，CUDA 11.8（env `anyv2v-cu118`，torch 2.1.2+cu118）
+- 随机种子：smoke 候选沿用计划内固定 seed
+
+**命令或关键配置**
+
+- 本步骤不执行 smoke 推理；仅记录即将使用的真实推理配置与前序 prepare 依赖。
+- 推理协议：512×512、16 帧、8 fps；DDIM inversion 500 步、PnP 50 步、CFG 9。
+- 离线开关：`HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`；模型经 AnyV2V 源码内软链解析。
+- 预期 smoke 命令（prepare/plan 完成后执行）：
+
+```text
+w1 run --backend anyv2v --plan <smoke-plan> \
+  --experiment-dir /DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/run-a \
+  --cache /DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/run-a/cache.sqlite3 \
+  --anyv2v-root /DATA/DATA4/hfy/external/AnyV2V \
+  --python-executable /DATA/DATA4/hfy/envs/anyv2v-cu118/bin/python
+```
+
+- 产物目录：`/DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/`（唯一，不可覆盖）
+
+**结果**
+
+- 待执行；前置依赖为 `w1 prepare` + `w1 validate`（10 输入）通过后生成单候选 smoke plan。
+
+**观察与结论**
+
+- 无（尚未执行推理）。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 服务器执行 `w1 prepare`（`--davis-root /DATA/DATA4/hfy/data/DAVIS`）并 `w1 validate --prepared`。
+2. 生成 50 候选全量计划与单候选 smoke plan。
+3. 两次独立运行单候选，逐帧校验 16 帧 SHA-256，再进入 `E0-anyv2v-w1-v01`。
+
 ### 2026-08-13｜DAVIS-2017 数据下载与选择性解压
 
 **状态：DONE**
