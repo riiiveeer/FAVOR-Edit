@@ -174,25 +174,41 @@ class AnyV2VBackend(GenerationBackend):
             )
             if not latent_dir.is_dir() or not any(latent_dir.iterdir()):
                 raise RuntimeError("AnyV2V inversion command completed without latent artifacts")
-        edited_first_frame = work_dir / "edited_first_frame" / f"seed-{config.seed}.png"
-        edited_first_frame.parent.mkdir()
+        edited_first_frame_dir = work_dir / "edited_first_frame"
+        edited_first_frame_dir.mkdir(parents=True, exist_ok=True)
 
-        commands = [
+        # Drive the official edit_image.py via its --dict_file path. That path
+        # assigns prompt=instruction for the instructpix2pix model and writes
+        # output to <output_dir>/<instruction>.png without the video_filename
+        # debug-print bug in the --video_path/--output_dir path, so no patch to
+        # the external AnyV2V source is needed.
+        edit_dict = {
+            f"{record.sample_id}.mp4": [
+                {
+                    "image_model": "instructpix2pix",
+                    "instruction": record.instruction,
+                    "target_caption": record.target_caption,
+                }
+            ]
+        }
+        edit_dict_path = work_dir / "edit-dict.json"
+        edit_dict_path.write_text(json.dumps(edit_dict, indent=2), encoding="utf-8")
+
+        subprocess.run(
             [
                 self.python,
                 str(self.root / "edit_image.py"),
                 "--model", "instructpix2pix",
-                "--video_path", str(source_video),
-                "--output_dir", str(edited_first_frame.parent),
-                "--prompt", record.instruction,
+                "--input_dir", str(demo_dir),
+                "--output_dir", str(edited_first_frame_dir),
+                "--dict_file", str(edit_dict_path),
                 "--seed", str(config.seed),
                 "--force_512",
-            ]
-        ]
-        # The official edit script names the result after the prompt.
-        generated_first_frame = edited_first_frame.parent / f"{record.instruction}.png"
-        for command in commands:
-            subprocess.run(command, cwd=self.root, check=True)
+            ],
+            cwd=self.root, check=True,
+        )
+        # The official edit script names the result after the prompt (instruction).
+        generated_first_frame = edited_first_frame_dir / f"{record.instruction}.png"
         if not generated_first_frame.is_file():
             raise RuntimeError(f"edited first frame was not produced: {generated_first_frame}")
 

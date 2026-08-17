@@ -60,6 +60,47 @@
 
 ## 每日记录
 
+### 2026-08-17｜非补丁式重构：adapter 改用 dict_file 调用官方 edit_image.py
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+
+**步骤 ID**
+
+- `SERVER-anyv2v-dictfile-refactor-v01`
+
+**行动与关键配置**
+
+- 将第 3 步对官方 `AnyV2V/edit_image.py` 的补丁式修复改为非补丁方案：adapter 不再走有 bug 的 `--video_path/--output_dir` 路径，改用官方正常的 `--dict_file` 路径。
+- 在 `src/w1_pipeline/backends.py` 生成 `edit-dict.json`：
+  `{ "<sample_id>.mp4": [ {"image_model": "instructpix2pix", "instruction": <instruction>, "target_caption": <target_caption>} ] }`，
+  并以 `--input_dir <demo_dir> --output_dir <edited_first_frame_dir> --dict_file <edit-dict.json> --seed <seed> --force_512` 调用。
+- 回滚外部补丁：`git -C .../AnyV2V checkout -- edit_image.py`，恢复 pinned commit `e23629bd` 纯净（仅剩软链目录 untracked）。
+- 新增回归测试 `test_edit_image_driven_via_dict_file_path`，断言 adapter 使用 `--dict_file` / `--input_dir` / `"image_model": "instructpix2pix"`。
+
+**结果**
+
+- `pytest` 19/19 通过。
+- 官方输出文件名仍为 `<output_dir>/<instruction>.png`（dict_file 路径 prompt=instruction），与 adapter 下游 `generated_first_frame` 期望一致，PnP 无需改动。
+
+**产物路径**
+
+- 修复文件：`src/w1_pipeline/backends.py`
+- 回归测试：`tests/test_anyv2v_adapter.py`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 用新的 dict_file 路径对单候选做一次真实 GPU 快速复验（复用已算 inversion 亦可，或 run-c 全链路）。
+2. 复验通过后启动 `E0-anyv2v-w1-v01` 50 候选批量。
+
 ### 2026-08-17｜E0-anyv2v-smoke-v01 双重复逐帧门通过
 
 **状态：DONE**
