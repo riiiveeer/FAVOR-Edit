@@ -60,6 +60,55 @@
 
 ## 每日记录
 
+### 2026-08-17｜E0-anyv2v-smoke-v01 双重复逐帧门通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，RTX A6000）
+- GPU 环境：`/DATA/DATA4/hfy/envs/anyv2v-cu118`；控制环境：`/DATA/DATA4/hfy/envs/w1-control`
+
+**实验 ID**
+
+- `E0-anyv2v-smoke-v01`
+
+**行动与关键配置**
+
+- 先修复官方 `AnyV2V/edit_image.py` 的 `video_filename` 未定义（见上一条记录），AnyV2V HEAD 保持 `e23629bd` 未变。
+- run-a 复用已完成的 500 步 inversion latents，重跑首帧编辑 + PnP；run-b 在全新目录/缓存从头完整生成（inversion + edit + PnP）。
+- 命令与前置记录一致：`--backend anyv2v`，离线开关 `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`，512×512/16帧/8fps、inversion 500 / PnP 50 / CFG 9，seed 101。
+
+**结果**
+
+- run-a：`completed: 1/1 succeeded`，`runtime_seconds=81.5`（复用 inversion）。
+- run-b：`completed: 1/1 succeeded`，`runtime_seconds=289.5`（全链路，含 inversion）。
+- 逐帧复现校验（`w1 verify --expected 1 --compare`）：
+  ```json
+  {"valid": true, "count": 1, "errors": {}, "reproducible": true}
+  ```
+- 两次 16 帧 SHA-256 完全一致 ⇒ 单候选真实 AnyV2V 复现门通过。
+
+**观察与结论**
+
+- `peak_vram_mb=0.0` 为 `_peak_vram_mb()` 在测量时刻未捕获到进程（`nvidia-smi --query-compute-apps` 无输出）的占位值，非真实峰值；后续批量作业应在推理进行中采样记录峰值显存。
+- 首次真实链路已跑通，AnyV2V 双模型加载、离线软链解析、invert/edit/PnP 产物采集与逐帧校验全部验证，具备进入 50 候选批量的条件。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/run-a/candidates.json`
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-smoke-v01/run-b/candidates.json`
+
+**问题 / 失败**
+
+- 无（edit_image.py 修复已单独记录）。
+
+**下一步**
+
+1. 进入 `E0-anyv2v-w1-v01`：对全量 50 候选逐个生成（复用共享 inversion，每 seed 一次首帧编辑 + PnP），断点续跑。
+2. 完成后 `w1 verify --expected 50`（不需 compare），并跑 mock reward + report。
+
 ### 2026-08-17｜修复官方 AnyV2V edit_image.py 的 video_filename 未定义
 
 **状态：DONE**
