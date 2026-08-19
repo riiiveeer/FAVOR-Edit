@@ -60,6 +60,75 @@
 
 ## 每日记录
 
+### 2026-08-19｜同步后本地回归验证
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-19 13:31:42 +08:00
+- 执行位置：本地 `D:\lab idea`；Python 3.11 控制环境
+
+**实验 ID**
+
+- `SYNC-school-results-regression-v01`
+
+**行动与关键配置**
+
+- 对同步后的 commit `7c6d851` 执行 `uv run pytest` 和 `git diff --check`。
+- 回归覆盖数据协议、缓存/断点续跑、AnyV2V dict_file adapter、reward/verify/report 与离线交付辅助工具。
+
+**结果**
+
+- 19/19 测试通过，耗时 18.53 秒。
+- `git diff --check` 无错误；当前仅本次新增 DEVLOG 记录尚未提交。
+- 服务器端 `dict_file` 适配修复未破坏本地控制链路。
+
+**产物路径**
+
+- 测试目录：`D:\lab idea\tests`
+- 同步代码：`D:\lab idea\src\w1_pipeline\backends.py`
+
+**下一步**
+
+1. 汇总 W1 当前完成度与遗留风险。
+2. 从学校服务器同步真实候选媒体、`cache.sqlite3`、运行日志和报告到本地归档；Git 中当前仅有代码和文字记录，没有大体积真实产物。
+
+### 2026-08-19｜同步学校服务器提交到本地
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-19 13:30:12 +08:00
+- 执行位置：本地 `D:\lab idea`；通过 GitHub `origin/main` 同步
+
+**实验 ID**
+
+- `SYNC-school-results-v01`
+
+**行动与关键配置**
+
+- 执行 `git fetch --prune origin`，确认远端比本地领先 12 个提交。
+- 执行 `git pull --ff-only origin main`，从 `0e0c02a` fast-forward 到 `7c6d851`。
+- 同步内容包括远程 A6000 环境准备、DAVIS 处理、真实双 smoke、AnyV2V 适配修复、50 候选批任务及完成记录。
+- 同时只读探测三个学校 SSH alias，均在 banner 阶段超时，未直接读取服务器文件。
+
+**结果**
+
+- 本地 `main` 已同步到 `7c6d8513119390f1ec7bc84999e8824d212d5201`。
+- 本次同步修改 `DEVLOG.md`、`src/w1_pipeline/backends.py` 和 `tests/test_anyv2v_adapter.py`；未覆盖本地实验产物。
+
+**产物路径**
+
+- 本地仓库：`D:\lab idea`
+- 同步基线 commit：`7c6d851`
+
+**下一步**
+
+1. 审阅新增 DEVLOG 和代码差异，核实真实 smoke、50 候选成功数、媒体校验与遗留问题。
+2. 检查远程结果是否已提交候选清单/日志摘要，必要时给出应从服务器带回的具体文件列表。
+
 ### 2026-08-19｜E0-anyv2v-w1-v01 50 候选批量完成与验收
 
 **状态：DONE**
