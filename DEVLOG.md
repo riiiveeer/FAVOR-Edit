@@ -60,6 +60,38 @@
 
 ## 每日记录
 
+### 2026-08-19｜E0-anyv2v-w1-v01 50 候选批量单实例重启
+
+**状态：RUNNING**
+
+**时间与环境**
+
+- 启动时间：2026-08-19 08:15（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，RTX A6000）
+
+**实验 ID**
+
+- `E0-anyv2v-w1-v01`
+
+**行动与关键配置**
+
+- 清空并发污染后，以单实例、全新 `cache.sqlite3` 重启 50 候选批量（命令同启动记录，`> /tmp/run-w1.log 2>&1 &`）。
+- 启动时确认仅 1 个 `w1 run` 进程 + 1 个 inversion 子进程（无上次双实例并发），从 `bear-white` inversion 开始。
+
+**结果**
+
+- 运行中；首个 inversion `bear-white` 正常推进（seed 8888，500 步）。
+- 暂无 `completed:` 最终行（需全部 50 候选完成后才打印）。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 等待 `completed: 50/50 succeeded`。
+2. `w1 verify --expected 50` → mock reward → report。
+
 ### 2026-08-17｜E0-anyv2v-w1-v01 并发启动排障与工作区清理
 
 **状态：DONE**
