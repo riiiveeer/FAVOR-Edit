@@ -60,6 +60,51 @@
 
 ## 每日记录
 
+### 2026-08-19｜E0-anyv2v-w1-v01 50 候选批量完成与验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-19（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`，RTX A6000）
+
+**实验 ID**
+
+- `E0-anyv2v-w1-v01`
+
+**行动与关键配置**
+
+- 单实例批量跑完：`completed: 50/50 succeeded; cache hits: 0`。
+- 依次执行 `w1 verify --expected 50`、`w1 reward --backend mock`、`w1 report`。
+
+**结果**
+
+- `verify`：`{"valid": true, "count": 50, "errors": {}}`，全部候选满足文件/校验和/16 帧/512×512/8fps。
+- `reward`：50 条 mock 记录，`research measurements: 0`（非研究测量）。
+- `report`：生成 `W1_REPORT.md`。
+- 运行统计：50/50 succeeded；候选总 runtime 206.9 min，单候选平均 248.3 s；峰值显存 22476 MB（约 22 GB，`_peak_vram_mb` 已捕获到 nvidia-smi 输出）。
+- 代码版本：`code_snapshot=4a46a8c…`（非补丁 dict_file 路径）。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/candidates.json`（50）
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/rewards.json`（50 mock）
+- `/DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/report/W1_REPORT.md`
+
+**观察与结论**
+
+- W1 真实 AnyV2V 50 候选全量链路完成，E0 pipeline 阶段达标；此前 smoke 双重复门 + 非补丁 dict_file 修复均验证有效。
+- 批量总计约 3.4 小时，单实例无并发，断点续跑机制无需触发。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 进入 E1（judge 可靠性）：实现基于 rubric 的四维 judge 与成对判断、位置去偏、置信过滤；先在小样本人评上校准，达到 70% 准确率/85% 换位一致率门槛后再进入 Best-of-N。
+
 ### 2026-08-19｜E0-anyv2v-w1-v01 50 候选批量单实例重启
 
 **状态：RUNNING**
