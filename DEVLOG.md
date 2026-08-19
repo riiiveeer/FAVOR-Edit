@@ -60,6 +60,38 @@
 
 ## 每日记录
 
+### 2026-08-17｜E0-anyv2v-w1-v01 并发启动排障与工作区清理
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-17（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）
+
+**实验 ID**
+
+- `E0-anyv2v-w1-v01`
+
+**行动与关键配置**
+
+- 发现 50 候选批量命令被误执行了**两次**（job [2]/[3] 同时指向同一 `experiment-dir` 与 `cache.sqlite3`），两个 `w1 run` 并发争用共享 `bear-white`/`bus-red` inversion 目录与同一 cache，出现竞态。
+- 观察到 cache 中 `bear-white` 5 个 seed 全部 `failed`（PnP `exit status 1`）、`bus-red-s101` 卡 `running`；`bear-white` latents 500 个但由两进程交错写入不自洽，`bus-red` 仅 318 个（残缺）。
+- 处置：`kill` 全部残留 `w1 run`/`run_group_*` 进程并清空半成品 `anyv2v_data/inversions`、`candidates/`、`cache.sqlite3*`，仅保留 `plan.json` 与 `anyv2v_data/demo` 源数据。
+
+**结果**
+
+- 确认无残留进程；`E0-anyv2v-w1-v01` 目录仅剩 `plan.json` 与 `demo` 源数据，可干净单实例重启。
+
+**问题 / 失败**
+
+- 手动批量命令重复粘贴导致双实例并发，共享 inversion/cache 无进程级互斥，是本次竞态根因；批量作业必须保证单实例。
+
+**下一步**
+
+1. 以单实例、全新 `cache.sqlite3` 重新跑 50 候选批量（重跑同一命令不再双开）。
+2. 完成后 `w1 verify --expected 50`、mock reward、report。
+
 ### 2026-08-17｜dict_file 路径单候选真实 GPU 复验通过
 
 **状态：DONE**
