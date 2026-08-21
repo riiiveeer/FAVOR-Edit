@@ -60,6 +60,108 @@
 
 ## 每日记录
 
+### 2026-08-20｜E0/E1 施工手册最终自动校验
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-20 20:51:27 +08:00
+- 执行位置：本地 `D:\lab idea`；Python 文本检查与 Git whitespace 检查
+
+**步骤 ID**
+
+- `DOC-e0-e1-validation-v02`
+
+**行动与关键配置**
+
+- 修正文档执行链：prompt 冻结后重建 `judge-plan-frozen.json`，最终 dev/frozen-eval 结果通过 `merge-results` 严格合并。
+- 明确 50 个候选全部填写 E0 可用性，22 个固定候选完成四维粗分和完整视频播放；相同媒体 checksum 的不同 seed pair 作为合法 tie 案例保留。
+- 使用 Python 检查 UTF-8、Markdown code fence 配对及 10 项关键协议，并执行 `git diff --check`。
+
+**结果**
+
+- 文档共 1571 行、43527 字节、124 个 code fence（配对）；10/10 关键协议检查通过，无 UTF-8 replacement character。
+- `git diff --check` 通过；仅有 Windows LF/CRLF 提示，不构成 whitespace error。
+- 当前改动为 `DEVLOG.md` 和新增 `docs/E0_AUDIT_E1_EXECUTION.md`，尚未提交。
+
+**产物路径**
+
+- `D:\lab idea\docs\E0_AUDIT_E1_EXECUTION.md`
+- `D:\lab idea\DEVLOG.md`
+
+**下一步**
+
+1. 将施工手册交给服务器端 Cline，从 E0 只读预检开始逐步执行。
+2. 服务器完成每一步后提交代码与 DEVLOG；真实 judge 权重或人工标注缺失时按文档返回 BLOCKED，不得用 mock 冒充实验完成。
+
+### 2026-08-20｜E0/E1 施工手册首次自动校验
+
+**状态：FAILED（校验脚本断言过严，文档未发现对应缺陷）**
+
+**时间与环境**
+
+- 完成时间：2026-08-20 20:50:50 +08:00
+- 执行位置：本地 `D:\lab idea`；Python 文本检查与 Git whitespace 检查
+
+**步骤 ID**
+
+- `DOC-e0-e1-validation-v01`
+
+**行动与关键配置**
+
+- 检查 Markdown code fence 是否配对、UTF-8、关键数量/门槛/离线变量是否存在，并执行 `git diff --check`。
+- 检查脚本错误地要求文档包含精确中文短语 `550 个请求`，而文档实际使用 `550 judge requests`、`550 条` 和表格合计 `550`。
+
+**结果**
+
+- 关键短语断言因测试字面量过严失败；这是校验脚本问题，不是施工协议或数量缺失。
+- `git diff --check` 未报告 whitespace error，仅提示 Windows 工作区未来可能将 `DEVLOG.md` 的 LF 转为 CRLF。
+
+**产物路径**
+
+- `D:\lab idea\docs\E0_AUDIT_E1_EXECUTION.md`
+
+**下一步**
+
+1. 将校验条件改为匹配文档实际使用的 `550 judge requests`，重跑完整自动校验。
+
+### 2026-08-20｜E0 查验与 E1 施工手册定稿
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-20 20:46:56 +08:00
+- 执行位置：本地 `D:\lab idea`；文档与协议设计，无 GPU 作业
+
+**步骤 ID**
+
+- `DOC-e0-audit-e1-execution-v01`
+
+**行动与关键配置**
+
+- 基于服务器实际路径、现有 W1/E0 产物和 `proposal.md` 的 E1 决策门，新增可直接交给服务器端 Cline 的详细执行手册。
+- 固定 E0 只读输入为 `/DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01`，审计输出为唯一目录 `E0-visual-audit-v01`；规定生成全部 50 个联系表和 22 个分层并排代理。
+- 固定 E1 Pilot 为 10 输入、50 候选、100 个无序 pair，开发/冻结评估按 30/70 pairs 划分；四种 judge 方法共规划 550 个请求。
+- 施工范围覆盖严格 schema、pair/media packet、离线人工标注、mock/replay/command backend、SQLite 缓存、排他锁、位置去偏、cluster bootstrap、报告和 PASS/FAIL/BLOCKED 判定。
+- 保持原定硬门槛：总体成对准确率不低于 70%，换位一致率不低于 85%；明确 E1 Pilot 只允许形成 provisional 决策，且 mock/replay 不是研究测量。
+- 代码 snapshot：`0fa6d85454708667ad948351ad367397c6a446f4`；新增文档后工作树 dirty。
+
+**结果**
+
+- 已生成 1528 行详细施工文档；包含逐步命令、预期数量、测试计划、DEVLOG/提交边界、离线模型准备、停止条件和 Cline 完工汇报模板。
+- 本步骤只编写文档，没有启动服务器查验、人工标注或真实 judge，因此不声称 E0 视觉审计或 E1 研究验收已完成。
+
+**产物路径**
+
+- `D:\lab idea\docs\E0_AUDIT_E1_EXECUTION.md`
+
+**下一步**
+
+1. 对手册执行 Markdown 结构、关键路径、命令和 Git diff 检查。
+2. 将文档交给服务器端 Cline，严格从 `E0-audit-preflight-v01` 开始执行并逐步追加 DEVLOG。
+
 ### 2026-08-19｜同步后本地回归验证
 
 **状态：DONE**
