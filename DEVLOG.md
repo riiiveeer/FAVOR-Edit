@@ -60,6 +60,46 @@
 
 ## 每日记录
 
+### 2026-08-23｜E0 轻量审计包构建完成（E0-visual-audit-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 11:37（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯 CPU ffmpeg 构建，无 GPU 作业；E0 输入只读
+
+**实验 ID**
+
+- `E0-visual-audit-v01`
+
+**行动与关键配置**
+
+- 按 `docs/E0_AUDIT_E1_EXECUTION.md` §5 执行真实构建：
+  `python scripts/build_e0_audit.py --plan $E0/plan.json --candidates $E0/candidates.json --output-dir /DATA/DATA4/hfy/outputs/E0-visual-audit-v01`
+- 构建前确认输出目录不存在（`test ! -e`），干净新建。
+- 构建后执行 §5 验收：联系表/代理计数、`du`、`sha256sum -c SHA256SUMS`，并复验 E0 `w1 verify` 仍 50/50。
+
+**结果**
+
+- 产物：`50` 张联系表（`contact-sheets/<candidate_id>.jpg`，4×4）；`22` 个并排代理（`proxies/<candidate_id>.mp4`，512×256 / 8fps / 16 帧）。
+- `SHA256SUMS` 覆盖 75 个产物文件，`sha256sum -c` 全部 `: OK`（50 联系表 + 22 代理 + audit-manifest.json + audit.csv + README.md）。
+- 目录大小：`6.2M`（轻量，不搬运原视频）。
+- 固定 22 代理集合与手册 §4.3 一致：`bear-white`/`dog-tiger`/`hiker-backpack` 各 5 seed（15）+ 其余 7 sample 的 `seed 303`（7）= 22。
+- E0 复验：`w1 verify --expected 50` 仍返回 `{"valid": true, "count": 50, "errors": {}}`；E0 `plan.json` checksum `06d9fa2f…` 记录于 manifest，未发生变化。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/outputs/E0-visual-audit-v01/`
+  - `contact-sheets/`（50 张 jpg）
+  - `proxies/`（22 个 mp4）
+  - `audit-manifest.json`、`audit.csv`、`SHA256SUMS`、`README.md`
+
+**下一步**
+
+1. `E0-visual-review-v01`：人工按 §6 顺序查验（50 联系表 → 22 完整代理 → 异常候选补看原始 video.mp4），填写 `audit.csv` 四维粗分 / failure tags / `usable_for_e1`，并判定是否放行进入 E1。
+2. 人工填写后运行 `python scripts/build_e0_audit.py --verify-existing $E0_AUDIT` 校验。
+
 ### 2026-08-23｜E0 审计脚本与测试实现（E0-audit-tool-v01）
 
 **状态：DONE**
