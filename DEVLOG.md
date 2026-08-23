@@ -60,6 +60,42 @@
 
 ## 每日记录
 
+### 2026-08-23｜E0 视觉人工查验待执行（BLOCKED）
+
+**状态：BLOCKED（等待人工视觉标注）**
+
+**时间与环境**
+
+- 记录时间：2026-08-23 11:38（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；本步骤无 GPU 作业、无 E0 写入
+
+**步骤 ID**
+
+- `E0-visual-review-v01`
+
+**行动与关键配置**
+
+- 审计包已就绪于 `/DATA/DATA4/hfy/outputs/E0-visual-audit-v01`（50 联系表 + 22 并排代理 + 空 `audit.csv` + `audit-manifest.json` + `SHA256SUMS` + `README.md`）。
+- `audit.csv` 已按固定表头生成，`candidate_id` 已预填，四维粗分 / failure tags / `usable_for_e1` / reviewer / reviewed_at 均为空，等待人工填写。
+- 依手册 §6，四维粗分、failure tags、`usable_for_e1` 属于**人工视觉判断**，本工具（及本助手）不得以 AI 冒充人工视觉查验、不得编造评分。
+
+**结果**
+
+- 未执行人工查验；`audit.csv` 仍为空白状态。
+- 因此按 AGENTS.md 与任务约束，Part A 的人工查验环节判定为 **BLOCKED（缺人工标注）**，不进入 Part B（E1 施工）。
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/outputs/E0-visual-audit-v01/audit.csv`（空，待人工填写）
+
+**下一步（需人工完成）**
+
+1. 人工按 §6 顺序查验：先看 50 张 `contact-sheets/*.jpg`，再看 22 个 `proxies/*.mp4`（完整 16 帧），异常候选补看 E0 原始 `video.mp4`。
+2. 在 `audit.csv` 填写四维粗分（0/1/2 或空）、failure tags（枚举）、`usable_for_e1`（仅 yes/no）、reviewer、reviewed_at。
+3. 检查同一 sample 五个 seed 是否有系统性失败。
+4. 人工填写后运行 `python scripts/build_e0_audit.py --verify-existing /DATA/DATA4/hfy/outputs/E0-visual-audit-v01` 校验。
+5. 根据 §6.1 放行规则判定是否进入 E1 Pilot；放行确认后，再开始 Part B。
+
 ### 2026-08-23｜E0 轻量审计包构建完成（E0-visual-audit-v01）
 
 **状态：DONE**
