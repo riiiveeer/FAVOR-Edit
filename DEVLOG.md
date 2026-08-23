@@ -60,6 +60,107 @@
 
 ## 每日记录
 
+### 2026-08-23｜E0 硬验收复验守卫（只读重跑）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 09:52（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；只读重跑复验，无 GPU 作业，无 E0 写入
+
+**步骤 ID**
+
+- `E0-audit-hard-verify-v02`
+
+**行动与关键配置**
+
+- 按 `docs/E0_AUDIT_E1_EXECUTION.md` §3/§21 停止条件守卫，在启动 Part A 施工前只读重跑 `w1 verify --expected 50 --candidates /DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/candidates.json`（日志 `/tmp/e0-verify-v01.log`）。
+- 再次执行 50 条清单断言：总数=50、全 `succeeded`、每候选 16 `frame_paths`/16 `frame_checksums`、`candidate_id` 唯一、`(sample_id, seed)` 唯一。
+- 只读复核工作树：`main` @ `244ffa46e38ce16af1688c16a359d88757e3d93d`，工作树仅 `DEVLOG.md` 待提交；E0 审计/E1 输出目录均不存在，可干净新建；控制环境 `w1-control` 的 `python`/`w1` 可执行，`ffmpeg`/`ffprobe` 位于 `/usr/bin`。
+
+**结果**
+
+- `w1 verify` 返回 `{"valid": true, "count": 50, "errors": {}, "reproducible": null}`，与 2026-08-21 记录完全一致。
+- 清单断言全部通过：status 50×`succeeded`；samples=10；seeds=[101,202,303,404,505]；runtime_seconds=12413.71；peak_vram_mb=22476.0。
+- E0 输入未做任何写入。
+
+**产物路径**
+
+- 复验日志：`/tmp/e0-verify-v01.log`（临时，不入库）
+
+**下一步**
+
+1. `E0-audit-tool-v01`：实现 `scripts/build_e0_audit.py` + `tests/test_build_e0_audit.py`，通过后提交 Git。
+
+### 2026-08-21｜E0 硬验收复查（50/50）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-21 10:04（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`sunyinan@ps`）；只读复验，无 GPU 作业
+
+**步骤 ID**
+
+- `E0-audit-hard-verify-v01`
+
+**行动与关键配置**
+
+- 执行 `w1 verify --expected 50 --candidates /DATA/DATA4/hfy/outputs/E0-anyv2v-w1-v01/candidates.json`，日志保存于 `/tmp/e0-verify-v01.log`。
+- 额外执行 50 条清单断言：总数=50、全 `succeeded`、每候选 16 `frame_paths`/16 `frame_checksums`、`candidate_id` 唯一、`(sample_id, seed)` 唯一。
+
+**结果**
+
+- `w1 verify` 返回 `{"valid": true, "count": 50, "errors": {}, "reproducible": null}`。
+- 额外断言全部通过：status 50×`succeeded`；samples=10；seeds=[101,202,303,404,505]；候选总 runtime_seconds=12413.71；峰值 peak_vram_mb=22476.0。
+- E0 输入未做任何写入。
+
+**产物路径**
+
+- 复验日志：`/tmp/e0-verify-v01.log`（临时，不入库）
+
+**下一步**
+
+1. `E0-audit-tool-v01`：实现 `scripts/build_e0_audit.py` + `tests/test_build_e0_audit.py`，通过后提交 Git。
+
+### 2026-08-21｜E0 只读预检（Part A 开工）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-21 09:58（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`sunyinan@ps`），只读预检，无 GPU 作业
+
+**步骤 ID**
+
+- `E0-audit-preflight-v01`
+
+**行动与关键配置**
+
+- 按 `docs/E0_AUDIT_E1_EXECUTION.md` §2 执行只读预检：`git status --short --branch`、`git rev-parse HEAD`、控制环境 `python`/`w1` 可执行性、E0 输入文件存在性、ffmpeg 版本、GPU 与磁盘。
+- 确认 E0 只读输入完整：`plan.json`（10 inversions / 50 candidates）、`candidates.json`（50 条全 succeeded）、`cache.sqlite3`、`candidates/` 目录均存在；`E0-anyv2v-smoke-v01` 亦存在。
+- 确认审计输出目录 `E0-visual-audit-v01` 与 E1 目录 `E1-judge-pilot-v01` 当前均不存在，可干净新建。
+
+**结果**
+
+- Git：`main`，HEAD `244ffa46e38ce16af1688c16a359d88757e3d93d`，工作区 clean（仅本 DEVLOG 待改）。
+- 控制环境 `/DATA/DATA4/hfy/envs/w1-control/bin/{python,w1}` 均存在且可执行。
+- ffmpeg/ffprobe：`4.2.7-0ubuntu0.1`。
+- GPU：6×`NVIDIA RTX A6000`（每卡 49140 MiB）。
+- 磁盘：`/DATA/DATA4` 余 255G（99% 已用但可写）。
+- 任务分布核对：attribute 4 / object 3 / local 3，seed 101/202/303/404/505，与手册 §4.3 固定 22 代理集合一致。
+
+**产物路径**
+
+- 无新增产物（只读预检）。
+
+**下一步**
+
+1. `E0-audit-hard-verify-v01`：`w1 verify --expected 50` 复验 50/50，并跑额外 50 条清单断言。
+
 ### 2026-08-20｜E0/E1 施工手册最终自动校验
 
 **状态：DONE**
