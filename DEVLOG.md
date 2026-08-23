@@ -60,6 +60,52 @@
 
 ## 每日记录
 
+### 2026-08-23｜E0 审计脚本与测试实现（E0-audit-tool-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 11:36（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯代码/测试，无 GPU 作业，无 E0 写入
+
+**步骤 ID**
+
+- `E0-audit-tool-v01`
+
+**行动与关键配置**
+
+- 按 `docs/E0_AUDIT_E1_EXECUTION.md` §4 实现轻量审计工具：
+  - `src/w1_pipeline/e0_audit.py`：`build_audit()`（构建）与 `verify_existing()`（§6 校验）+ `spot_check_ids()` 固定 22 代理集合逻辑。
+  - `scripts/build_e0_audit.py`：薄 CLI，`--plan --candidates --output-dir` 构建，`--verify-existing` 校验。
+  - `tests/test_build_e0_audit.py`：9 条测试覆盖 §4.5 全部清单。
+- 关键实现：
+  - 输出目录已存在即失败（`AuditError`）。
+  - 输入校验：10 inversions / 50 candidates、全 `succeeded`、candidate ID/sample/seed 与 plan 一一对应、video/frames checksum 匹配、16 帧、ffmpeg/ffprobe 可执行。
+  - 50 张联系表：`scale=160:160:flags=lanczos,tile=4x4:padding=2:margin=2`（真实 smoke 验证输出 650×650，4×4）。
+  - 22 个并排代理：左源右候选 `hstack`，512×256 / 8fps / 16 帧 / H.264 crf=30 faststart（真实 smoke 验证）。
+  - `audit-manifest.json`（记录 E0 plan/candidates 绝对路径+SHA-256、code_snapshot、50 candidate ID、22 spot-check ID、原/编辑视频、contact sheet、proxy 路径与 checksum、instruction/target_caption/task_type/seed、ffmpeg 版本与时间）。
+  - `audit.csv`（固定 11 列表头）、`SHA256SUMS`（不含自身、可 `sha256sum -c`）、`README.md`。
+- 固定抽查集合：`bear-white`/`dog-tiger`/`hiker-backpack` 全 5 seed + 其余 7 sample 的 seed 303 = 15+7 = 22。
+
+**结果**
+
+- `w1-control` 环境 `python -m pytest`：**28/28 通过**（原 19 + 新 9），耗时 24.96s。
+- `git diff --check`：无 whitespace error。
+- 新增文件：`src/w1_pipeline/e0_audit.py`、`scripts/build_e0_audit.py`、`tests/test_build_e0_audit.py`。
+- 构建过程只读 E0，不写入 E0 输入目录（测试中显式断言构建前后 E0 checksum 不变）。
+
+**产物路径**
+
+- `src/w1_pipeline/e0_audit.py`
+- `scripts/build_e0_audit.py`
+- `tests/test_build_e0_audit.py`
+
+**下一步**
+
+1. 提交本步骤（代码 + 测试 + DEVLOG）。
+2. `E0-visual-audit-v01`：在 `$E0_AUDIT=/DATA/DATA4/hfy/outputs/E0-visual-audit-v01` 运行真实构建，核对 50 联系表 / 22 代理 / `sha256sum -c` 全通过，并复验 E0 仍 50/50。
+
 ### 2026-08-23｜E0 硬验收复验守卫（只读重跑）
 
 **状态：DONE**
