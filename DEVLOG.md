@@ -60,6 +60,47 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 pair 与 media packet 实现（E1-pairs-packets-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 12:40（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯代码/测试，无 GPU 作业
+
+**步骤 ID**
+
+- `E1-pairs-packets-v01`
+
+**行动与关键配置**
+
+- 实现 `src/e1_judge/pairs.py`：
+  - `build_pairs`：按 sample 对 5 个候选做全量两两组合，共 100 无序 pair（每 sample 10）。
+  - dev 30（`bear-white/dog-tiger/hiker-backpack`）+ frozen-eval 70（其余 7 sample）。
+  - 每个 pair 关联 source/candidate 路径与 checksum、canonical A/B 字典序、display_direction 确定性（`pair_id|annotator|seed` 的 SHA-256 决定方向）。
+  - `usable_for_e1!=yes` 的候选相关 pair 标记 `excluded_reason`（不静默删除）；相同 video_checksum 标记 `identical_media=true`。
+- 实现 `src/e1_judge/packets.py`：
+  - `build_packets`：每 pair 目录含 `source.mp4`/`candidate-a.mp4`/`candidate-b.mp4`（软链优先、失败降级拷贝）、三个 4×4 contact sheet、`mask-overlay.jpg`、`metadata.json`（原始绝对路径 + checksum + packet_checksum + mask_available）。
+  - 输出目录已存在即拒绝。
+- 新增 `tests/e1/test_pairs_packets.py`：5 条测试（100 pair / dev 30 + frozen 70 / 无跨 sample / 方向确定性 / packet 结构与 metadata / 输出目录已存在拒绝）。
+
+**结果**
+
+- `python -m pytest`：**48/48 通过**（原 43 + 新 5），耗时 51.64s。
+- `git diff --check`：无 whitespace error。
+
+**产物路径**
+
+- `src/e1_judge/pairs.py`
+- `src/e1_judge/packets.py`
+- `tests/e1/test_pairs_packets.py`
+
+**下一步**
+
+1. 提交本步骤。
+2. `E1-annotation-tool-v01`：loopback 标注服务 + adjudicate（两人 + 第三人裁决）。
+
 ### 2026-08-23｜E1 严格 schema 实现（E1-schema-v01）
 
 **状态：DONE**
