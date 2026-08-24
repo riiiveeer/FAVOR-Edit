@@ -60,6 +60,66 @@
 
 ## 每日记录
 
+### 2026-08-23｜阶段总结：Part A 完成 + Part B 纯工程完成，真实 judge/人工标注待前置（BLOCKED）
+
+**状态：BLOCKED（等待外部前置：真实 judge 权重 + 人工标注）**
+
+**时间与环境**
+
+- 总结时间：2026-08-23 13:30（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；本轮无 GPU 作业，E0 只读
+
+**本轮完成概览**
+
+- 按 `docs/E0_AUDIT_E1_EXECUTION.md` 严格顺序，完成 Part A（E0 查验）与 Part B 全部**纯工程阶段**（scaffold→schema→pairs/packets→annotation-tool→runner/cache→metrics→mock E2E）。
+- 每完成一个可验证步骤均即时追加 DEVLOG 并单独提交 Git，未合并笼统记录。
+- 未破坏 E0：E0 输入目录（`E0-anyv2v-w1-v01`、`E0-anyv2v-smoke-v01`）全程只读，无写入/覆盖。
+
+**Part A 结果（E0 查验）**
+
+- 硬验收：`w1 verify --expected 50` → `{"valid": true, "count": 50, "errors": {}}`（50/50），复验两次一致。
+- 审计工具：`src/w1_pipeline/e0_audit.py` + `scripts/build_e0_audit.py` + `tests/test_build_e0_audit.py`。
+- 审计包 `/DATA/DATA4/hfy/outputs/E0-visual-audit-v01/`：50 张 4×4 联系表 + 22 个并排代理（512×256/8fps/16帧）+ `audit-manifest.json` + `audit.csv` + `SHA256SUMS` + `README.md`；`sha256sum -c` 全部 `: OK`（75 文件，6.2M）。
+- 人工查验：`audit.csv` 50 行四维粗分（0/1/2）+ `usable_for_e1` 全 `yes`；匿名 `reviewer=anon-01`、`reviewed_at` 已填；`--verify-existing` 校验通过。
+- 放行判定：满足 §6.1（50/50 valid、三类任务可判、10/10 sample 可成对、无源/候选错配）→ **Part A 放行**。
+
+**Part B 纯工程阶段（逐步提交，commit 顺序如下）**
+
+| 步骤 ID | commit | 内容 |
+| --- | --- | --- |
+| `E1-scaffold-v01` | `f10776d` | `src/e1_judge/` + 12 命令 CLI + configs/e1 + pyproject `e1` 入口 |
+| `E1-schema-v01` | `da5d43f` | 严格 Pydantic（PairRecord/HumanAnnotation/JudgeRequest/JudgeResult/AdjudicatedLabel，`extra="forbid"`） |
+| `E1-pairs-packets-v01` | `6770829` | 100 无序 pair（dev 30 + frozen 70）+ 确定性展示随机化 + media packets |
+| `E1-annotation-tool-v01` | `8c3d0fa` | loopback 标注服务 + adjudicate（两人 + 第三人裁决） |
+| `E1-runner-cache-v01` | `3f2d42f` | mock/replay/command backend + judge key + SQLite 缓存 + 排他锁 + 断点续跑 + merge |
+| `E1-metrics-v01` | `d579bd7` | accuracy/swap/position bias/cluster bootstrap/分类别 + ranking + report + verify |
+| `E1-mock-e2e-v01` | `bcfda1e` | 100 pair → 550 requests → 550 mock results → replay 缓存命中，`research_measurements=0` |
+
+- 测试：**76/76 通过**（`tests/e1/` 下 8 个测试文件覆盖 §18.1–§18.7），`git diff --check` 全部通过。
+- 关键修正：`absolute-v1` 改为「每个唯一候选 1 请求（50）」，避免原「每 pair 两个」导致 700 请求。
+
+**当前 BLOCKED 状态（两个外部前置）**
+
+1. `BLOCKED_MISSING_REAL_JUDGE`：只读盘点 `/DATA/DATA4/hfy/models` 仅有 `i2vgen-xl`(4.7G) + `instruct-pix2pix`(4.0G)，**无 VLM/LLM judge 权重**（无 Qwen-VL/InternVL/LLaVA 等）。
+2. `BLOCKED_MISSING_HUMAN_LABELS`：E1 需两名真人标注 100 pairs + 第三人裁决争议；工具已就绪，但未启动，不得 mock 冒充。
+
+**产物路径**
+
+- 代码：`/home/sunyinan/FAVOR-Edit/src/e1_judge/`、`configs/e1/`、`tests/e1/`
+- E0 审计包：`/DATA/DATA4/hfy/outputs/E0-visual-audit-v01/`
+- E1 输出目录 `/DATA/DATA4/hfy/outputs/E1-judge-pilot-v01` **尚未创建**（按序等真实 judge 就位后建，避免空目录污染）
+
+**后续方案选项（待你确定）**
+
+- 选项 A：你在联网/镜像机器准备一个视频/多图 VLM judge snapshot（固定 revision + SHA256SUMS + MODEL_CARD_LOCAL.md），上传服务器后继续 `E1-judge-smoke-v01` → dev → freeze → pilot → analysis。
+- 选项 B：先推进人工标注（两名真人完成 100 pairs），judge 权重稍后到位；两者可并行准备。
+- 选项 C：暂停 E1，回看/调整 judge 选型或数据范围后再继续。
+
+**结论（严格措辞）**
+
+- `E1 framework complete; E1 research acceptance not complete.`
+- Part A 已放行；Part B 纯工程全部完成并通过 550/550 mock 验收；真实 judge 与人工标注缺失即为 BLOCKED，未用 mock 冒充研究结果。
+
 ### 2026-08-23｜E1 真实 judge 模型盘点（BLOCKED）
 
 **状态：BLOCKED（BLOCKED_MISSING_REAL_JUDGE）**
