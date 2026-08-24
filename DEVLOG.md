@@ -60,6 +60,41 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 mock E2E 全链路验收（E1-mock-e2e-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 13:20（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯 CPU mock 作业，无 GPU
+
+**步骤 ID**
+
+- `E1-mock-e2e-v01`
+
+**行动与关键配置**
+
+- 修正 `build_judge_plan`：`absolute-v1` 为每个唯一候选生成 1 个请求（50），而非每 pair 两个（原会算出 700）。
+- 新增 `tests/e1/test_e2e_mock.py`：完整 mock E2E——100 pair → 550 judge requests → 550 mock results → 第二次运行 550 缓存命中 → 每个 result `raw_response.research_result=false`、`confidence=0`。
+- 修正测试 fixture：不同 sample 相同 seed 的视频内容撞 checksum，改为 seed×1000+sample_index，确保 50 个候选 checksum 唯一、judge_key 唯一。
+
+**结果**
+
+- `python -m pytest`：**76/76 通过**（原 65 + 新 1 e2e + 之前 metrics 11），耗时 54.37s。
+- `git diff --check`：无 whitespace error。
+- mock E2E：550/550 请求、550 结果、replay 缓存命中、`research_measurements=0`。
+
+**产物路径**
+
+- `tests/e1/test_e2e_mock.py`
+- `src/e1_judge/runner.py`（absolute 请求计数修正）
+
+**下一步**
+
+1. 提交本步骤。
+2. 纯工程阶段全部完成。下一步进入「真实 judge」边界：`E1-judge-model-inventory-v01` 只读盘点（已确认无 VLM 权重 → 返回 `BLOCKED_MISSING_REAL_JUDGE`），并如实汇报 Part B 阶段性状态。
+
 ### 2026-08-23｜E1 metrics/report/verify 实现（E1-metrics-v01）
 
 **状态：DONE**

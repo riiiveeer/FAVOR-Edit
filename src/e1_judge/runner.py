@@ -88,16 +88,22 @@ def build_judge_plan(pairs: Path, config: Path, output: Path) -> List[dict]:
     methods = cfg["methods"]
 
     requests: List[dict] = []
+    # absolute-v1: one request per unique candidate (50 total), not per pair.
+    candidates_seen = {}
+    for pair in pair_records:
+        candidates_seen[pair["candidate_left_id"]] = (pair["candidate_left_checksum"], pair["candidate_left_path"])
+        candidates_seen[pair["candidate_right_id"]] = (pair["candidate_right_checksum"], pair["candidate_right_path"])
+
     for method_name, method_cfg in methods.items():
         prompt = method_cfg.get("prompt", f"prompt-{method_name}.yaml")
         swap = bool(method_cfg.get("swap", False))
+        if method_name == "absolute-v1":
+            for candidate_id, (checksum, _) in sorted(candidates_seen.items()):
+                request = _absolute_request(pair_records, candidate_id, checksum, method_name, prompt)
+                request["judge_key"] = judge_key(request)
+                requests.append(request)
+            continue
         for pair in pair_records:
-            if method_name == "absolute-v1":
-                for candidate_key in ("candidate_left", "candidate_right"):
-                    request = _request_for(pair, method_name, prompt, "absolute", candidate_key=candidate_key)
-                    request["judge_key"] = judge_key(request)
-                    requests.append(request)
-                continue
             directions = ("a_vs_b", "b_vs_a") if swap else ("a_vs_b",)
             for direction in directions:
                 request = _request_for(pair, method_name, prompt, direction)
@@ -115,7 +121,33 @@ def build_judge_plan(pairs: Path, config: Path, output: Path) -> List[dict]:
     return requests
 
 
-def _request_for(pair: dict, method: str, prompt: str, direction: str, candidate_key: Optional[str] = None) -> dict:
+def _absolute_request(pairs: List[dict], candidate_id: str, checksum: str, method: str, prompt: str) -> dict:
+    pair = pairs[0]
+    request = {
+        "request_id": f"{method}:{candidate_id}:absolute",
+        "pair_id": None,
+        "candidate_id": candidate_id,
+        "method": method,
+        "comparison_direction": "absolute",
+        "source_checksum": pair["source_checksum"],
+        "candidate_a_checksum": checksum,
+        "candidate_b_checksum": None,
+        "instruction": pair["instruction"],
+        "target_caption": pair["target_caption"],
+        "task_type": pair["task_type"],
+        "media_packet_checksum": "p" * 64,
+        "backend": "mock",
+        "model_name": "mock",
+        "model_revision": "mock-v1",
+        "prompt_version": prompt,
+        "parser_version": "1",
+        "generation_parameters": {},
+    }
+    JudgeRequest.model_validate(request)
+    return request
+
+
+def _request_for(pair: dict, method: str, prompt: str, direction: str) -> dict:
     a_id = pair["candidate_left_id"]
     b_id = pair["candidate_right_id"]
     a_checksum = pair["candidate_left_checksum"]
@@ -124,24 +156,15 @@ def _request_for(pair: dict, method: str, prompt: str, direction: str, candidate
         a_id, b_id = b_id, a_id
         a_checksum, b_checksum = b_checksum, a_checksum
 
-    pair_id = pair["pair_id"]
-    candidate_id = None
-    if candidate_key == "candidate_left":
-        candidate_id = pair["candidate_left_id"]
-    elif candidate_key == "candidate_right":
-        candidate_id = pair["candidate_right_id"]
-
-    request_id = f"{method}:{pair_id}:{direction}:{candidate_key or 'pair'}"
-
     request = {
-        "request_id": request_id,
-        "pair_id": pair_id,
-        "candidate_id": candidate_id,
+        "request_id": f"{method}:{pair['pair_id']}:{direction}",
+        "pair_id": pair["pair_id"],
+        "candidate_id": None,
         "method": method,
-        "comparison_direction": "absolute" if candidate_key else direction,
+        "comparison_direction": direction,
         "source_checksum": pair["source_checksum"],
         "candidate_a_checksum": a_checksum,
-        "candidate_b_checksum": None if candidate_key else b_checksum,
+        "candidate_b_checksum": b_checksum,
         "instruction": pair["instruction"],
         "target_caption": pair["target_caption"],
         "task_type": pair["task_type"],
