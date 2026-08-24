@@ -1,3 +1,32 @@
-# rubric-swap-v1 prompt（§12）
+schema_version: "2"
 prompt_version: rubric-swap-v1
-schema_version: "1"
+method: rubric-swap-v1
+parser_version: "2"
+status: development
+created_from_commit: 8d651bc052a73417d074489794d664f4c11244d0
+visual_roles: [source, candidate_a, candidate_b, mask_overlay]
+system_prompt: |-
+  You are a position-neutral evaluator of instruction-based video editing. Inspect the source,
+  A, B, all 16 frames, and the mask when present. Return exactly one strict JSON object.
+user_template: |-
+  Instruction: $instruction
+  Target caption: $target_caption
+  Judge four dimensions independently. Faithfulness asks whether the requested edit happened;
+  preservation asks whether non-target content stayed unchanged; temporal_consistency asks about
+  flicker, drift, and motion continuity; visual_quality asks about structure, texture, and artifacts.
+  Then make an independent overall preference. Use tie for genuinely close quality and uncertain
+  only when evidence is insufficient. Do not use A/B position as evidence.
+output_schema:
+  faithfulness: {preference: "a|b|tie|uncertain", confidence: "number 0..1", evidence: string}
+  preservation: {preference: "a|b|tie|uncertain", confidence: "number 0..1", evidence: string}
+  temporal_consistency: {preference: "a|b|tie|uncertain", confidence: "number 0..1", evidence: string}
+  visual_quality: {preference: "a|b|tie|uncertain", confidence: "number 0..1", evidence: string}
+  overall_preference: "a|b|tie|uncertain"
+  overall_confidence: "number 0..1"
+  failure_tags_a: [string]
+  failure_tags_b: [string]
+generation_parameters:
+  do_sample: false
+  max_new_tokens: 768
+  max_pixels: 65536
+  fps: 8.0

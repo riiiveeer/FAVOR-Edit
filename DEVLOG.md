@@ -2663,3 +2663,806 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 
 1. 
 ````
+
+---
+
+### 2026-08-24｜同步远程仓库最新提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 18:47:14 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未连接学校 A6000
+
+**步骤 ID**
+
+- `LOCAL-git-pull-main-20260824-v01`
+
+**操作与关键配置**
+
+- 在确认 `main` 分支工作区 clean、跟踪 `origin/main` 后同步远程仓库；
+- 关键命令：`git status --short --branch`、`git remote -v`、`git pull --ff-only`；
+- 同步前提交：`244ffa4`；同步后提交：`8d651bc`。
+
+**结果与产物**
+
+- `git pull --ff-only` 成功，分支以 fast-forward 方式更新；
+- 新增 E0 审计实现、E1 judge 框架、E1 配置及相关测试，共 36 个文件、3951 行新增、1 行删除；
+- 产物路径：`D:\lab idea`（Git 工作树），最新代码快照 `8d651bc`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 阅读项目说明、实验方案与最新 DEVLOG；
+2. 核对当前实现和产物状态；
+3. 据此确定下一项本地或 A6000 实验。
+
+---
+
+### 2026-08-24｜同步后本地全量回归诊断
+
+**状态：BLOCKED（本地回归未通过，已获得可操作诊断）**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 18:49:46 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 代码版本：`8d651bc`
+- 远程环境：未使用；未连接学校 A6000
+
+**步骤 ID**
+
+- `LOCAL-post-pull-regression-20260824-v01`
+
+**操作与关键配置**
+
+- 运行同步后的全量测试；
+- 关键命令：`uv run pytest -q`；
+- `uv` 重新构建并以 editable 方式安装本项目，随后执行 76 项测试。
+
+**结果**
+
+- 结果：66 passed、4 failed、6 errors，进程退出码 1；
+- 两项 E1 runner/mock E2E 失败源于 `request_id` 含冒号并被直接用作文件名，Windows 报 `OSError: [Errno 22] Invalid argument`；
+- 一项 E1 packet 测试及六项 E0 audit fixture 报错源于本机 `PATH` 找不到系统 `ffmpeg`；README 虽说明 `imageio-ffmpeg` 提供固定 ffmpeg，但新增审计/packet 实现仍硬编码调用 `ffmpeg`/`ffprobe`；
+- `test_build_rejects_non50_candidates` 还暴露校验顺序问题：工具检查发生在输入数量检查之前，导致预期的 50-candidate 错误被 ffmpeg 环境错误遮蔽；
+- 未产生研究指标或实验产物。
+
+**产物路径**
+
+- 失败栈仅在本次终端输出中；涉及代码：`src/e1_judge/runner.py`、`src/e1_judge/packets.py`、`src/w1_pipeline/e0_audit.py`。
+
+**问题 / 失败**
+
+- 当前提交在学校 Linux 服务器记录为 76/76，但在 README 声称支持的本地 Windows 开发环境不能全量通过；
+- 此结果不影响已完成的服务器 E0 研究产物，但说明跨平台本地回归门尚未满足。
+
+**下一步**
+
+1. 先完成 E1 真实运行就绪差距审计，区分“跨平台回归问题”和“真实 judge 协议缺口”；
+2. 在进入真实 judge smoke 前修复 request 文件名、ffmpeg 解析、prompt/plan/media identity 等阻塞项，并补针对真实 command backend 的契约测试；
+3. 修复后重新运行全量测试并单独记录结果。
+
+---
+
+### 2026-08-24｜E1 真实运行就绪差距审计与下一阶段策略
+
+**状态：DONE（审计/决策完成；实施尚未开始）**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 18:51:05 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 代码版本：`8d651bc052a73417d074489794d664f4c11244d0`
+- 远程环境：未使用；未连接学校 A6000
+
+**步骤 ID**
+
+- `E1-real-readiness-audit-v01`
+
+**目标**
+
+- 对照 `proposal.md`、`idea-logic.md`、`docs/E0_AUDIT_E1_EXECUTION.md` 和最新阶段 DEVLOG，判断 E1 是否可在权重就位后直接运行，并确定 M1 前的最短可靠路径。
+
+**行动与关键配置**
+
+- 静态核对 `configs/e1/`、`src/e1_judge/`、`tests/e1/` 与施工手册 §7–§21；
+- 核对本地回归结果 `LOCAL-post-pull-regression-20260824-v01`；
+- 仅参考官方模型卡比较离线 judge 候选：Qwen2.5-VL-7B-Instruct（Apache-2.0、7B、官方说明支持长视频/结构化输出、snapshot 约 16.6GB）与 Qwen3-VL-8B-Instruct（Apache-2.0、8B、视频能力更强但官方当前建议较新的 Transformers/source 环境）。
+
+**结果与关键缺口**
+
+- E0 状态保持为 PASS：50/50 候选和人工粗审已完成；不得重跑或覆盖 E0。
+- E1 应重新表述为：`mock scaffold complete; real-research readiness incomplete`。除了既有的真实 judge 权重和真人标注缺口，还存在以下前置工程阻塞：
+  1. 四个 prompt YAML 仅含 version/schema，占位内容未实现；`src/e1_judge/prompts.py` 仍直接抛 `NotImplementedError`。
+  2. 人工标注页未使用 `packets` 参数、未展示 source/A/B 视频或 contact sheet，也未按 annotator 映射显示方向；当前工具不能产生协议要求的有效真人标注。
+  3. judge plan 没有 `split`，但 runner 依赖 `split` 过滤，因此真实 dev/frozen 命令会选中 0 请求；plan 还硬编码 `backend/model=mock`、占位 packet checksum，未写媒体路径、prompt checksum、code snapshot 和真实 generation 参数。
+  4. absolute 请求统一取 `pairs[0]` 的 source/instruction/task，导致除首个 sample 外的候选上下文错配。
+  5. runner 未生成手册约定的 `results.jsonl`，失败缓存会被当作 cache hit 而不重试；merge 也未校验 frozen prompt checksum/model revision。
+  6. 分析层把同一 pair 的多方法/多方向结果折叠为第一条，无法形成四方法主表和有效 swap 统计；absolute 阈值推对、Kendall/Spearman、分维度指标、冻结集判定、`decision.json` 与 `reward-v0.yaml` 尚未贯通。
+  7. 本地 Windows 另有冒号文件名和 ffmpeg 解析问题，见上一条回归记录。
+- 因此“先上传模型然后直接跑 550 请求”会在 smoke 前或分析阶段失败，不是当前正确顺序。
+
+**策略决策**
+
+1. 下一项开发应为 `E1-real-readiness-v01`：先在本地补齐 prompt/plan/media identity、command adapter 契约、annotation UI、结果落盘/重试、四方法分析与 decision gate，并让全量测试跨平台通过。
+2. 在修复期间可并行准备外部前置，但不得启动 frozen eval：
+   - 模型主候选采用 **Qwen2.5-VL-7B-Instruct**，优先稳定离线部署而非追逐更新模型；下载时再锁定 exact revision、完整 snapshot、依赖 wheels、SHA256SUMS 与 MODEL_CARD_LOCAL.md；
+   - 安排两名真人各自完成 100 pair，争议 pair 由第三人裁决；只有修复后的媒体标注工具可用于正式标注。
+3. 代码与权重就绪后严格执行：2 dev pair × rubric-swap 4 请求 smoke → 30 dev pair 四方法调 prompt/阈值 → 冻结 checksum → 70 frozen-eval → 同冻结配置补 dev-final → 分析与 PASS/FAIL。
+4. 只有 frozen-eval 满足 accuracy≥0.70、swap consistency≥0.85、high-confidence coverage≥0.60、各类别 accuracy≥0.60，才冻结 `reward-v0.yaml` 并进入 E2 Best-of-N；否则保留结果并回到 dev 修 judge。
+5. M1 截止 2026-09-01 已进入高风险窗口，优先级保持 E1→E2；暂停 E3/DPO、E4/E5 和任何大规模偏好对构造。
+
+**产物路径**
+
+- 本条审计记录：`D:\lab idea\DEVLOG.md`
+- 被审计实现：`D:\lab idea\src\e1_judge\`、`D:\lab idea\configs\e1\`
+
+**下一步**
+
+1. 如获实施授权，按 `E1-real-readiness-v01` 修复真实运行前置并逐步记录 DEVLOG；
+2. 同步准备固定 revision 的 Qwen2.5-VL-7B-Instruct 离线包和两名真人标注排期；
+3. 修复验收后才写 A6000 smoke 前置记录并执行 4 请求真实 smoke。
+
+---
+
+### 2026-08-24｜E1 v2 协议、媒体与 Prompt 基础重构
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 19:57:53 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 代码基线：`8d651bc052a73417d074489794d664f4c11244d0` + 未提交 v2 重构
+- 远程环境：未使用；未连接学校 A6000；E0 目录未写入
+
+**步骤 ID**
+
+- `E1-v2-protocol-media-v01`
+
+**行动与关键配置**
+
+- 以 schema v2 整体替换旧 E1 schema，不保留 v1 兼容层：canonical pair、source/candidate refs、共享媒体 manifest、request/result/runtime/prompt/human/frozen protocol 类型全部 strict + `extra=forbid`；
+- pair 改为 canonical A/B，固定 100 pair、dev 30 / frozen-eval 70，显示随机化不再固化到 pair；
+- media packet 改为 10 个共享 source + 50 个共享 candidate asset，每个资产精确解码 16 帧、保存逐帧 SHA-256 和 4×4 contact sheet，100 个 pair 只保存引用和 packet checksum；
+- 四个 prompt YAML 已补全 rubric、视觉角色、严格输出 schema、parser/generation 参数；实现 loader、render、checksum 和不修补语义的严格 JSON parser；
+- 增加 `runtime-mock.yaml`；E0 audit 改用 `imageio-ffmpeg` executable 并移除运行时 `ffprobe` 要求，且先做输入校验再解析媒体工具。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_models.py tests/e1/test_pairs_packets.py`；
+- 结果：**8/8 passed**，耗时 13.84s，无 warning；
+- 测试验证 100 pair、30/70 split、10 source + 50 candidate 去重资产、每资产 16 帧、650×650 contact sheet、v2 配置/runtime、IVEBench/extra-field 拒绝和严格 JSON。
+
+**产物路径**
+
+- `src/e1_judge/models.py`、`pairs.py`、`packets.py`、`prompts.py`
+- `src/w1_pipeline/media_tools.py`、`src/w1_pipeline/e0_audit.py`
+- `configs/e1/pilot.yaml`、四个 prompt、`configs/e1/runtime-mock.yaml`
+- `tests/e1/conftest.py`、`test_models.py`、`test_pairs_packets.py`
+
+**问题 / 失败**
+
+- 首次定向测试虽 8/8 通过，但 Pillow 报 960 条 `mode` 参数弃用 warning；立即移除弃用参数并复跑，最终无 warning。
+
+**下一步**
+
+1. 重写 schema-v2 judge plan、批处理 backend、cache/retry/lock/results 与 CLI；
+2. 增加 Qwen2.5-VL-7B 独立环境参考适配器和假 command adapter 契约测试。
+
+---
+
+### 2026-08-24｜E1 v2 批处理 Runner、缓存恢复与 Qwen 适配器
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:06:11 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未连接学校 A6000；未下载或加载真实模型
+
+**步骤 ID**
+
+- `E1-v2-runner-backend-v01`
+
+**行动与关键配置**
+
+- 重写 plan：每个 request 固化 split、正确 sample/source/instruction、screen-side candidate identity、16 帧及 checksum、prompt/model/parser/runtime/code fingerprint；总计 550，dev 165 / frozen 385；
+- backend 改为一次 shard 启动一个批处理进程，adapter 对每个 `judge_key` 原子写 envelope；mock/replay/command 使用同一契约；
+- SQLite 仅把 `succeeded` 当 cache hit，failed 保留 attempt/error/runtime/VRAM 并在下一次自动重试；partial command 输出可吸收，未输出请求记为 retryable failure；
+- runner 使用 64 hex `judge_key` 文件名，重建确定性的 `results.jsonl` 和 raw-response 目录；锁记录 UTC/PID/host，显式 unlock 留审计日志；
+- merge 按 method 校验 prompt/parser/model identity，并拒绝混合 runtime fingerprint；
+- CLI 升级为 v2 `plan --packets --runtime`、`run --runtime --split/--request-id`，新增 `freeze` 入口；重依赖均延迟导入；
+- 新增 Qwen2.5-VL-7B 离线参考 adapter：单次加载、BF16/SDPA、完整 16 帧 source/A/B、mask、确定性生成、逐请求失败隔离；本地 `--help` 不导入 torch/transformers。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_models.py tests/e1/test_pairs_packets.py tests/e1/test_scaffold.py tests/e1/test_cache_and_resume.py tests/e1/test_e2e_mock.py`；
+- 结果：**15/15 passed**，耗时 26.27s；
+- mock E2E：550/550 succeeded，第二次 550 cache hits / 0 attempted；
+- 假 command adapter：首轮单进程处理 550、故意缺 1 条后得到 549 success + 1 retryable failure；第二轮只请求缺失项；第三轮全 cache hit；adapter 实际仅启动 2 次；
+- Windows raw 文件全部为 `<64hex>.json`，不再使用含冒号 request ID。
+
+**产物路径**
+
+- `src/e1_judge/runner.py`、`cache.py`、`backends/`、`cli.py`
+- `scripts/e1_judge_qwen25_vl.py`
+- `configs/e1/runtime-qwen25-vl-7b.example.yaml`
+- `tests/e1/test_cache_and_resume.py`、`test_e2e_mock.py`、`test_scaffold.py`
+
+**问题 / 失败**
+
+- 无未解决失败；本步骤仅使用 mock/fake adapter，不能替代 A6000 真实 smoke。
+
+**下一步**
+
+1. 重建真人标注页面、确定性 per-annotator 展示、媒体 Range 服务、断点续标；
+2. 强制两名 100-pair 主标注和第三人争议裁决，输出 Cohen kappa 与完成率报告。
+
+---
+
+### 2026-08-24｜E1 v2 真人标注与裁决协议重构
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:10:10 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未启动真实人工标注服务
+
+**步骤 ID**
+
+- `E1-v2-human-annotation-v01`
+
+**行动与关键配置**
+
+- 标注页面改为读取真实 `media-manifest.json`，展示 source/left/right 视频、三张完整 contact sheet 和可选 mask overlay；
+- 所有媒体 URL 使用 annotator-specific 24 hex opaque token，不在页面或 URL 暴露 candidate ID、seed 或文件路径；
+- 实现单 byte-range HTTP 响应（200/206、Content-Range、Accept-Ranges），支持浏览器 MP4 播放；
+- 展示方向按 `pair_id + annotator_id + randomization_seed` 确定，screen left/right 提交后映射回 canonical A/B；failure tags 同样映射；
+- 页面提供上一条/下一条、draft localStorage、断点续标、重复提交 409、confidence/notes/failure tags 和 UTC started/submitted 时间；
+- 裁决强制两个不同真人各 100 个唯一 pair；任一四维或 overall 不一致都进入争议集，第三人必须且只能覆盖完整争议集；
+- 输出 adjudicated JSONL 以及完成率、逐维 agreement/Cohen kappa、争议数、tie/uncertain rate 报告。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_annotations.py`；
+- 结果：**6/6 passed**，耗时 15.46s；
+- 验证 deterministic direction、canonical mapping、opaque media 页面、Range 请求、100-pair 双人全一致裁决、争议缺第三人失败、第三人精确覆盖和已知 kappa。
+
+**产物路径**
+
+- `src/e1_judge/annotations.py`
+- `tests/e1/test_annotations.py`
+- `src/e1_judge/cli.py`（`adjudicate --report` 接口）
+
+**问题 / 失败**
+
+- 无未解决失败；测试标注为合成记录，未冒充真人研究标签。
+
+**下一步**
+
+1. 重建四方法/双 split 分析、threshold 扫描、method selection、bootstrap/ranking；
+2. 实现 freeze protocol、frozen gate、decision/reward-v0、严格 verify 和完整报告。
+
+---
+
+### 2026-08-24｜E1 v2 冻结身份链中间回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:19:37 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未连接学校 A6000
+
+**步骤 ID**
+
+- `E1-v2-frozen-identity-regression-v01`
+
+**行动与关键配置**
+
+- 将 generation parameters、model name/manifest 和 frozen protocol fingerprint 纳入 request/result/lock 身份链；
+- runtime fingerprint 覆盖完整模型本地身份与 adapter 配置；merge 拒绝混合 generation/model/frozen protocol；
+- 新增 schema-aware verification 实现，严格比对 plan/result 身份并从 raw text 重新解析语义。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_models.py tests/e1/test_cache_and_resume.py tests/e1/test_e2e_mock.py tests/e1/test_scaffold.py -q`；
+- 结果：**12/12 passed**；既有 runner、cache、mock E2E 与 CLI scaffold 在扩展身份字段后保持通过。
+
+**产物路径**
+
+- `src/e1_judge/models.py`
+- `src/e1_judge/runner.py`
+- `src/e1_judge/reporting.py`
+- `src/e1_judge/verification.py`
+
+**问题 / 失败**
+
+- 无未解决失败；四方法/frozen gate 专项测试尚未执行。
+
+**下一步**
+
+1. 增加完整 550-result 合成 oracle，验证四方法选择、冻结计划、PASS/FAIL 与 reward 产物；
+2. 完成分析报告专项回归并记录。
+
+---
+
+### 2026-08-24｜E1 v2 四方法分析、冻结协议与 gate 闭环
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:22:29 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；所有 judge/human 结果均为显式标记的合成 oracle
+
+**步骤 ID**
+
+- `E1-v2-analysis-freeze-gate-v01`
+
+**行动与关键配置**
+
+- 按 dev/frozen-eval 隔离四方法结果，实现 canonical swap 归一化、absolute pair delta、置信阈值/absolute delta 网格扫描、coverage/effective accuracy 决胜；
+- 最终方法仅从 pairwise-swap/rubric-swap 中选择，满足 swap≥0.85、coverage≥0.60，并在差值≤0.01 时选择 rubric；
+- 实现 overall、四维、分类别、位置偏差、cluster bootstrap CI、Bradley–Terry、Kendall 与 Spearman；
+- freeze 复制并冻结 prompt/config/runtime，生成 550-request frozen plan、不可变 protocol lock 和显式 frozen fingerprint；
+- final gate 只读取冻结方法的 70 pair / 140 directional results，并严格核验 config、prompt、runtime 与 protocol fingerprint；
+- PASS 才生成 `reward-v0.yaml`，FAIL 只保留 decision/metrics；report 生成 Markdown 与本地 SVG 图。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_metrics.py -q`；
+- 结果：**5/5 passed**，耗时 19.48s；
+- 合成 oracle 覆盖 100 pair / 550 requests，dev 自动选择 `rubric-swap-v1`、阈值 0.5；
+- frozen PASS 验证四项 gate 全通过并生成 reward/report；局部类别反向 oracle 保持 overall 临界但触发类别 FAIL，且不生成 reward；
+- strict verifier 对 frozen 550 plan/result 与 100 adjudicated labels 完整通过；单方向翻转被归一化为 inconsistent/uncertain。
+
+**产物路径**
+
+- `src/e1_judge/metrics.py`
+- `src/e1_judge/reporting.py`
+- `src/e1_judge/verification.py`
+- `tests/e1/test_metrics.py`
+
+**问题 / 失败**
+
+- 无未解决失败；本步骤不包含真实人工标签或模型测量，因此 PASS 只验证 gate 逻辑，不是研究结论。
+
+**下一步**
+
+1. 编写中文 A6000 离线准备、smoke、标注、冻结、恢复与回传执行手册；
+2. 从 README/E0/E1 现有文档建立入口，并执行文档静态验收。
+
+---
+
+### 2026-08-24｜E1 v2 第三人争议续标闭环
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:25:38 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未启动真人标注
+
+**步骤 ID**
+
+- `E1-v2-third-adjudication-resume-v01`
+
+**行动与关键配置**
+
+- 首次裁决发现争议且未提供第三人记录时，先原子形成含 `disputed_pair_ids`、逐维一致率和 kappa 的 precheck 报告，再以明确错误停止；
+- `e1 annotate --pair-filter <precheck.json>` 支持第三人只加载争议 pair，保留同一方向映射、媒体服务、自动保存和断点恢复；
+- 最终裁决继续强制第三人记录与争议集合精确相等，拒绝漏标或多标。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_annotations.py -q`；
+- 结果：**6/6 passed**，耗时 17.17s；
+- 新增验证：precheck 状态为 `needs_third_annotator`，争议清单可直接作为第三人标注过滤输入。
+
+**产物路径**
+
+- `src/e1_judge/annotations.py`
+- `src/e1_judge/cli.py`
+- `tests/e1/test_annotations.py`
+
+**问题 / 失败**
+
+- 首次无第三人裁决按协议失败，但已产生可续标诊断产物；这是预期控制流，不是未解决故障。
+
+**下一步**
+
+1. 将该两阶段裁决流程写入 A6000 手册；
+2. 固化服务器环境、模型与 smoke 停机门。
+
+---
+
+### 2026-08-24｜E1 v2 A6000 离线执行手册
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:30:03 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；手册命令未在学校服务器执行
+
+**步骤 ID**
+
+- `E1-v2-a6000-runbook-v01`
+
+**行动与关键配置**
+
+- 新增中文 E1 v2 服务器手册，固定实验根 `/DATA/DATA4/hfy/outputs/E1-judge-pilot-v02` 与 Qwen2.5-VL-7B revision `a22b9b202f87d21defc75df2652beed712e52261`；
+- 固定独立 Python 3.11 / torch 2.1.2+cu118 / torchvision 0.16.2+cu118 / Transformers 4.49.0 / Accelerate 1.2.1 / qwen-vl-utils 0.0.8 环境，明确不安装 flash-attn、不改 w1-control/anyv2v；
+- 覆盖联网 Linux 普通 snapshot、完整 wheelhouse、conda-pack、MODEL_CARD_LOCAL、逐文件/全包 SHA256SUMS、上传与离线验收；
+- 固化 4-request smoke、两人 100-pair 标注、第三人争议续标、165 dev 四方法、选择/freeze、140 frozen selected-method、60 dev-final、merge/final gate 顺序；
+- 写明 tmux 单 writer、raw/log、失败吸收、cache 重试、stale lock 审计解锁、DEVLOG 前后置模板、停止条件和回传清单；
+- README 和旧 E0/E1 综合手册已链接到 v2 手册，避免继续使用 v1 目录/命令。
+
+**结果**
+
+- 静态检索确认手册包含固定实验 ID、完整 revision、禁止 flash-attn、pair-filter 与 frozen selected 子计划；未残留 `.venv` 硬编码或旧 v01 E1 实验 ID；
+- 命令接口检查：`uv run e1 annotate --help` 与 `uv run e1 freeze --help` 均通过，手册所用 `--pair-filter`、`--output-dir` 等参数存在。
+
+**产物路径**
+
+- `docs/E1_A6000_RUNBOOK.md`
+- `configs/e1/qwen25-vl-cu118-requirements.txt`
+- `README.md`
+- `docs/E0_AUDIT_E1_EXECUTION.md`
+
+**问题 / 失败**
+
+- 尚未进行 A6000 smoke、真人标注或模型可靠性实验；服务器路径/驱动/离线包仍须按手册现场验收。
+
+**下一步**
+
+1. 执行本地全量 pytest、CLI validate、550/550 mock/cache 回归与 diff/大文件检查；
+2. 修复任何回归后写最终本地验收记录，再 fetch/rebase、提交和推送。
+
+---
+
+### 2026-08-24｜E1 v2 首轮全量回归诊断
+
+**状态：FAILED（已定位，待修复）**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:31:47 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-local-regression-attempt-01`
+
+**行动与关键配置**
+
+- 执行全量命令：`uv run pytest`；
+- 保留全部失败 traceback，未跳过或放宽测试。
+
+**结果**
+
+- **52 passed / 2 failed**，总耗时 62.42s；
+- 两个失败均位于旧 `tests/test_build_e0_audit.py`，测试自身仍直接启动系统 `ffprobe` 与 `sha256sum`；
+- 当前 Windows 环境没有这两个系统命令，生产实现已改用 ImageIO/imageio-ffmpeg 和 Python SHA-256，因此失败属于旧 fixture/验收方式未迁移，不是媒体构建失败。
+
+**产物路径**
+
+- 失败文件：`tests/test_build_e0_audit.py`
+- 被验收实现：`src/w1_pipeline/e0_audit.py`、`src/w1_pipeline/media_tools.py`
+
+**问题 / 失败**
+
+- `_probe_mp4` 仍调用裸 `ffprobe`；
+- SHA256SUMS 验收仍调用外部 `sha256sum -c`；
+- 这与 v2 明确的“无系统 ffprobe/sha256sum”验收目标冲突。
+
+**下一步**
+
+1. 将测试改为项目内 `probe_video` 和 Python checksum 校验，不改 E0 产物；
+2. 先重跑该文件，再重新执行完整测试集。
+
+---
+
+### 2026-08-24｜E0 审计测试去除系统工具依赖
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:33:00 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-e0-cross-platform-test-fix-v01`
+
+**行动与关键配置**
+
+- 将旧审计测试的裸 `ffprobe` 调用替换为项目内 ImageIO `probe_video`；
+- 将 `sha256sum -c` 替换为逐行解析 SHA256SUMS 并使用 Python `sha256_file` 校验；
+- 未修改 E0 原始输入、审计产物格式或生产语义。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/test_build_e0_audit.py -q`；
+- 结果：**9/9 passed**，耗时 22.37s；
+- 验证 22 个 MP4 可解码且为 512×256、8 fps、16 帧，50 张 contact sheet 可读，全部 SHA256SUMS 条目匹配。
+
+**产物路径**
+
+- `tests/test_build_e0_audit.py`
+
+**问题 / 失败**
+
+- 无未解决失败。
+
+**下一步**
+
+1. 重新执行完整 `uv run pytest`；
+2. 全绿后继续 CLI、mock E2E 与仓库卫生验收。
+
+---
+
+### 2026-08-24｜E1 v2 第二轮全量 pytest
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:34:26 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未加载真实 Qwen 权重
+
+**步骤 ID**
+
+- `E1-v2-local-regression-attempt-02`
+
+**行动与关键配置**
+
+- 在修复旧跨平台测试后，重新执行无筛选完整命令 `uv run pytest`。
+
+**结果**
+
+- **54/54 passed**，耗时 65.24s；
+- 覆盖 E0 审计只读行为、v2 schema/pair/media、标注/裁决、prompt parser、550-request runner/cache/fake command、四方法分析、freeze、PASS/FAIL/reward/report 与 CLI。
+
+**产物路径**
+
+- 测试目录：`tests/`
+- 临时媒体、SQLite、结果与报告仅位于 pytest 临时目录，不在工作树。
+
+**问题 / 失败**
+
+- 无未解决测试失败。
+
+**下一步**
+
+1. 执行 `uv run e1 validate` 与显式 runtime 校验；
+2. 再做独立 550/550 mock 二次 cache hit 验收、diff 和大文件审计。
+
+---
+
+### 2026-08-24｜E1 v2 配置与 runtime 校验
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:34:46 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-config-runtime-validate-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run e1 validate`；
+- 执行 `uv run e1 validate --runtime configs/e1/runtime-mock.yaml`。
+
+**结果**
+
+- 两条命令均成功；pilot schema-v2、四个完整 prompt、550 request 协议和 mock runtime 严格模型均有效。
+
+**产物路径**
+
+- `configs/e1/pilot.yaml`
+- `configs/e1/prompt-*-v1.yaml`
+- `configs/e1/runtime-mock.yaml`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行独立 v2 mock 550/550 与第二次全 cache hit；
+2. 检查 Git diff、文件大小和禁止提交的媒体/cache/权重。
+
+---
+
+### 2026-08-24｜E1 v2 独立 mock 550/550 cache 验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:35:30 +08:00
+- 执行位置：本地 Windows pytest 临时目录
+- 远程环境：未使用；backend=`mock`，`research_result=false`
+
+**步骤 ID**
+
+- `E1-v2-mock-e2e-final-v01`
+
+**行动与关键配置**
+
+- 独立执行 `uv run pytest tests/e1/test_e2e_mock.py -q`；
+- 构造 100 pair、共享 media manifest 和 550-request plan，连续两次运行相同 plan/cache。
+
+**结果**
+
+- **1/1 passed**，耗时 25.31s；
+- 首轮 550 selected / 0 cache hits / 550 attempted / 550 succeeded；
+- 第二轮 550 selected / 550 cache hits / 0 attempted / 550 succeeded；
+- dev/frozen 精确为 165/385，raw response 文件均为 Windows-safe 64hex 名称。
+
+**产物路径**
+
+- `tests/e1/test_e2e_mock.py`
+- 所有生成媒体、SQLite 与结果均位于 pytest 临时目录，未进入仓库。
+
+**问题 / 失败**
+
+- 无；这些是接口验收结果，不是研究测量。
+
+**下一步**
+
+1. 执行 `git diff --check`；
+2. 审计状态、未跟踪文件、禁入扩展名和大文件，再准备提交。
+
+---
+
+### 2026-08-24｜E1 v2 混合结果身份拒绝专项验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:36:47 +08:00
+- 执行位置：本地 Windows pytest 临时目录
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-merge-identity-guard-v01`
+
+**行动与关键配置**
+
+- 扩展 merge 专项测试，分别篡改 runtime fingerprint、generation parameters、frozen protocol fingerprint 和 model manifest；
+- 每个变体使用独立输入/output，避免前一失败污染后一断言。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_cache_and_resume.py -q`；
+- 结果：**3/3 passed**，耗时 23.92s；
+- 四类身份混合全部被拒绝；单进程 batch、partial resume、retry、全 cache hit 和活跃锁用例保持通过。
+
+**产物路径**
+
+- `tests/e1/test_cache_and_resume.py`
+- `src/e1_judge/runner.py`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 由于专项测试文件在全量回归后有新增，提交前再执行一次完整 pytest；
+2. 随后一次性完成 diff/大文件审计并记录最终回归。
+
+---
+
+### 2026-08-24｜E1 v2 最终全量 pytest
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:38:18 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未加载真实模型
+
+**步骤 ID**
+
+- `E1-v2-local-regression-final-v01`
+
+**行动与关键配置**
+
+- 在加入混合 generation/frozen protocol/model manifest 拒绝用例后，重新运行最终无筛选 `uv run pytest`。
+
+**结果**
+
+- **54/54 passed**，耗时 64.56s；
+- 最终测试树与待提交代码一致，未使用跳过、xfail 或真实权重。
+
+**产物路径**
+
+- `tests/`
+- `src/e1_judge/`
+- `src/w1_pipeline/`
+
+**问题 / 失败**
+
+- 无未解决失败。
+
+**下一步**
+
+1. 执行 `git diff --check` 和仓库卫生审计；
+2. 记录最终交付摘要，然后 fetch/rebase（如需）、commit 并 push。
+
+---
+
+### 2026-08-24｜E1 v2 本地交付验收总结
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-24 20:38:49 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；学校 A6000 实验未启动
+
+**步骤 ID**
+
+- `E1-v2-local-delivery-acceptance-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`；
+- 审计 `git status --short`、diff stat、全部未跟踪文件；
+- 使用扩展名扫描视频、SQLite/DB、PyTorch checkpoint、safetensors/bin，并扫描排除 `.git/.venv/cache` 后超过 5 MB 的工作树文件。
+
+**结果**
+
+- `git diff --check`：通过，仅有 Windows autocrlf 提示，无 whitespace error；
+- 工作树无 `.mp4/.avi/.mov`、`.sqlite/.sqlite3/.db`、`.pt/.pth/.ckpt/.safetensors/.bin`；
+- 工作树无超过 5 MB 的交付文件；
+- 未跟踪项仅为预期的小型 runtime/requirements、E1 手册、Qwen adapter、media helper 和 test fixture；
+- 最终全量测试 54/54、E1 config/runtime validate、mock 550/550 与第二次 550 cache hits 均已在前置记录中通过。
+
+**产物路径**
+
+- 代码：`src/e1_judge/`、`src/w1_pipeline/media_tools.py`
+- 模型适配器：`scripts/e1_judge_qwen25_vl.py`
+- 协议/runtime：`configs/e1/`
+- 手册：`docs/E1_A6000_RUNBOOK.md`
+- 测试：`tests/e1/`、`tests/test_build_e0_audit.py`
+
+**问题 / 失败**
+
+- 无本地工程阻塞；真实 A6000 smoke、两人标注、第三人裁决和 frozen reliability gate 属于服务器后续操作，不能由本地 mock 代替。
+
+**下一步**
+
+1. `git fetch origin`，确认 `origin/main` 未前进；若前进则无 force rebase 并重跑全量验收；
+2. 使用提交信息 `Rebuild E1 judge pipeline for real-model readiness` 形成单一提交并推送 `origin/main`。

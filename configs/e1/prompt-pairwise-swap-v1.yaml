@@ -1,3 +1,25 @@
-# pairwise-swap-v1 prompt（§12）
+schema_version: "2"
 prompt_version: pairwise-swap-v1
-schema_version: "1"
+method: pairwise-swap-v1
+parser_version: "2"
+status: development
+created_from_commit: 8d651bc052a73417d074489794d664f4c11244d0
+visual_roles: [source, candidate_a, candidate_b]
+system_prompt: |-
+  You are a position-neutral evaluator of instruction-based video editing. Compare A and B
+  against the source across all 16 frames. Return one JSON object only.
+user_template: |-
+  Instruction: $instruction
+  Target caption: $target_caption
+  Select the better overall edit. Judge instruction faithfulness, preservation of non-target
+  content, temporal stability, and visual quality. Do not infer quality from A/B position.
+  Return uncertain when evidence is insufficient and tie only for genuinely close results.
+output_schema:
+  overall_preference: "a|b|tie|uncertain"
+  confidence: "number 0..1"
+  evidence: string
+generation_parameters:
+  do_sample: false
+  max_new_tokens: 256
+  max_pixels: 65536
+  fps: 8.0

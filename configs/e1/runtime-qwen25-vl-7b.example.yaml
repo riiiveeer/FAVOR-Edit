@@ -1,0 +1,13 @@
+# Copy this file into the unique server experiment directory and replace all
+# REQUIRED_* values only after verifying the offline bundle and SHA256SUMS.
+runtime_schema_version: "2"
+backend: command
+model:
+  name: Qwen/Qwen2.5-VL-7B-Instruct
+  revision: a22b9b202f87d21defc75df2652beed712e52261
+  manifest_sha256: REQUIRED_64_HEX_SHA256_OF_SHA256SUMS
+  local_path: /DATA/DATA4/hfy/models/Qwen2.5-VL-7B-Instruct-a22b9b2
+adapter:
+  python: /DATA/DATA4/hfy/envs/e1-judge-qwen25-vl/bin/python
+  script: /home/sunyinan/FAVOR-Edit/scripts/e1_judge_qwen25_vl.py
+  timeout_seconds: 0

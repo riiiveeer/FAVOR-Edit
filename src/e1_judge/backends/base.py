@@ -1,12 +1,16 @@
-"""Abstract judge backend."""
+"""Batch backend contract for E1 judge adapters."""
 
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
 from pathlib import Path
 
+from ..models import RuntimeConfigV2
 
-class JudgeBackend:
-    """Run a single judge request, writing the parsed result to output_path."""
 
-    name = "base"
+class JudgeBackend(ABC):
+    name: str
 
-    def run(self, request_path: Path, output_path: Path) -> None:
-        raise NotImplementedError
+    @abstractmethod
+    def run_batch(self, requests_path: Path, output_dir: Path, runtime: RuntimeConfigV2) -> None:
+        """Run a request JSONL and atomically publish one envelope per judge_key."""

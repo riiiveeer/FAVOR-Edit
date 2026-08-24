@@ -1,4 +1,6 @@
-"""E1 pair construction: 100 unordered pairs with deterministic display randomization."""
+"""Build canonical schema-v2 E1 candidate pairs from immutable E0 outputs."""
+
+from __future__ import annotations
 
 import csv
 import json
@@ -7,11 +9,7 @@ from typing import Dict, List
 
 import yaml
 
-from .hashing import canonical_sha256
-from .models import PairRecord
-
-SEEDS = [101, 202, 303, 404, 505]
-PAIR_SCHEMA_VERSION = "1"
+from .models import CandidateRefV2, PairRecordV2, SourceRefV2
 
 
 def _load_json(path: Path):
@@ -19,103 +17,116 @@ def _load_json(path: Path):
 
 
 def _load_audit(path: Path) -> Dict[str, dict]:
-    rows = {}
     with Path(path).open(encoding="utf-8", newline="") as handle:
-        for row in csv.DictReader(handle):
-            rows[row["candidate_id"]] = row
-    return rows
-
-
-def _display_direction(pair_id: str, annotator_id: str, seed: int) -> str:
-    digest = canonical_sha256(f"{pair_id}|{annotator_id}|{seed}")
-    return "a_vs_b" if int(digest, 16) % 2 == 0 else "b_vs_a"
+        rows = list(csv.DictReader(handle))
+    if len(rows) != 50 or len({row["candidate_id"] for row in rows}) != 50:
+        raise ValueError("E0 audit must contain 50 unique candidate rows")
+    return {row["candidate_id"]: row for row in rows}
 
 
 def build_pairs(plan: Path, candidates: Path, audit: Path, config: Path, output: Path) -> List[dict]:
-    """Build the 100 unordered pairs (30 dev + 70 frozen-eval)."""
+    """Build 100 canonical pairs: 30 dev and 70 frozen-eval."""
+    output = Path(output)
+    if output.exists():
+        raise FileExistsError(f"pair output already exists: {output}")
+
     plan_data = _load_json(plan)
-    cands = _load_json(candidates)
+    candidate_records = _load_json(candidates)
+    if not isinstance(candidate_records, list) or len(candidate_records) != 50:
+        raise ValueError("E0 candidates must contain exactly 50 records")
     audit_rows = _load_audit(audit)
     cfg = yaml.safe_load(Path(config).read_text(encoding="utf-8"))
+    if str(cfg.get("protocol_schema_version")) != "2":
+        raise ValueError("E1 pair construction requires protocol schema v2")
 
     dev_samples = set(cfg["dev_samples"])
     frozen_samples = set(cfg["frozen_eval_samples"])
+    randomization_seed = int(cfg["randomization_seed"])
+    if dev_samples & frozen_samples or len(dev_samples) != 3 or len(frozen_samples) != 7:
+        raise ValueError("E1 split must contain 3 disjoint dev and 7 frozen samples")
 
-    by_id = {record["candidate_id"]: record for record in cands}
+    plan_candidates = plan_data.get("candidates") or []
+    if len(plan_candidates) != 50:
+        raise ValueError("E0 plan must contain exactly 50 candidate tasks")
+    plan_by_id = {task["candidate_id"]: task for task in plan_candidates}
+    by_id = {record["candidate_id"]: record for record in candidate_records}
+    if len(plan_by_id) != 50 or len(by_id) != 50 or set(plan_by_id) != set(by_id):
+        raise ValueError("E0 plan/candidate IDs must be unique and identical")
+
     by_sample: Dict[str, List[str]] = {}
-    for record in cands:
-        by_sample.setdefault(record["sample_id"], []).append(record["candidate_id"])
-
-    plan_by_id = {task["candidate_id"]: task for task in plan_data["candidates"]}
+    for candidate_id, record in by_id.items():
+        if record.get("status", "succeeded") != "succeeded":
+            raise ValueError(f"candidate {candidate_id} is not succeeded")
+        by_sample.setdefault(record["sample_id"], []).append(candidate_id)
 
     pairs: List[dict] = []
     for sample_id, candidate_ids in sorted(by_sample.items()):
         candidate_ids = sorted(candidate_ids)
         if len(candidate_ids) != 5:
             raise ValueError(f"sample {sample_id} has {len(candidate_ids)} candidates, expected 5")
-        task_input = plan_by_id[candidate_ids[0]]["input"]
-        task_type = task_input["task_type"]
-        instruction = task_input["instruction"]
-        target_caption = task_input["target_caption"]
-        source_video_path = task_input["source_video_path"]
-        source_checksum = task_input["source_checksum"]
-        mask_paths = task_input.get("mask_frame_paths", [])
+        if sample_id not in dev_samples | frozen_samples:
+            raise ValueError(f"sample {sample_id} is not assigned to an E1 split")
+        first_input = plan_by_id[candidate_ids[0]]["input"]
+        for candidate_id in candidate_ids[1:]:
+            candidate_input = plan_by_id[candidate_id]["input"]
+            identity_fields = ("sample_id", "task_type", "instruction", "target_caption", "source_checksum")
+            for field in identity_fields:
+                expected = sample_id if field == "sample_id" else first_input[field]
+                actual = sample_id if field == "sample_id" else candidate_input[field]
+                if actual != expected:
+                    raise ValueError(f"sample {sample_id} has inconsistent {field}")
 
+        source = SourceRefV2(
+            sample_id=sample_id,
+            video_path=str(first_input["source_video_path"]),
+            video_sha256=str(first_input["source_checksum"]),
+            mask_frame_paths=[str(path) for path in first_input.get("mask_frame_paths", [])],
+        )
         split = "dev" if sample_id in dev_samples else "frozen-eval"
-        if sample_id not in dev_samples and sample_id not in frozen_samples:
-            raise ValueError(f"sample {sample_id} not assigned to dev or frozen-eval")
-
-        for index in range(len(candidate_ids)):
-            for jndex in range(index + 1, len(candidate_ids)):
-                left_id = candidate_ids[index]
-                right_id = candidate_ids[jndex]
-                left = by_id[left_id]
-                right = by_id[right_id]
-                pair_id = f"{sample_id}-p{index}{jndex}"
-
-                left_usable = audit_rows.get(left_id, {}).get("usable_for_e1", "") == "yes"
-                right_usable = audit_rows.get(right_id, {}).get("usable_for_e1", "") == "yes"
-                excluded_reason = None
-                if not left_usable or not right_usable:
-                    excluded_reason = "candidate_unusable_for_e1"
-
-                identical_media = left.get("video_checksum") == right.get("video_checksum")
-
-                pair = PairRecord(
-                    pair_id=pair_id,
-                    sample_id=sample_id,
-                    task_type=task_type,
-                    instruction=instruction,
-                    target_caption=target_caption,
-                    source_video_path=source_video_path,
-                    source_checksum=source_checksum,
-                    mask_paths=mask_paths,
-                    candidate_left_id=left_id,
-                    candidate_left_checksum=left["video_checksum"],
-                    candidate_left_path=left["video_path"],
-                    candidate_right_id=right_id,
-                    candidate_right_checksum=right["video_checksum"],
-                    candidate_right_path=right["video_path"],
-                    canonical_candidate_a_id=min(left_id, right_id),
-                    canonical_candidate_b_id=max(left_id, right_id),
-                    display_direction=_display_direction(pair_id, "canonical", 0),
-                    split=split,
-                    randomization_seed=0,
-                    pair_schema_version=PAIR_SCHEMA_VERSION,
-                    identical_media=identical_media,
-                    excluded_reason=excluded_reason,
+        pair_number = 0
+        for left_index in range(5):
+            for right_index in range(left_index + 1, 5):
+                pair_number += 1
+                a_id = candidate_ids[left_index]
+                b_id = candidate_ids[right_index]
+                a = by_id[a_id]
+                b = by_id[b_id]
+                unusable = (
+                    audit_rows[a_id].get("usable_for_e1") != "yes"
+                    or audit_rows[b_id].get("usable_for_e1") != "yes"
                 )
-                pairs.append(pair.model_dump(mode="json"))
+                pair = PairRecordV2(
+                    pair_id=f"{sample_id}-p{pair_number:02d}",
+                    sample_id=sample_id,
+                    task_type=first_input["task_type"],
+                    instruction=first_input["instruction"],
+                    target_caption=first_input["target_caption"],
+                    source=source,
+                    candidate_a=CandidateRefV2(
+                        candidate_id=a_id,
+                        video_path=str(a["video_path"]),
+                        video_sha256=str(a["video_checksum"]),
+                    ),
+                    candidate_b=CandidateRefV2(
+                        candidate_id=b_id,
+                        video_path=str(b["video_path"]),
+                        video_sha256=str(b["video_checksum"]),
+                    ),
+                    split=split,
+                    randomization_seed=randomization_seed,
+                    identical_media=a["video_checksum"] == b["video_checksum"],
+                    excluded_reason="candidate_unusable_for_e1" if unusable else None,
+                ).model_dump(mode="json")
+                pairs.append(pair)
 
     if len(pairs) != 100:
         raise ValueError(f"expected 100 pairs, got {len(pairs)}")
-    dev_count = sum(1 for p in pairs if p["split"] == "dev")
-    frozen_count = sum(1 for p in pairs if p["split"] == "frozen-eval")
-    if dev_count != 30 or frozen_count != 70:
-        raise ValueError(f"expected 30 dev + 70 frozen, got {dev_count} + {frozen_count}")
+    counts = {split: sum(pair["split"] == split for pair in pairs) for split in ("dev", "frozen-eval")}
+    if counts != {"dev": 30, "frozen-eval": 70}:
+        raise ValueError(f"expected dev/frozen counts 30/70, got {counts}")
 
-    Path(output).parent.mkdir(parents=True, exist_ok=True)
-    with Path(output).open("w", encoding="utf-8") as handle:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", encoding="utf-8", newline="\n") as handle:
         for pair in pairs:
             handle.write(json.dumps(pair, ensure_ascii=False, sort_keys=True) + "\n")
     return pairs

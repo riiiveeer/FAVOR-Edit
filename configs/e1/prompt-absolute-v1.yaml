@@ -1,3 +1,31 @@
-# absolute-v1 prompt（§12）
+schema_version: "2"
 prompt_version: absolute-v1
-schema_version: "1"
+method: absolute-v1
+parser_version: "2"
+status: development
+created_from_commit: 8d651bc052a73417d074489794d664f4c11244d0
+visual_roles: [source, candidate_a]
+system_prompt: |-
+  You are a strict evaluator of instruction-based video editing. Compare the edited
+  candidate against the source and inspect all 16 frames. Return one JSON object only.
+user_template: |-
+  Instruction: $instruction
+  Target caption: $target_caption
+  Score candidate A from 0 to 4 on faithfulness, preservation, temporal_consistency,
+  and visual_quality. Also provide an independent holistic overall_score. Do not reward
+  visual attractiveness when the instruction is not fulfilled. Use uncertainty in the
+  confidence field rather than inventing evidence.
+output_schema:
+  scores:
+    faithfulness: "number 0..4"
+    preservation: "number 0..4"
+    temporal_consistency: "number 0..4"
+    visual_quality: "number 0..4"
+  overall_score: "number 0..4"
+  confidence: "number 0..1"
+  evidence: string
+generation_parameters:
+  do_sample: false
+  max_new_tokens: 384
+  max_pixels: 65536
+  fps: 8.0

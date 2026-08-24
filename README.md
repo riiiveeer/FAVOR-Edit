@@ -36,6 +36,10 @@ See `docs/SCHOOL_SERVER_DELIVERY.md` for the offline school-server delivery and
 execution procedure. `docs/REMOTE_RUNBOOK.md` contains the shorter experiment
 gate summary.
 
+E1 schema-v2 的本地命令、真实人工标注、Qwen2.5-VL judge、冻结协议与 A6000
+执行顺序见 [`docs/E1_A6000_RUNBOOK.md`](docs/E1_A6000_RUNBOOK.md)。该手册固定使用
+新的 `E1-judge-pilot-v02` 目录，不会覆盖 E0 或旧 E1 产物。
+
 ## Research dependency boundary
 
 AnyV2V is not vendored into this repository. Remote execution clones and pins

@@ -19,6 +19,7 @@ from w1_pipeline.e0_audit import (
     verify_existing,
 )
 from w1_pipeline.hashing import sha256_file
+from w1_pipeline.media_tools import probe_video
 
 SAMPLES = [
     ("bear-white", "attribute"),
@@ -155,18 +156,8 @@ def built_audit(e0_fixture, tmp_path_factory):
 
 
 def _probe_mp4(path: Path):
-    out = subprocess.run(
-        [
-            "ffprobe", "-v", "error", "-select_streams", "v:0",
-            "-show_entries", "stream=width,height,r_frame_rate,nb_frames",
-            "-of", "csv=p=0", str(path),
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
-    width, height, rate, frames = out.split(",")
-    return int(width), int(height), rate, int(frames)
+    metadata = probe_video(path)
+    return metadata["width"], metadata["height"], metadata["fps"], metadata["frames"]
 
 
 def test_spot_check_set_is_22(e0_fixture):
@@ -211,20 +202,19 @@ def test_build_produces_decodable_contact_sheets_and_proxies(e0_fixture, built_a
     for path in proxies:
         width, height, rate, frames = _probe_mp4(path)
         assert (width, height) == (512, 256)
-        assert rate == "8/1"
+        assert rate == pytest.approx(8.0)
         assert frames == 16
 
 
 def test_sha256sums_excludes_self_and_verifies(built_audit):
     sums = (built_audit / "SHA256SUMS").read_text(encoding="utf-8")
     assert "SHA256SUMS" not in sums
-    result = subprocess.run(
-        ["sha256sum", "-c", "SHA256SUMS"],
-        cwd=built_audit,
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, result.stderr
+    entries = [line.split("  ", 1) for line in sums.splitlines() if line.strip()]
+    assert entries
+    for expected, relative in entries:
+        target = built_audit / Path(relative)
+        assert target.is_file(), relative
+        assert sha256_file(target) == expected, relative
 
 
 def _fill_audit_csv(audit_dir: Path, spot_ids, *, bad_tag: bool = False, omit_reviewer: bool = False):

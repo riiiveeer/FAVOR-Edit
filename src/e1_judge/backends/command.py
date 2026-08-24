@@ -1,29 +1,36 @@
-"""Command backend invoking a separate judge environment."""
+"""One-process-per-batch command backend for independent judge environments."""
 
-import json
+from __future__ import annotations
+
 import subprocess
 from pathlib import Path
 
+from ..models import RuntimeConfigV2
 from .base import JudgeBackend
+
+
+class CommandBackendError(RuntimeError):
+    def __init__(self, returncode: int, stdout: str, stderr: str):
+        super().__init__(f"command judge exited {returncode}: {stderr or stdout}")
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
 
 
 class CommandBackend(JudgeBackend):
     name = "command"
 
-    def __init__(self, judge_python: str, judge_script: str):
-        self.judge_python = judge_python
-        self.judge_script = judge_script
-
-    def run(self, request_path: Path, output_path: Path) -> None:
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        temp = output_path.with_suffix(".tmp")
-        proc = subprocess.run(
-            [self.judge_python, self.judge_script, "--request", str(request_path), "--output", str(temp)],
-            capture_output=True,
-            text=True,
-        )
+    def run_batch(self, requests_path: Path, output_dir: Path, runtime: RuntimeConfigV2) -> None:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        command = [
+            str(runtime.adapter.python), str(runtime.adapter.script),
+            "--requests", str(requests_path),
+            "--output-dir", str(output_dir),
+            "--model-path", runtime.model.local_path,
+        ]
+        timeout = runtime.adapter.timeout_seconds or None
+        proc = subprocess.run(command, capture_output=True, text=True, timeout=timeout)
+        (output_dir / "adapter.stdout.log").write_text(proc.stdout or "", encoding="utf-8")
+        (output_dir / "adapter.stderr.log").write_text(proc.stderr or "", encoding="utf-8")
         if proc.returncode != 0:
-            raise RuntimeError(f"command judge failed: {proc.stderr or proc.stdout}")
-        if not temp.is_file():
-            raise RuntimeError("command judge produced no output file")
-        temp.replace(output_path)
+            raise CommandBackendError(proc.returncode, proc.stdout or "", proc.stderr or "")

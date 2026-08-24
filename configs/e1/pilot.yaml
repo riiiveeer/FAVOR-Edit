@@ -1,9 +1,10 @@
-# E1 Pilot 冻结协议（§7）
+# E1 schema-v2 pilot protocol. IVEBench is intentionally excluded.
+protocol_schema_version: "2"
 dataset: DAVIS-2017
 split: train
 seeds: [101, 202, 303, 404, 505]
+randomization_seed: 20260820
 
-# 开发/冻结评估划分（§7.2）
 dev_samples: [bear-white, dog-tiger, hiker-backpack]
 frozen_eval_samples:
   - bus-red
@@ -14,7 +15,6 @@ frozen_eval_samples:
   - rider-helmet
   - car-headlights
 
-# 四种 judge 方法（§7.3）与请求预算
 methods:
   absolute-v1:
     requests: 50
@@ -34,15 +34,17 @@ methods:
     swap: true
 total_requests: 550
 
-# 判定门（§17）
 thresholds:
   accuracy: 0.70
   swap_consistency: 0.85
   high_confidence_coverage: 0.60
   min_category_accuracy: 0.60
+threshold_grids:
+  confidence: [0.5, 0.6, 0.7, 0.8, 0.9]
+  absolute_delta: [0.0, 0.25, 0.5, 0.75, 1.0]
+method_selection:
+  candidates: [pairwise-swap-v1, rubric-swap-v1]
+  rubric_tie_tolerance: 0.01
 
-# 指标（§16）
 bootstrap_seed: 20260820
 bootstrap_iterations: 2000
-pair_schema_version: "1"
-annotation_schema_version: "1"

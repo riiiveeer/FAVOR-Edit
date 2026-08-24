@@ -10,7 +10,6 @@ This module never writes into the E0 input directories.
 
 import csv
 import json
-import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +18,7 @@ from typing import Any, Dict, Iterable, List, Set
 from PIL import Image
 
 from .hashing import sha256_file
+from .media_tools import ffmpeg_version, resolve_ffmpeg
 
 
 class AuditError(Exception):
@@ -74,18 +74,6 @@ def spot_check_ids(plan_candidates: Iterable[Dict[str, Any]]) -> List[str]:
     return sorted(ids)
 
 
-def _require_tools() -> None:
-    if shutil.which("ffmpeg") is None:
-        raise AuditError("ffmpeg not found on PATH")
-    if shutil.which("ffprobe") is None:
-        raise AuditError("ffprobe not found on PATH")
-
-
-def _ffmpeg_version() -> str:
-    out = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True, check=True)
-    return out.stdout.splitlines()[0] if out.stdout else "unknown"
-
-
 def _run_checked(cmd: List[str], what: str) -> None:
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
@@ -94,10 +82,10 @@ def _run_checked(cmd: List[str], what: str) -> None:
         raise AuditError(f"{what} failed: {' | '.join(detail)}")
 
 
-def _make_contact_sheet(video_path: Path, out_jpg: Path) -> None:
+def _make_contact_sheet(ffmpeg_exe: str, video_path: Path, out_jpg: Path) -> None:
     _run_checked(
         [
-            "ffmpeg", "-y", "-i", str(video_path),
+            ffmpeg_exe, "-y", "-i", str(video_path),
             "-vf", "scale=160:160:flags=lanczos,tile=4x4:padding=2:margin=2",
             "-frames:v", "1", str(out_jpg),
         ],
@@ -109,10 +97,10 @@ def _make_contact_sheet(video_path: Path, out_jpg: Path) -> None:
             raise AuditError(f"contact sheet {out_jpg.name} decoded to empty image")
 
 
-def _make_proxy(source_path: Path, candidate_path: Path, out_mp4: Path) -> None:
+def _make_proxy(ffmpeg_exe: str, source_path: Path, candidate_path: Path, out_mp4: Path) -> None:
     _run_checked(
         [
-            "ffmpeg", "-y",
+            ffmpeg_exe, "-y",
             "-i", str(source_path),
             "-i", str(candidate_path),
             "-filter_complex",
@@ -196,7 +184,6 @@ def build_audit(
     output_dir = Path(output_dir)
     if output_dir.exists():
         raise AuditError(f"output directory already exists: {output_dir}")
-    _require_tools()
 
     plan = json.loads(Path(plan_path).read_text(encoding="utf-8"))
     candidates = json.loads(Path(candidates_path).read_text(encoding="utf-8"))
@@ -204,6 +191,10 @@ def build_audit(
         raise AuditError("candidates file must contain a JSON list")
 
     plan_map = _validate_inputs(plan, candidates)
+    try:
+        ffmpeg_exe = resolve_ffmpeg()
+    except (FileNotFoundError, RuntimeError) as exc:
+        raise AuditError(f"ffmpeg unavailable: {exc}") from exc
     spot_ids = spot_check_ids(plan["candidates"])
     if len(spot_ids) != 22:
         raise AuditError(f"fixed spot-check set must be 22, got {len(spot_ids)}")
@@ -213,7 +204,7 @@ def build_audit(
     contact_dir.mkdir(parents=True)
     proxy_dir.mkdir(parents=True)
 
-    ffmpeg_version = _ffmpeg_version()
+    detected_ffmpeg_version = ffmpeg_version(ffmpeg_exe)
     generated_at = datetime.now().astimezone().isoformat()
 
     manifest_candidates: List[Dict[str, Any]] = []
@@ -225,7 +216,7 @@ def build_audit(
         seed = int(record["config"]["seed"])
 
         contact_jpg = contact_dir / f"{cid}.jpg"
-        _make_contact_sheet(Path(record["video_path"]), contact_jpg)
+        _make_contact_sheet(ffmpeg_exe, Path(record["video_path"]), contact_jpg)
 
         entry: Dict[str, Any] = {
             "candidate_id": cid,
@@ -250,7 +241,7 @@ def build_audit(
             if not source_video.is_file():
                 raise AuditError(f"candidate {cid}: source video missing: {source_video}")
             proxy_mp4 = proxy_dir / f"{cid}.mp4"
-            _make_proxy(source_video, Path(record["video_path"]), proxy_mp4)
+            _make_proxy(ffmpeg_exe, source_video, Path(record["video_path"]), proxy_mp4)
             entry["source_video"] = {
                 "path": str(source_video),
                 "sha256": sha256_file(source_video),
@@ -265,7 +256,7 @@ def build_audit(
     manifest = {
         "version": "E0-visual-audit-v01",
         "generated_at": generated_at,
-        "ffmpeg_version": ffmpeg_version,
+        "ffmpeg_version": detected_ffmpeg_version,
         "code_snapshot": code_snapshot,
         "e0_inputs": {
             "plan_path": str(Path(plan_path).resolve()),

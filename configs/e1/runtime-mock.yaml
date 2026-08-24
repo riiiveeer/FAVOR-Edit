@@ -1,0 +1,9 @@
+runtime_schema_version: "2"
+backend: mock
+model:
+  name: deterministic-e1-mock
+  revision: mock-v2
+  manifest_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+  local_path: mock
+adapter:
+  timeout_seconds: 0
