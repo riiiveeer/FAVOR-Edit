@@ -60,6 +60,47 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 metrics/report/verify 实现（E1-metrics-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 13:10（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯代码/测试，无 GPU 作业
+
+**步骤 ID**
+
+- `E1-metrics-v01`
+
+**行动与关键配置**
+
+- 实现 `src/e1_judge/metrics.py`（§16）：
+  - `pairwise_accuracy`：decisive-only / effective / coverage（judge 输出 tie/uncertain 计未正确 + 单独 coverage）。
+  - `swap_consistency`：两方向映射回 canonical 候选身份后比较（tie/tie 与 uncertain/uncertain 一致，明确 vs tie/uncertain 不一致）。
+  - `position_bias`：left/right 原始选择率。
+  - `cluster_bootstrap_ci`：以 sample_id 聚类重采样，固定 seed、95% percentile。
+  - `category_metrics`：attribute/object/local 分列。
+- 实现 `src/e1_judge/ranking.py`：tie-aware Bradley-Terry 效用 + Kendall tau + Spearman。
+- 实现 `src/e1_judge/verification.py`：`verify_results`（请求计数、重复 ID、strict 模式缺/多请求、human 标签 ≥100）。
+- 实现 `src/e1_judge/reporting.py`：`generate_report` 写 `E1_REPORT.md` 摘要。
+- 新增 `tests/e1/test_metrics.py`：11 条测试（100%/0% accuracy、tie/uncertain coverage、swap 一致/不一致、position bias 翻转、bootstrap 可复现、排序已知序、kendall/spearman、analyze 写 metrics）。
+
+**结果**
+
+- `python -m pytest tests/e1/test_metrics.py`：**11/11 通过**。
+- `git diff --check`：无 whitespace error。
+
+**产物路径**
+
+- `src/e1_judge/metrics.py`、`ranking.py`、`verification.py`、`reporting.py`
+- `tests/e1/test_metrics.py`
+
+**下一步**
+
+1. 提交本步骤。
+2. `E1-mock-e2e-v01`：真实跑 100 pair → 550 requests → 550 mock results → replay → report（`research_measurements=0`）+ `verify --expect-requests 550`。
+
 ### 2026-08-23｜E1 runner/cache/backend/锁实现（E1-runner-cache-v01）
 
 **状态：DONE**
