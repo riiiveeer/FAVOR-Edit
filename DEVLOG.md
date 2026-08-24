@@ -60,6 +60,46 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 真实 judge 模型盘点（BLOCKED）
+
+**状态：BLOCKED（BLOCKED_MISSING_REAL_JUDGE）**
+
+**时间与环境**
+
+- 记录时间：2026-08-23 13:25（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；只读盘点，无 GPU 作业
+
+**步骤 ID**
+
+- `E1-judge-model-inventory-v01`
+
+**行动与关键配置**
+
+- 按手册 §14.1 只读盘点 `/DATA/DATA4/hfy/models`（不使用会打印 credential 的命令）。
+
+**结果**
+
+- 服务器现有权重仅有：
+  - `i2vgen-xl`（4.7G）——AnyV2V inversion 的生成模型，非 judge。
+  - `instruct-pix2pix`（4.0G）——AnyV2V 首帧编辑模型，非 judge。
+- **不存在任何支持视频/多图输入的 VLM 或 LLM judge 权重**（无 Qwen-VL/InternVL/LLaVA/GPT 类模型）。
+- 因此真实 judge 环节（§14–§15.3）无法在当前服务器执行。
+
+**判定**
+
+- `decision=BLOCKED_MISSING_REAL_JUDGE`。
+- 依 AGENTS.md 与任务约束，不得用 mock/replay 或粗分冒充真实 judge 结果；E1 框架与 mock 验收已完成，但 **E1 研究验收未完成**。
+
+**产物路径**
+
+- 无新增产物（只读盘点）。
+
+**下一步（需外部前置）**
+
+1. 在联网/镜像机器准备一个支持视频或多图输入的 judge 模型 snapshot，固定 revision + 生成 SHA256SUMS + `MODEL_CARD_LOCAL.md`，上传到 `/DATA/DATA4/hfy/models/<judge-name>-<revision>` 并建独立环境 `/DATA/DATA4/hfy/envs/e1-judge-<model>`。
+2. 权重就位后：`E1-judge-smoke-v01`（2 dev pair rubric-swap 4 方向）→ `E1-judge-dev-v01` → `E1-prompt-freeze-v01` → `E1-judge-pilot-v01` → `E1-analysis-v01`。
+3. 人工标注（§11）同样需两名真人完成 100 pairs，当前未启动，不得 mock 冒充。
+
 ### 2026-08-23｜E1 mock E2E 全链路验收（E1-mock-e2e-v01）
 
 **状态：DONE**
