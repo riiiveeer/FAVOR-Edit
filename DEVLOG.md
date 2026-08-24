@@ -60,6 +60,41 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 人工标注工具与裁决实现（E1-annotation-tool-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 12:50（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯代码/测试，无 GPU 作业
+
+**步骤 ID**
+
+- `E1-annotation-tool-v01`
+
+**行动与关键配置**
+
+- 实现 `src/e1_judge/annotations.py`：
+  - `run_annotation_server`：Python 标准库单用户 HTTP 服务，默认 loopback；显示 instruction/target caption，四维 + overall + confidence 选择；上一条/下一条、断点续标（读取已有标注跳过）、防止同 annotator 重复提交同一 pair；保存 display_direction。
+  - `adjudicate`：两名独立标注者对每个 pair 判一致（overall + 四维全部相等）；争议时要求第三人裁决文件，缺第三人则失败（不自动任选）；输出 AdjudicatedLabel，标注 tie/uncertain。
+- 新增 `tests/e1/test_annotations.py`：6 条测试（一致取第一、争议缺第三人失败、争议用第三人、缺标注失败、tie/uncertain 标记、agreement helper）。
+
+**结果**
+
+- `python -m pytest tests/e1/test_annotations.py`：**6/6 通过**。
+- `git diff --check`：无 whitespace error。
+
+**产物路径**
+
+- `src/e1_judge/annotations.py`
+- `tests/e1/test_annotations.py`
+
+**下一步**
+
+1. 提交本步骤。
+2. `E1-runner-cache-v01`：mock/replay/command backend、judge key、SQLite 缓存、排他锁、断点续跑。
+
 ### 2026-08-23｜E1 pair 与 media packet 实现（E1-pairs-packets-v01）
 
 **状态：DONE**
