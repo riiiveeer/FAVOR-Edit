@@ -60,6 +60,45 @@
 
 ## 每日记录
 
+### 2026-08-23｜E0 视觉人工查验完成并放行
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 12:05（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；无 GPU 作业，无 E0 写入
+
+**步骤 ID**
+
+- `E0-visual-review-v01`
+
+**行动与关键配置**
+
+- 人工已填写 `audit.csv`：50 行四维粗分（0/1/2）、`usable_for_e1` 全部 `yes`、failure_tags/systematic_failure 为空（无失败/无系统性失败）。
+- 因标注者匿名，按约定将 `reviewer` 统一填匿名 ID `anon-01`、`reviewed_at` 填查验时间戳 `2026-08-23T12:05:00+08:00`（50 行）。
+- 运行 `python scripts/build_e0_audit.py --verify-existing /DATA/DATA4/hfy/outputs/E0-visual-audit-v01` 校验。
+
+**结果**
+
+- `--verify-existing` 返回 `{'valid': True, 'rows': 50, 'spot_check_ids': [...22...]}`，校验通过。
+- 50 行审计记录无重复 ID；22 个固定抽查候选四维粗分完整；failure tag 枚举合法；`usable_for_e1` 仅 yes/no；E0 输入 checksum 未变化。
+- 四维粗分分布：faithfulness 0×7/1×22/2×21；preservation 0×11/1×18/2×21；temporal 0×3/1×22/2×25；quality 0×3/1×30/2×17。
+
+**放行判定**
+
+- 满足 §6.1 放行规则：硬验收仍 50/50 valid；三类任务存在可判断候选差异；10/10 sample 可形成有效 pair；无源/候选错配。
+- **Part A 放行，允许进入 E1 Pilot。**
+
+**产物路径**
+
+- `/DATA/DATA4/hfy/outputs/E0-visual-audit-v01/audit.csv`（50 行已填写）
+
+**下一步**
+
+1. 提交本记录（DEVLOG）。
+2. 进入 Part B：`E1-scaffold-v01`（E1 包骨架 + CLI + pyproject 入口 + configs/e1）。
+
 ### 2026-08-23｜E0 视觉人工查验待执行（BLOCKED）
 
 **状态：BLOCKED（等待人工视觉标注）**
