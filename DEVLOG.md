@@ -60,6 +60,47 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 严格 schema 实现（E1-schema-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 12:20（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯代码/测试，无 GPU 作业
+
+**步骤 ID**
+
+- `E1-schema-v01`
+
+**行动与关键配置**
+
+- 按手册 §9 实现严格 Pydantic schema（`src/e1_judge/models.py`），全部 `extra="forbid"`：
+  - `PairRecord`（§9.1）：pair_id/sample_id/task_type/instruction/target_caption/源与候选路径与 checksum/canonical A-B/display_direction/split/randomization_seed/schema version；校验候选不同、canonical 字典序、checksum 格式、IVEBench 拒绝。
+  - `HumanAnnotation`（§9.2）：四维 + overall preference 限定 `a/b/tie/uncertain`，confidence∈[0,1]。
+  - `JudgeRequest`（§9.3）：absolute/pairwise 方向，absolute 不得携带 candidate_b_checksum，IVEBench 拒绝。
+  - `JudgeResult`（§9.4）：judge_key 64 hex、raw_response 必存、status/维度/置信度。
+  - `AdjudicatedLabel`（§9.5）：两名标注者 min_length=2、agreement/第三人/四维/overall/tie/uncertain。
+- 实现 `hashing.py`：`canonical_json` + `canonical_sha256`（排序键、稳定顺序）。
+- 实现 `validate_config`：校验 `pilot.yaml` 必需键 + 550 请求合计。
+- 新增 `tests/e1/test_models.py`：13 条测试覆盖缺字段、非法 preference/split、自比较、canonical 未排序、checksum 格式、IVEBench、extra 拒绝、哈希顺序无关/值区分。
+
+**结果**
+
+- `python -m pytest`：**43/43 通过**（原 30 + 新 13），耗时 23.79s。
+- `git diff --check`：无 whitespace error（修正两处 EOF 空行）。
+
+**产物路径**
+
+- `src/e1_judge/models.py`
+- `src/e1_judge/hashing.py`
+- `tests/e1/test_models.py`
+
+**下一步**
+
+1. 提交本步骤。
+2. `E1-pairs-packets-v01`：100 无序 pair（dev 30 / frozen 70）+ 确定性展示随机化 + media packets（软链 + contact sheet + metadata）。
+
 ### 2026-08-23｜E1 包骨架与 CLI 完成（E1-scaffold-v01）
 
 **状态：DONE**

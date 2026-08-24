@@ -1,5 +1,13 @@
-"""E1 canonical hashing helpers (implemented in E1-schema-v01)."""
+"""E1 canonical hashing helpers."""
+
+import hashlib
+import json
+from typing import Any
 
 
-def canonical_sha256(value) -> str:
-    raise NotImplementedError("hashing implemented in E1-schema-v01")
+def canonical_json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def canonical_sha256(value: Any) -> str:
+    return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
