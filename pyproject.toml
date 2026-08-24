@@ -20,6 +20,7 @@ dependencies = [
 
 [project.scripts]
 w1 = "w1_pipeline.cli:app"
+e1 = "e1_judge.cli:app"
 
 [dependency-groups]
 dev = [
@@ -27,7 +28,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/w1_pipeline"]
+packages = ["src/w1_pipeline", "src/e1_judge"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

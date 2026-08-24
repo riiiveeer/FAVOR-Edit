@@ -60,6 +60,47 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 包骨架与 CLI 完成（E1-scaffold-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 12:10（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯代码/测试，无 GPU 作业
+
+**步骤 ID**
+
+- `E1-scaffold-v01`
+
+**行动与关键配置**
+
+- 按 `docs/E0_AUDIT_E1_EXECUTION.md` §8 新增独立包 `src/e1_judge/`，不修改 W1 研究边界：
+  - `cli.py`：12 个命令 `validate/build-pairs/build-packets/annotate/adjudicate/plan/run/unlock/merge-results/analyze/verify/report`。
+  - 模块骨架：`models.py`、`hashing.py`、`pairs.py`、`packets.py`、`annotations.py`、`prompts.py`、`cache.py`、`runner.py`、`ranking.py`、`metrics.py`、`reporting.py`、`verification.py`。
+  - 后端骨架：`backends/{base,mock,replay,command}.py`。
+- 新增 `configs/e1/`：`pilot.yaml`（冻结协议 + 4 方法 550 请求预算 + 判定门槛 + bootstrap seed）+ 4 个 prompt 占位文件。
+- 更新 `pyproject.toml`：注册 `e1 = "e1_judge.cli:app"`，wheel 打包 `src/e1_judge`。
+- 重新 `pip install --no-deps -e .` 并验证 `e1 --help`。
+- 新增 `tests/e1/test_scaffold.py`：验证 12 命令发现与子命令帮助。
+
+**结果**
+
+- `e1 --help` 列出全部 12 个命令。
+- `python -m pytest`：**30/30 通过**（原 28 + 新 2），耗时 25.44s。
+- `git diff --check`：无 whitespace error。
+
+**产物路径**
+
+- `src/e1_judge/`（含 `cli.py`、模块骨架、`backends/`）
+- `configs/e1/`（`pilot.yaml` + 4 prompt 占位）
+- `tests/e1/test_scaffold.py`
+
+**下一步**
+
+1. 提交本步骤（代码 + 配置 + 测试 + DEVLOG）。
+2. `E1-schema-v01`：实现严格 Pydantic schema（PairRecord/HumanAnnotation/JudgeRequest/JudgeResult/AdjudicatedLabel），`extra="forbid"`。
+
 ### 2026-08-23｜E0 视觉人工查验完成并放行
 
 **状态：DONE**

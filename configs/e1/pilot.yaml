@@ -1,0 +1,48 @@
+# E1 Pilot 冻结协议（§7）
+dataset: DAVIS-2017
+split: train
+seeds: [101, 202, 303, 404, 505]
+
+# 开发/冻结评估划分（§7.2）
+dev_samples: [bear-white, dog-tiger, hiker-backpack]
+frozen_eval_samples:
+  - bus-red
+  - elephant-pink
+  - classic-car-blue
+  - horse-zebra
+  - mallard-swan
+  - rider-helmet
+  - car-headlights
+
+# 四种 judge 方法（§7.3）与请求预算
+methods:
+  absolute-v1:
+    requests: 50
+    prompt: prompt-absolute-v1.yaml
+    swap: false
+  pairwise-single-v1:
+    requests: 100
+    prompt: prompt-pairwise-single-v1.yaml
+    swap: false
+  pairwise-swap-v1:
+    requests: 200
+    prompt: prompt-pairwise-swap-v1.yaml
+    swap: true
+  rubric-swap-v1:
+    requests: 200
+    prompt: prompt-rubric-swap-v1.yaml
+    swap: true
+total_requests: 550
+
+# 判定门（§17）
+thresholds:
+  accuracy: 0.70
+  swap_consistency: 0.85
+  high_confidence_coverage: 0.60
+  min_category_accuracy: 0.60
+
+# 指标（§16）
+bootstrap_seed: 20260820
+bootstrap_iterations: 2000
+pair_schema_version: "1"
+annotation_schema_version: "1"
