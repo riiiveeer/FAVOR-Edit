@@ -60,6 +60,51 @@
 
 ## 每日记录
 
+### 2026-08-23｜E1 runner/cache/backend/锁实现（E1-runner-cache-v01）
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-23 13:00（Asia/Shanghai）
+- 执行位置：学校 A6000 服务器（`ps`）；纯代码/测试，无 GPU 作业
+
+**步骤 ID**
+
+- `E1-runner-cache-v01`
+
+**行动与关键配置**
+
+- 实现 `src/e1_judge/cache.py`：SQLite `judge_results` 表（judge_key 主键、request_id/status/payload/error/时间戳），WAL。
+- 实现 `src/e1_judge/backends/`：
+  - `base.py`：`JudgeBackend.run(request_path, output_path)`。
+  - `mock.py`：确定性假结果（`overall=uncertain, confidence=0, research_result=false`），非研究测量。
+  - `replay.py`：严格回放已有真实结果（按 judge_key 找源文件）。
+  - `command.py`：调用独立 judge 环境 `<judge-python> <judge-script> --request --output`，写临时文件后原子重命名。
+- 实现 `src/e1_judge/runner.py`：
+  - `judge_key`：§13.2 全部字段的规范化 SHA-256（方向不同产生不同 key）。
+  - `acquire_lock/release_lock/unlock`：`O_CREAT|O_EXCL` 排他锁，锁内记录 PID/hostname；陈旧锁只报告，unlock 写审计记录。
+  - `build_judge_plan`：100 pair → 4 方法共 550 请求（absolute 50 / single 100 / swap 200 / rubric-swap 200）。
+  - `run_judge`：缓存命中不调 backend；失败写入缓存允许重试；raw response 永久保存。
+  - `merge_results`：拒绝重复 request ID。
+- 新增 `tests/e1/test_cache_and_resume.py`：10 条测试（judge key 顺序无关/方向敏感、缓存读写命中、锁互斥、unlock 移除锁/无锁失败、plan 550 计数、mock run 与缓存续跑、merge 去重/合并）。
+
+**结果**
+
+- `python -m pytest tests/e1/test_cache_and_resume.py`：**10/10 通过**。
+- `git diff --check`：无 whitespace error。
+
+**产物路径**
+
+- `src/e1_judge/cache.py`、`runner.py`
+- `src/e1_judge/backends/{base,mock,replay,command}.py`
+- `tests/e1/test_cache_and_resume.py`
+
+**下一步**
+
+1. 提交本步骤。
+2. `E1-metrics-v01`：§16 全部指标（accuracy/swap consistency/position bias/排序相关/分类别/cluster bootstrap）+ report + verify。
+
 ### 2026-08-23｜E1 人工标注工具与裁决实现（E1-annotation-tool-v01）
 
 **状态：DONE**

@@ -1,6 +1,12 @@
-"""Abstract judge backend (implemented in E1-runner-cache-v01)."""
+"""Abstract judge backend."""
+
+from pathlib import Path
 
 
 class JudgeBackend:
-    def run(self, request_path, output_path) -> None:
+    """Run a single judge request, writing the parsed result to output_path."""
+
+    name = "base"
+
+    def run(self, request_path: Path, output_path: Path) -> None:
         raise NotImplementedError
