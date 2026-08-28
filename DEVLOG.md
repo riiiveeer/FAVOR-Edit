@@ -3466,3 +3466,228 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 
 1. `git fetch origin`，确认 `origin/main` 未前进；若前进则无 force rebase 并重跑全量验收；
 2. 使用提交信息 `Rebuild E1 judge pipeline for real-model readiness` 形成单一提交并推送 `origin/main`。
+
+---
+
+### 2026-08-28｜E1 v2 source video checksum 修复授权与基线阻断
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-28 22:11:40 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 代码基线：`82ce0292116f229033b28b47e9a46ad731366c61`；`main` 与最新 fetch 的 `origin/main` 一致
+- 远程环境：未连接学校 A6000；未修改服务器、E0、delivery、模型或 E1 产物
+
+**步骤 ID**
+
+- `E1-v2-source-video-checksum-fix-authorization-v01`
+
+**行动与关键配置**
+
+- 用户明确授权 Codex 修改本地代码、测试、文档与 DEVLOG，并在完整验收后非强制推送新的审计 baseline 到 `main`；
+- 授权范围写入 `AGENTS.md`，明确禁止服务器现场 patch、改 E0、改 sealed delivery 或重写历史；
+- 在 A6000 runbook 增加基线勘误门：旧提交 `82ce029...` 的 `pairs.py` 混用了 source frame-set checksum 与 source MP4 checksum，在新 baseline 下发前禁止创建 E1 根或执行 phase 3；
+- 已确认的根因链：生产 `InputRecord.source_checksum` 是 16 张源帧的组合 SHA，`InputRecord.video_checksum` 是 `source.mp4` 文件 SHA；`pairs.py` 错把前者写入 `SourceRefV2.video_sha256`，随后 `packets.py` 用 MP4 文件 SHA 严格比较而必然失败；现有测试 fixture 将两者混同，未覆盖生产语义。
+
+**结果**
+
+- 修复权限与停止边界已形成仓库内审计记录；
+- 当前仅完成授权与文档阻断，尚未修改实现，不能解除服务器 `BLOCKED_CODE_DEFECT`；
+- 服务器诊断证据：10/10 source 的实际 MP4 SHA 等于 `plan.video_checksum`，10/10 frame-set 组合 SHA 等于 `plan.source_checksum`，两字段 10/10 不相等；E1 根仍不存在。
+
+**产物路径**
+
+- `AGENTS.md`
+- `docs/E1_A6000_RUNBOOK.md`
+- `DEVLOG.md`
+- 服务器只读证据（未由本地修改）：`/DATA/DATA4/hfy/outputs/E1-judge-pilot-v02.SOURCE_IDENTITY_DIAGNOSIS.json`，SHA-256 `5837a9a1e07b0793e5dbc956ce20eee31b9c6e439dde6e6b158a50976360f608`
+
+**问题 / 失败**
+
+- 旧 baseline 已确认不适用于真实 E1 phase 3；readiness audit 的执行证据保留，但其原 `status=passed` 结论不被接受。
+
+**下一步**
+
+1. 修复 `pairs.py` 使用 `input.video_checksum`，并把两种 source checksum 的一致性纳入构建检查；
+2. 更新测试 fixture 使 frame-set checksum 与 MP4 checksum 明确不同，并增加直接回归断言；
+3. 运行定向和全量测试，每个完成步骤立即写 DEVLOG。
+
+---
+
+### 2026-08-28｜E1 v2 source video checksum 实现修复与定向回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-28 22:13:21 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 修复前代码基线：`82ce0292116f229033b28b47e9a46ad731366c61` + 本次未提交修复
+- 远程环境：未使用；未运行模型、未创建 E1、未修改 E0 或服务器产物
+
+**步骤 ID**
+
+- `E1-v2-source-video-checksum-codefix-v01`
+
+**行动与关键配置**
+
+- `src/e1_judge/pairs.py` 的 `SourceRefV2.video_sha256` 改为读取生产 `InputRecord.video_checksum`，不再错误读取 frame-set `source_checksum`；
+- 同 sample 的五条 plan input 一致性检查同时覆盖 `source_checksum` 和 `video_checksum`，拒绝同一 source 的任一身份漂移；
+- 测试 fixture 现在明确构造两个不同的 64 位身份：`source_checksum` 表示 frame-set，`video_checksum` 表示 source MP4 文件 SHA；
+- pair/media 回归新增直接断言：100 个 pair 的 `source.video_sha256` 全部等于 `input.video_checksum`，并全部不等于 `input.source_checksum`。
+
+**结果**
+
+- 定向命令：`uv run pytest tests/e1/test_pairs_packets.py -q`；
+- 结果：**3/3 passed**，耗时 28.7s；
+- fixture 随后完整执行 `build_pairs` 和 `build_packets`，证明生产双-checksum 语义下 10 source / 50 candidate / 100 pair 媒体构建不再触发 source MP4 checksum mismatch。
+
+**产物路径**
+
+- `src/e1_judge/pairs.py`
+- `tests/e1/conftest.py`
+- `tests/e1/test_pairs_packets.py`
+
+**问题 / 失败**
+
+- 无定向回归失败；尚未完成全量测试和配置/仓库卫生验收。
+
+**下一步**
+
+1. 执行无筛选完整 `uv run pytest`；
+2. 全绿后执行 E1 config/runtime validate 和 diff/大文件审计。
+
+---
+
+### 2026-08-28｜E1 v2 source checksum 修复后全量回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-28 22:15:09 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 代码状态：`82ce029...` + 已记录的本地 source video checksum 修复
+- 远程环境：未使用；未加载真实 Qwen 权重
+
+**步骤 ID**
+
+- `E1-v2-source-video-checksum-full-regression-v01`
+
+**行动与关键配置**
+
+- 在生产 checksum 语义 fixture 和修复实现上执行无筛选完整命令：`uv run pytest`；
+- 未使用 skip、xfail、mock GPU 或真实模型。
+
+**结果**
+
+- **54/54 passed**，耗时 81.09s；
+- 覆盖 E0 数据/审计、E1 schema/pair/media、标注/裁决、runner/cache、分析/freeze/gate/report 和 CLI；
+- 新的 source frame-set / source MP4 双 checksum 回归包含在全量测试中并通过。
+
+**产物路径**
+
+- `tests/`
+- `src/e1_judge/pairs.py`
+
+**问题 / 失败**
+
+- 无未解决测试失败。
+
+**下一步**
+
+1. 执行 E1 schema/config 与 mock runtime validate；
+2. 完成 diff、tracked/untracked、大文件和禁止产物审计。
+
+---
+
+### 2026-08-28｜E1 v2 修复后 config/runtime 校验
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-28 22:15:31 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-source-video-checksum-config-validate-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run e1 validate`；
+- 执行 `uv run e1 validate --runtime configs/e1/runtime-mock.yaml`。
+
+**结果**
+
+- 两条命令均成功；schema-v2 pilot、四方法 prompt、550-request 协议和 mock runtime 继续通过严格校验；
+- 本次 checksum 修复未改变 prompt、阈值、generation 参数、模型 revision 或方法选择协议。
+
+**产物路径**
+
+- `configs/e1/pilot.yaml`
+- `configs/e1/runtime-mock.yaml`
+- `configs/e1/prompt-*-v1.yaml`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行 Git diff/whitespace/大文件与禁止产物审计；
+2. 审计通过后形成新的本地 baseline commit。
+
+---
+
+### 2026-08-28｜E1 v2 source checksum 修复提交前仓库验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-28 22:16:03 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程状态：执行修复前已 `git fetch origin`，`origin/main` 仍为 `82ce0292116f229033b28b47e9a46ad731366c61`
+- 远程实验环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-source-video-checksum-repo-acceptance-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`、`git status --short`、`git diff --stat` 并逐项人工审阅实现/测试/授权/runbook diff；
+- 审计全部 untracked 文件；
+- 扫描 `.mp4/.avi/.mov`、SQLite/DB、PyTorch checkpoint、safetensors/bin 等禁止实验产物；
+- 排除 `.git/.venv/cache` 后扫描超过 5 MB 的工作树文件。
+
+**结果**
+
+- `git diff --check` 无 whitespace error，仅有 Windows autocrlf 提示；
+- 修改范围精确为 6 个预期文件：`AGENTS.md`、`DEVLOG.md`、E1 runbook、`pairs.py` 和两个 E1 测试文件；
+- untracked=0，禁止实验产物=0，超过 5 MB 的交付文件=0；
+- diff 人工核验确认只改变 source video checksum 取值/一致性检查、生产语义 fixture、回归断言和审计文档；未改变 prompt、threshold、runtime、model revision 或 E1 split/method 协议。
+
+**产物路径**
+
+- `AGENTS.md`
+- `DEVLOG.md`
+- `docs/E1_A6000_RUNBOOK.md`
+- `src/e1_judge/pairs.py`
+- `tests/e1/conftest.py`
+- `tests/e1/test_pairs_packets.py`
+
+**问题 / 失败**
+
+- 无提交阻塞。
+
+**下一步**
+
+1. 再次 fetch 并确认 `origin/main` 未前进；
+2. 创建新的 source checksum 修复 baseline commit；
+3. 非强制推送到 `origin/main`，随后追加发布 DEVLOG 记录。

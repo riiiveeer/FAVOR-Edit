@@ -25,3 +25,8 @@ These rules apply to all development work in this workspace, including work perf
 4. After the job ends or is interrupted, record status, runtime, peak VRAM if available, metrics, output paths, and observed failures before starting the next experiment.
 5. Never overwrite a remote experiment output directory. Use a unique experiment ID and preserve the exact configuration with the outputs.
 
+## Current E1 v2 repair authorization
+
+1. On 2026-08-28, the user explicitly authorized Codex to modify the local code, tests, documentation, and `DEVLOG.md` needed to repair the confirmed E1 source-video checksum identity defect.
+2. After the repair passes the required local verification, Codex is authorized to create a new audited baseline commit and push it to `main` without force-pushing.
+3. This authorization is scoped to the confirmed E1 v2 repair and its reproducibility records. It does not authorize rewriting server history, modifying sealed deliveries, changing E0 inputs, or patching the school-server worktree in place.

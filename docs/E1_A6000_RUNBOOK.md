@@ -8,6 +8,13 @@
 
 ## 1. 不可变基线和停止规则
 
+> **2026-08-28 基线勘误门：**提交 `82ce0292116f229033b28b47e9a46ad731366c61`
+> 的 `pairs.py` 把源帧集合身份 `input.source_checksum` 误当成
+> `source_video_path` 的文件 SHA。生产 E0 中前者是 16 张源帧的组合 SHA，后者应使用
+> `input.video_checksum`。在本地修复、回归、形成并明确下发新的 40 位 baseline commit
+> 之前，服务器不得执行 `build-pairs`、`build-packets` 或创建 E1 根；不得通过现场改
+> E0、临时转换 plan 或服务器 patch 绕过。新的 baseline 必须由最终推送后的审计记录提供。
+
 固定实验根目录：
 
 ```text

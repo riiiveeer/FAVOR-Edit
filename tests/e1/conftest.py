@@ -43,7 +43,11 @@ def e1_v2_fixture(tmp_path_factory):
         sample_dir.mkdir()
         source = sample_dir / "source.mp4"
         make_video(source, sample_index * 17)
-        source_sha = sha256(source)
+        source_video_sha = sha256(source)
+        source_frame_set_sha = hashlib.sha256(
+            f"combined-source-frames:{sample_id}".encode("utf-8")
+        ).hexdigest()
+        assert source_frame_set_sha != source_video_sha
         for seed_index, seed in enumerate(SEEDS):
             candidate_id = f"{sample_id}-s{seed}"
             video = sample_dir / f"candidate-{seed}.mp4"
@@ -57,7 +61,8 @@ def e1_v2_fixture(tmp_path_factory):
                     "instruction": f"instruction for {sample_id}",
                     "target_caption": f"target for {sample_id}",
                     "source_video_path": str(source),
-                    "source_checksum": source_sha,
+                    "source_checksum": source_frame_set_sha,
+                    "video_checksum": source_video_sha,
                     "mask_frame_paths": [],
                 },
             })

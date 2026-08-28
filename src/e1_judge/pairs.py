@@ -69,7 +69,10 @@ def build_pairs(plan: Path, candidates: Path, audit: Path, config: Path, output:
         first_input = plan_by_id[candidate_ids[0]]["input"]
         for candidate_id in candidate_ids[1:]:
             candidate_input = plan_by_id[candidate_id]["input"]
-            identity_fields = ("sample_id", "task_type", "instruction", "target_caption", "source_checksum")
+            identity_fields = (
+                "sample_id", "task_type", "instruction", "target_caption",
+                "source_checksum", "video_checksum",
+            )
             for field in identity_fields:
                 expected = sample_id if field == "sample_id" else first_input[field]
                 actual = sample_id if field == "sample_id" else candidate_input[field]
@@ -79,7 +82,7 @@ def build_pairs(plan: Path, candidates: Path, audit: Path, config: Path, output:
         source = SourceRefV2(
             sample_id=sample_id,
             video_path=str(first_input["source_video_path"]),
-            video_sha256=str(first_input["source_checksum"]),
+            video_sha256=str(first_input["video_checksum"]),
             mask_frame_paths=[str(path) for path in first_input.get("mask_frame_paths", [])],
         )
         split = "dev" if sample_id in dev_samples else "frozen-eval"
