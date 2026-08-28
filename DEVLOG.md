@@ -3691,3 +3691,50 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 再次 fetch 并确认 `origin/main` 未前进；
 2. 创建新的 source checksum 修复 baseline commit；
 3. 非强制推送到 `origin/main`，随后追加发布 DEVLOG 记录。
+
+---
+
+### 2026-08-28｜E1 v2 source checksum 修复 baseline 发布
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-28 22:16:58 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 发布目标：GitHub `origin/main`
+- 远程实验环境：未连接；服务器工作树和 sealed delivery 未修改
+
+**步骤 ID**
+
+- `E1-v2-source-video-checksum-baseline-publish-v01`
+
+**行动与关键配置**
+
+- 发布前再次执行 `git fetch origin`，确认 `origin/main` 仍为旧 baseline `82ce0292116f229033b28b47e9a46ad731366c61`，不存在并发前进；
+- 使用提交信息 `Fix E1 source video checksum identity` 创建修复提交；
+- 执行普通 `git push origin main`，未使用 force、force-with-lease、reset、rebase 或历史重写。
+
+**结果**
+
+- 修复 commit：`3e635db6fcb205c37fe2a462885859e5c72aa47e`；
+- push 成功：`origin/main` 从 `82ce029...` 前进到 `3e635db...`；
+- push 后本地 `main`、本地 `origin/main` 与 HEAD 三者一致，工作树干净；
+- 该 commit 包含授权/停止门文档、checksum 实现修复、生产语义 fixture、回归断言以及此前全部逐步 DEVLOG；
+- 验收依据：定向 3/3、全量 54/54、两条 E1 validate、仓库卫生审计全部通过。
+
+**产物路径**
+
+- Git commit：`3e635db6fcb205c37fe2a462885859e5c72aa47e`
+- 远端：`origin/main`
+- 本记录：`DEVLOG.md`
+
+**问题 / 失败**
+
+- 无 push 失败或分支冲突；旧 sealed delivery 的 code bundle 仍固定为 `82ce029...`，不得把它误报为新 baseline 的交付证据。
+
+**下一步**
+
+1. 用 DEVLOG-only 审计提交保存本发布记录并普通推送；
+2. 设计服务器代码 baseline 更新阶段：保留服务器 dirty DEVLOG，禁止现场 patch，使用可校验的新 commit/bundle 并重新执行 CPU readiness；
+3. 在服务器更新和 GPU preflight 完成前，E1 根继续保持 ABSENT。
