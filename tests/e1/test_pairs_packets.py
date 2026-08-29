@@ -35,6 +35,8 @@ def test_media_manifest_deduplicates_and_contains_exact_frames(e1_v2_fixture):
     assert len(manifest["sources"]) == 10
     assert len(manifest["candidates"]) == 50
     assert len(manifest["pairs"]) == 100
+    assert all(packet["mask_overlay"] is not None for packet in manifest["pairs"].values())
+    assert len({packet["mask_overlay"]["path"] for packet in manifest["pairs"].values()}) == 100
     for asset in [*manifest["sources"].values(), *manifest["candidates"].values()]:
         assert len(asset["frames"]) == 16
         assert all(Path(frame["path"]).is_file() for frame in asset["frames"])

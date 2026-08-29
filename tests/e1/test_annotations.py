@@ -42,7 +42,7 @@ def test_render_uses_opaque_media_tokens_and_hides_candidate_ids(e1_v2_fixture):
     assert "<video" in page and "source-contact" not in page
     assert pair.candidate_a.candidate_id not in page
     assert pair.candidate_b.candidate_id not in page
-    assert len(files) == 6
+    assert len(files) == 7
 
 
 def test_media_range_supports_partial_video(e1_v2_fixture):

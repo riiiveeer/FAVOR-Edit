@@ -3738,3 +3738,1054 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 用 DEVLOG-only 审计提交保存本发布记录并普通推送；
 2. 设计服务器代码 baseline 更新阶段：保留服务器 dirty DEVLOG，禁止现场 patch，使用可校验的新 commit/bundle 并重新执行 CPU readiness；
 3. 在服务器更新和 GPU preflight 完成前，E1 根继续保持 ABSENT。
+
+---
+
+### 2026-08-29｜E1 v2 后续本地工程扩展授权
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 14:41:18 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 本地 baseline：`89a8a7279bc1bdaf2bb4196e02971f349129b5ab`；branch=`main`；HEAD、本地 `origin/main` 与 baseline 一致；授权记录前工作树干净
+- 远程环境：未连接学校服务器；未运行真实模型；未创建服务器实验目录
+
+**步骤 ID**
+
+- `E1-v2-followup-local-engineering-authorization-v01`
+
+**行动与关键配置**
+
+- 完整读取接管说明要求的 `AGENTS.md`、README、E1 A6000 runbook、近期 checksum 修复/发布 DEVLOG、pilot/runtime、四个 prompt、pair/packet/runner/model/verification/annotation/report/CLI/adapter 实现和 `tests/e1/` 源测试；
+- 只读执行 `git branch --show-current`、`git rev-parse HEAD`、`git rev-parse refs/remotes/origin/main`、`git status --porcelain=v1`、`git log` 和 baseline diff，确认正式本地身份；
+- 在 `AGENTS.md` 追加 2026-08-29 扩展授权：允许后续 E1 阶段所需的本地 CPU-only 代码、测试、文档和 DEVLOG 预备；
+- 明确禁止未经再次授权 commit/push，禁止修改固定研究协议，禁止连接或操作学校服务器、运行真实模型或创建服务器实验目录；
+- 下一开发包固定为 `E1-v2-preparation-verifier-v01`，仅实现 phase 3 后、smoke 前的只读 preparation bundle 验收。
+
+**结果**
+
+- 接管身份核验通过：`main`、HEAD、本地 `origin/main` 均为 `89a8a7279bc1bdaf2bb4196e02971f349129b5ab`，相对该 baseline 零 diff；
+- 现有 `e1 verify` 仅验证 judge plan/results/human，不等价于 preparation verifier；P0 存在真实缺口；
+- 当前正式服务器 checkpoint 仍按转交记录保持：环境恢复和新代码 baseline 更新 DONE，`fixed-path-offline-preflight-v02` 为 WAIT_GPU，正式 E1 根 ABSENT；本地未改变任何服务器状态；
+- 本步骤仅形成授权与审计边界，未改变 prompt、threshold、generation、model identity、30/70 split、四方法结构或最终 gate。
+
+**产物路径**
+
+- `AGENTS.md`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无身份冲突；无服务器或 GPU 操作；无研究结果产生。
+
+**下一步**
+
+1. 形成 preparation verifier 的检查 schema、不变量与失败报告设计；
+2. 使用生产语义 tiny fixture 实现只读校验和 corruption/partial-output 拒绝测试；
+3. 每个独立可验证步骤完成后立即追加 DEVLOG。
+
+---
+
+### 2026-08-29｜E1 v2 preparation verifier 设计与报告 schema
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 14:43:05 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 代码基线：`89a8a7279bc1bdaf2bb4196e02971f349129b5ab` + 已记录的授权/DEVLOG 工作树修改
+- 远程环境：未使用；设计仅面向本地 CPU/read-only 验收
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-design-v01`
+
+**行动与关键配置**
+
+- 审计现有 `e1 verify`、pair/packet/plan builder、strict Pydantic models、prompt/runtime fingerprint 和原子 JSONL helper，确认没有等价的 phase-3 preparation bundle verifier；
+- 确定新增 `src/e1_judge/preparation.py` 与 `e1 verify-preparation`，输入固定为 pairs、packets、plan、config、runtime，可选唯一 output report；
+- 报告 schema 确定包含：`status`、`generated_at`、input path/SHA、pairs/assets/frames/masks/requests counts、method/split counts、runtime/model identity、prompt checksums、code snapshot、逐项 checks、warnings、failures 和 `ready_for_smoke`；
+- 失败语义确定为：尽可能累积独立硬检查；任一硬检查失败即 `status=failed`、`ready_for_smoke=false`、CLI 非零；指定 output 时仍原子写诊断 JSON，但 output 已存在时在读取/验证前拒绝覆盖；
+- development `code_snapshot` 允许 40 位 commit 或 `+dirty`；`+dirty` 只有在当前 Git dirty 路径精确为 `DEVLOG.md` 时可通过，并必须写 warning，不静默忽略；unknown snapshot 一律拒绝；
+- P0 只读检查现有 partial output，不改写 `build_pairs`、`build_packets`、`build_judge_plan` 或 runtime 创建流程。
+
+**结果**
+
+- 形成可直接实现和测试的 P0 不变量；
+- 明确 preparation verifier 与结果 verifier、GPU preflight 的边界；
+- 未修改 prompt、threshold、generation、model revision、30/70 split、四方法结构或最终 gate。
+
+**产物路径**
+
+- `DEVLOG.md`
+- 计划实现：`src/e1_judge/preparation.py`、`src/e1_judge/cli.py`、`tests/e1/`
+
+**问题 / 失败**
+
+- `build_packets` 当前会在完成前创建正式 output dir 并逐步写入；中断会留下 partial 目录，现有重跑会因目录已存在而拒绝。P0 verifier 可识别失败但不负责事务发布；该风险留给 P1 staging/atomic wrapper。
+
+**下一步**
+
+1. 实现 preparation 模块、固定协议/runtime/媒体/plan 身份检查和原子报告；
+2. 接入 CLI；
+3. 扩充生产语义 mask fixture 并运行定向测试。
+
+---
+
+### 2026-08-29｜E1 v2 preparation verifier 实现与定向验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 14:52:18 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 代码状态：baseline `89a8a7279bc1bdaf2bb4196e02971f349129b5ab` + 本次未提交的 P0 本地实现
+- 远程环境：未使用；未加载真实模型；全部测试使用 pytest 临时目录、tiny 视频/PNG 和 command fixture
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-implementation-targeted-v01`
+
+**行动与关键配置**
+
+- 新增 `src/e1_judge/preparation.py`：严格复核固定 pilot/runtime/prompt、100 pair、10 source/50 candidate asset、960 frame、60 contact sheet、100 packet metadata/mask/checksum 和 550-request plan；
+- source identity 通过 pairs→manifest→original MP4 实际 SHA 复算，明确不接受 E0 frame-set `source_checksum` 代替 MP4 `video_checksum`；
+- plan 验证覆盖 request/judge_key 唯一性、50/100/200/200 方法量、165/385 split、15/30/60/60 dev 方法量、swap 双方向、absolute 每候选一条、media/prompt/parser/generation/runtime/model/code identity；
+- 固定 runtime 校验 backend=`command`、Qwen ID/revision/path、adapter python/script、64hex model manifest；固定当前四 prompt 文件 SHA 并复核 parser/generation；
+- 可选 report 使用同目录临时文件 + `os.link` 原子无覆盖发布；硬检查失败仍写 `status=failed` 诊断并抛出非零语义，已有 output 在验证前拒绝；
+- CLI 新增 `e1 verify-preparation`；成功/失败均输出简洁 JSON 状态，失败退出码为 1；
+- 生产语义 fixture 新增每 sample 16 张真实 tiny mask PNG、100 个 mask overlay，保留 `source_checksum != video_checksum`；
+- 新增 corruption/partial 拒绝测试：source original、candidate SHA、frame missing/SHA、contact sheet、packet metadata/checksum、mask、549 plan、duplicate judge_key、mixed model identity、已有 report、输入 checksum 不变和 CLI failed report；
+- 静态确认四个当前 prompt 的工作树 SHA 与 Git blob SHA 完全一致，且文件均为 LF，无 Windows 换行差异；
+- 执行 `uv run python -m py_compile src/e1_judge/preparation.py src/e1_judge/cli.py tests/e1/conftest.py tests/e1/test_preparation.py`；
+- 执行 `uv run pytest tests/e1/test_preparation.py tests/e1/test_pairs_packets.py tests/e1/test_annotations.py tests/e1/test_scaffold.py -q`。
+
+**结果**
+
+- Python 语法检查通过；
+- 定向测试 **28/28 passed**；
+- happy path report 为 `status=passed`、`ready_for_smoke=true`，精确报告 100 pair、60 asset、960 frame、100 mask 和 550 request；
+- 每种损坏均产生 `status=failed`、`ready_for_smoke=false`，CLI 非零；指定 failed output 时保留诊断，既有 output 保持 sentinel 未被覆盖；
+- 全部被引用输入文件在 verifier 前后 SHA-256 集合完全一致；
+- mock/tiny 结果仅用于接口验收，不是研究结果；未改变固定研究协议。
+
+**产物路径**
+
+- `src/e1_judge/preparation.py`
+- `src/e1_judge/cli.py`
+- `tests/e1/conftest.py`
+- `tests/e1/test_preparation.py`
+- `tests/e1/test_pairs_packets.py`
+- `tests/e1/test_annotations.py`
+- `tests/e1/test_scaffold.py`
+
+**问题 / 失败**
+
+- 无未解决定向测试失败；完整 pytest 尚未执行。
+
+**下一步**
+
+1. 在 A6000 runbook 的 phase 3 和 smoke 之间加入唯一 preparation report 门；
+2. 新增 phase 3 工程说明并记录四个 builder 的 partial/overwrite/恢复风险；
+3. 文档完成后运行 CLI help/config validate、全量 pytest 和仓库卫生审计。
+
+---
+
+### 2026-08-29｜E1 v2 phase 3 runbook、工程说明与 CLI gate 验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 14:56:07 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；文档中的服务器命令仅为预备说明，未实际执行
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-docs-cli-v01`
+
+**行动与关键配置**
+
+- 更新 `docs/E1_A6000_RUNBOOK.md`：在 phase 3 创建完成后、4-request smoke 前加入唯一 `e1 verify-preparation` gate；
+- 正式 report 路径固定为 `$E1/preparation-verification-v01.json`，运行前要求 ABSENT；PASS 必须同时满足 exit 0、`status=passed`、`ready_for_smoke=true`、`failures=[]`；
+- 明确 failed report/partial output 必须保留并写 FAILED DEVLOG，不得覆盖、修补或进入 smoke；明确 verifier 是 CPU/read-only 验收，不替代 GPU/offline preflight；
+- 新增 `docs/E1_PHASE3_ENGINEERING.md`：记录 phase 3 输入/派生身份图、100/550 计数表、source frame-set/MP4 checksum 语义、report schema、磁盘/inode 复验、DEVLOG PLAN/COMPLETE/FAILED 模板和 runbook 边界；
+- 完成原子性审计：runtime `cp`+原地重写可覆盖且非原子；`build_pairs` final JSONL 直接写；`build_packets` final dir 增量构建且中断会留 partial；`build_judge_plan` 使用 temp+replace；P0 report 使用原子无覆盖发布；
+- 形成 P1 staging/atomic wrapper 八项设计不变量，但 P0 未扩大实现；
+- 执行 `uv run e1 --help`、`uv run e1 verify-preparation --help`；
+- 执行 `uv run e1 validate` 和 `uv run e1 validate --runtime configs/e1/runtime-mock.yaml`；
+- 只读检索 runbook gate 和工程文档章节，确认关键命令/字段/边界已落盘。
+
+**结果**
+
+- 顶层 CLI 显示 `verify-preparation`；子命令帮助完整显示 pairs/packets/plan/config/runtime/output；
+- 两条既有 schema/runtime validate 均成功；
+- runbook 中 verifier 严格位于 phase 3 与 smoke 之间，最终产物树包含唯一 preparation report；
+- 文档明确 P1 确有必要，首要原因是 `build_packets` partial dir 与 runtime 可覆盖风险；
+- 未改变 prompt、threshold、generation、model revision、split、四方法结构或最终 gate。
+
+**产物路径**
+
+- `docs/E1_A6000_RUNBOOK.md`
+- `docs/E1_PHASE3_ENGINEERING.md`
+- `src/e1_judge/cli.py`
+
+**问题 / 失败**
+
+- 无 CLI/help/config validation 失败；P1 wrapper 尚未实现，符合本次 P0 范围。
+
+**下一步**
+
+1. 运行无筛选完整 `uv run pytest`；
+2. 全绿后执行 Git diff/whitespace、untracked、禁止实验产物、大文件和协议文件 hash 审计；
+3. 汇总 P0，明确不 commit、不 push，并建议下一包为 P1。
+
+---
+
+### 2026-08-29｜E1 v2 preparation verifier 全量本地回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 14:58:48 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未加载/下载真实 Qwen 权重；pytest 仅使用 tiny fixture、mock 与 fake command adapter
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-full-regression-v01`
+
+**行动与关键配置**
+
+- 在全部 P0 实现、生产语义 mask fixture、CLI、runbook 和工程说明落盘后执行无筛选 `uv run pytest`；
+- 未使用 skip、xfail、GPU mock 或真实研究输出替代验收。
+
+**结果**
+
+- **70/70 passed**，耗时 126.01s；
+- 相对正式 baseline 的 54 条测试新增 16 条 preparation 专项用例；
+- 覆盖 E0 只读审计、E1 strict models、100 pair/媒体、100 masks、550 plan、runner/cache、标注/裁决、metrics/freeze/final gate/report、preparation happy/corruption/read-only/CLI；
+- mock/tiny 测试结果仅证明工程接口和失败门，不是 E1 研究结论；服务器 phase 3、smoke、人工标注和 final gate 状态未改变。
+
+**产物路径**
+
+- `tests/`
+- `src/e1_judge/`
+- pytest 临时媒体/report/cache 位于系统临时目录，未作为工作树产物保留
+
+**问题 / 失败**
+
+- 无未解决测试失败。
+
+**下一步**
+
+1. 执行 `git diff --check`、状态/diff 审阅、未跟踪/禁止扩展名/大文件审计；
+2. 核对四 prompt、pilot 和 runtime example 未发生内容漂移；
+3. 记录最终 P0 仓库验收，不 commit、不 push。
+
+---
+
+### 2026-08-29｜E1 v2 partial manifest 结构化失败加固
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 15:01:21 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；tiny fixture / CPU-only
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-partial-manifest-guard-v01`
+
+**行动与关键配置**
+
+- 最终失败路径审阅发现：strict manifest schema 允许 dict 数量不足；若整项缺少 source/candidate asset，后续交叉索引可能在 failed report 发布前抛 `KeyError`；
+- 在 media packet 校验中先识别缺失 manifest asset 并记录精确失败，不再无保护索引；
+- 新增 `pairs_ready` / `manifest_ready` 依赖门：上游身份失败时，后续 media/plan 交叉 gate 标记为 `skipped`，但原始失败继续使 report 为 failed；
+- `verify_preparation` 对 media 交叉校验的意外异常也转换为结构化 failed check；
+- 新增回归：删除一个 source asset，要求原子写出与异常对象一致的 `status=failed` report、`ready_for_smoke=false`，plan gate 为 skipped；
+- 执行 `uv run python -m py_compile src/e1_judge/preparation.py tests/e1/test_preparation.py`；
+- 执行 `uv run pytest tests/e1/test_preparation.py -q`。
+
+**结果**
+
+- 语法检查通过；
+- preparation 专项 **17/17 passed**；
+- partial manifest 不再导致无报告崩溃，缺失 asset 产生明确失败并禁止 smoke；
+- 未改变任何研究协议或正式服务器状态。
+
+**产物路径**
+
+- `src/e1_judge/preparation.py`
+- `tests/e1/test_preparation.py`
+
+**问题 / 失败**
+
+- 原风险已通过依赖门和回归测试关闭；因全量测试后又发生代码变更，需要重新运行完整 pytest。
+
+**下一步**
+
+1. 重新执行无筛选 `uv run pytest`；
+2. 全绿后完成最终仓库卫生与协议漂移审计。
+
+---
+
+### 2026-08-29｜E1 v2 preparation verifier 加固后最终全量回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 15:04:16 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；未加载真实模型
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-full-regression-final-v02`
+
+**行动与关键配置**
+
+- 在 partial manifest 结构化失败加固及新增回归落盘后，重新执行无筛选完整 `uv run pytest`；
+- 测试树与当前待审计代码/文档一致，未使用 skip、xfail 或真实权重。
+
+**结果**
+
+- **71/71 passed**，耗时 147.31s；
+- 新增 missing-asset partial manifest 用例包含在最终结果中；
+- 此记录替代加固前 70/70 作为当前 P0 最终回归依据；
+- 服务器阶段仍未执行，不能把本地全绿表述为 preparation、smoke 或研究 gate 已在服务器通过。
+
+**产物路径**
+
+- `tests/`
+- `src/e1_judge/`
+
+**问题 / 失败**
+
+- 无未解决测试失败。
+
+**下一步**
+
+1. 执行最终 Git diff/whitespace、untracked、协议文件 hash、禁止产物和大文件审计；
+2. 写 P0 最终仓库验收记录；不 commit、不 push。
+
+---
+
+### 2026-08-29｜E1 v2 preparation verifier P0 最终仓库验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 15:05:21 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- Git 身份：branch=`main`；HEAD 与本地 `origin/main` 均仍为 `89a8a7279bc1bdaf2bb4196e02971f349129b5ab`
+- 远程环境：未连接；未 commit；未 push
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-repo-acceptance-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`、`git status --short --branch`、`git diff --name-status`、`git diff --stat`、`git diff --numstat`；
+- 枚举 `git ls-files --others --exclude-standard`；
+- 对 `configs/e1/pilot.yaml`、runtime Qwen example 和四个 prompt YAML 执行相对 HEAD 的 `git diff --quiet`，并记录当前 SHA-256；
+- 对 changed+untracked 集合扫描 `.mp4/.avi/.mov/.sqlite/.sqlite3/.db/.pt/.pth/.ckpt/.safetensors/.bin`；
+- 排除 `.git/.venv/.pytest_cache/__pycache__` 后扫描工作区禁止扩展名和超过 5 MB 文件；
+- 使用 `git check-ignore -v` 核对接管前已存在的 `artifacts/` E0 mock MP4/SQLite 由 `.gitignore:11` 排除，未把用户既有 artifact 误归为本次产物，也未删除或修改；
+- 核对三个新增文件大小：工程文档 9,552 bytes、verifier 45,172 bytes、专项测试 13,997 bytes。
+
+**结果**
+
+- `git diff --check` 无 whitespace error；仅出现预期 Windows LF→CRLF 提示；
+- 待交付范围为 8 个 tracked modification + 3 个 untracked source/doc/test 文件，共 11 个文件；
+- 本次 changed/untracked 集合禁止实验/模型扩展名=0；超过 5 MB 文件=0；
+- 全工作区超过 5 MB 文件=0；
+- 工作区扫描命中的 MP4/SQLite 全部位于接管前已有且被 ignore 的 `artifacts/` mock 目录，不属于本次 P0 diff；
+- 固定 pilot、runtime example 和四 prompt 相对 baseline **零 diff**；prompt SHA 仍为 `7f690446...`、`9fe3d4bb...`、`da9a25b...`、`973180e6...`；
+- 最终代码验收依据为 preparation 定向 17/17、最终全量 71/71、CLI help、两条 validate 和输入 checksum 不变测试；
+- 未改变 prompt、threshold、generation、model identity、30/70 split、四方法结构或最终 gate；未产生任何研究结果；未宣称服务器 phase 3/smoke DONE。
+
+**产物路径**
+
+- 授权/审计：`AGENTS.md`、`DEVLOG.md`
+- 实现：`src/e1_judge/preparation.py`、`src/e1_judge/cli.py`
+- 测试：`tests/e1/conftest.py`、`tests/e1/test_preparation.py`、`tests/e1/test_annotations.py`、`tests/e1/test_pairs_packets.py`、`tests/e1/test_scaffold.py`
+- 文档：`docs/E1_A6000_RUNBOOK.md`、`docs/E1_PHASE3_ENGINEERING.md`
+
+**问题 / 失败**
+
+- P0 无未解决本地工程失败；现有 phase-3 builder 仍有已记录的非事务/partial-output 风险，需要 P1 atomic wrapper；
+- `artifacts/` 的旧 ignored mock 文件属于用户既有状态，本次未触碰。
+
+**下一步**
+
+1. 向用户汇报 P0 结果、工作树 diff 和明确的未 commit/未 push 状态；
+2. 建议下一开发包为 P1 atomic phase-3 preparation wrapper；开始前再次确认是否仍有真实缺口；
+3. 未经用户再次明确授权，不创建 commit、不 push，不执行任何服务器操作。
+
+---
+
+### 2026-08-29｜E1 v2 P1 原子 phase 3 wrapper 实施授权与固定设计
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 20:23:42 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- Git 身份：branch=`main`；HEAD 与本地 `origin/main` 均为 `89a8a7279bc1bdaf2bb4196e02971f349129b5ab`
+- 工作树：保留已验收但未提交的 P0 修改；未发现新的用户侧冲突修改
+- 远程环境：禁止使用；不连接学校服务器、不运行真实模型、不创建服务器实验目录
+
+**步骤 ID**
+
+- `E1-v2-atomic-phase3-wrapper-authorization-design-v01`
+
+**行动与关键配置**
+
+- 用户明确要求实现既定 P1 计划，并确认 P1 验收后 `e1 prepare-phase3` 是 runbook 唯一正式 phase 3 创建入口；
+- CLI 固定接收 E0 plan/candidates/audit、pilot config、runtime template、现场 `MODEL_SHA256SUMS` 文件、唯一 output root 和 prepare ID；模型 manifest SHA 必须由文件现场计算，不接受手抄值；
+- 固定发布布局：runtime、pairs、media packets、550 plan、preparation report、phase3 receipt、`PREPARATION_SHA256SUMS` 与 human/runs/logs 目录；
+- staging/failure/final 均执行 ABSENT 门；Linux 仅允许 `renameat2(RENAME_NOREPLACE)`，Windows 使用拒绝既有目标的原子 rename；能力不可用时失败关闭；
+- 已确认 staging 不能直接 rename：现有 packet builder 把绝对路径写入 manifest/metadata/plan；P1 必须重基为 final 路径、重算 packet checksum/judge key，并让 P0 verifier 通过 final→staging 物理路径映射做发布前验收；
+- 固定失败语义：任一异常非零，partial staging 不删除；优先原子改名为显式 failed artifact，改名失败则保留原 staging 并准确报告；
+- 固定边界：不改 prompt、threshold、generation、model revision、30/70 split、四方法或 final gate；未经再次授权不 commit、不 push。
+
+**结果**
+
+- P1 接口、路径语义、原子发布、失败保留、checksum/receipt 和正式 runbook 迁移方案已 decision-complete；
+- 本步骤只记录实施边界，尚未修改 P1 代码；服务器 checkpoint 未改变。
+
+**产物路径**
+
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无身份冲突；关键绝对路径风险已纳入实现，不允许以简单目录 rename 绕过。
+
+**下一步**
+
+1. 扩展 P0 verifier 的内部 path mapping，同时保持公开 CLI 不变；
+2. 以 tiny fixture 验证映射前后 report/文件 SHA 行为；
+3. 完成后立即写独立 DEVLOG，再实现 wrapper。
+
+---
+
+### 2026-08-29｜E1 v2 verifier prepublish path mapping
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 20:25:59 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only unit/tiny fixture
+
+**步骤 ID**
+
+- `E1-v2-preparation-verifier-path-mapping-v01`
+
+**行动与关键配置**
+
+- 新增内部 `PreparationPathMapping`：保持 final declared path，不解析 symlink；只把 final root 下的声明路径映射到同布局 staging physical path；E0/repo 外部路径保持不变；
+- asset original/linked video、16 frames、contact sheet、mask overlay 和 packet metadata 的存在性/SHA 读取全部支持该映射；身份比较、packet checksum 和 plan media identity 继续使用 final 声明值；
+- input report 路径由 staging 重写为 final，但 SHA 从 staging 实体文件计算；
+- report 新增 `verification_context`，明确区分 `direct` 与 `prepublish-staging`，并记录 declared/physical root；
+- `verify_preparation` 仅增加 keyword-only 内部参数；公开 `e1 verify-preparation` CLI 及普通调用行为不变；
+- 新增 final/staging/external path 双向映射回归；
+- 执行 `uv run python -m py_compile src/e1_judge/preparation.py tests/e1/test_preparation.py`；
+- 执行 `uv run pytest tests/e1/test_preparation.py -q`。
+
+**结果**
+
+- 语法检查通过；
+- preparation 专项 **18/18 passed**；
+- 原 P0 direct 验证、failed report、不可覆盖和只读 checksum 测试全部继续通过；
+- 尚未发布任何真实 phase 3 root，未改变研究协议。
+
+**产物路径**
+
+- `src/e1_judge/preparation.py`
+- `tests/e1/test_preparation.py`
+
+**问题 / 失败**
+
+- 无未解决测试失败；完整 final-path rebase/packet checksum/judge key 将由 P1 wrapper 集成测试覆盖。
+
+**下一步**
+
+1. 实现 phase3 orchestration、runtime materialization、路径重基和 receipt/checksum；
+2. 实现 Linux/Windows no-replace publish 与失败 artifact 保留；
+3. 接入 CLI 后运行 P1 定向测试。
+
+---
+
+### 2026-08-29｜E1 v2 atomic phase 3 wrapper 实现与定向验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 20:33:37 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；全部执行为 CPU-only tiny fixture / mock control path
+
+**步骤 ID**
+
+- `E1-v2-atomic-phase3-wrapper-implementation-targeted-v01`
+
+**行动与关键配置**
+
+- 新增 `src/e1_judge/phase3.py` 和公开 CLI `e1 prepare-phase3`；输入固定为 E0 plan/candidates/audit、pilot、runtime template、`MODEL_SHA256SUMS` 文件、output root 和 prepare ID；
+- wrapper 现场计算模型 manifest 文件 SHA，只允许替换 audited runtime placeholder，并严格拒绝 backend/model/revision/path/adapter/timeout/replay 漂移；
+- final/staging/failure 三重 ABSENT 门；staging/failure 使用 prepare ID，prepare ID 有严格安全字符/长度限制；
+- Windows 使用拒绝既有目标的 `os.rename`；Linux 使用 libc `renameat2(RENAME_NOREPLACE)`；其他平台/缺能力时失败关闭；
+- staging 内构建 runtime、100 pairs、60 media assets、100 packet、550 plan；创建 human/runs/logs 空目录；
+- 将 staging 内部 video/frame/contact/mask/metadata 路径重基到 final root，重建 100 metadata 和 packet checksum，再生成 final-identity judge plan/judge key；E0 original media 路径不改；
+- 使用 final→staging mapping 运行 P0 verifier，PASS 后生成 `phase3-preparation-v01.json` receipt 和覆盖全树的排序 `PREPARATION_SHA256SUMS`；
+- 对 E0 三文件、10 source、50 candidate、160 mask 共 223 个外部文件在构建前、发布前和发布后复算完整 checksum inventory；任一变化失败；
+- 任一发布前失败写 `PREPARATION_FAILED.json`，优先 no-replace 改名为显式 failed artifact；改名失败保留原 staging；不删除 partial；发布竞争失败者同样保留；
+- CLI 成功/失败均输出结构化 JSON；失败非零并显示 stage/failure/staging/published root；
+- 新增 `tests/e1/test_phase3.py`，覆盖完整 atomic happy path、发布后 direct P0 reverify、无 staging 前缀、packet/judge/checksum 复算、runtime/model manifest、外部输入不变、既有路径门、runtime drift、packet partial、同 ID 重试、no-replace 和 CLI 退出码；
+- 执行 Python `py_compile`；执行 `uv run pytest tests/e1/test_phase3.py tests/e1/test_preparation.py tests/e1/test_scaffold.py -q`。
+
+**结果**
+
+- 语法检查通过；
+- P1/P0/CLI 定向组合 **34/34 passed**；
+- happy path 原子发布完整 100/550 bundle，final root direct `verify_preparation` PASS；manifest/metadata/plan/report 均不含 staging 路径；
+- 100 packet checksum、550 judge key 和全树 checksum 均可复算；
+- runtime model manifest SHA 精确等于传入文件 SHA；223 个外部输入前后完全一致；
+- candidate SHA 故障在 `build-packets` 留下显式 failed artifact 与 partial tree，final root 保持 ABSENT，同 prepare ID 重试被拒绝；
+- mock/tiny 结果仅为工程验收，不是研究测量；未改变服务器或固定协议。
+
+**产物路径**
+
+- `src/e1_judge/phase3.py`
+- `src/e1_judge/preparation.py`
+- `src/e1_judge/cli.py`
+- `tests/e1/test_phase3.py`
+- `tests/e1/test_preparation.py`
+- `tests/e1/test_scaffold.py`
+
+**问题 / 失败**
+
+- 无未解决定向失败；Linux `renameat2` 尚未在本地 Windows 实际调用，已由 fail-closed 分支和服务器前正式 CPU preflight 边界约束，不能用 Windows 测试冒充 Linux 执行证据。
+
+**下一步**
+
+1. 用 `prepare-phase3` 替换 runbook 手工 phase 3 创建链；
+2. 更新工程说明的 P1 状态、failure 命名、receipt/checksum 和 final reverify 门；
+3. 执行 CLI help、两条 validate、全量 pytest 与仓库审计。
+
+---
+
+### 2026-08-29｜E1 v2 atomic phase 3 wrapper 文档与 CLI 验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 20:38:24 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only CLI/config 静态验收
+
+**步骤 ID**
+
+- `E1-v2-atomic-phase3-wrapper-docs-cli-v01`
+
+**行动与关键配置**
+
+- 将 `docs/E1_A6000_RUNBOOK.md` 的正式 phase 3 手工 `mkdir/cp/build-*` 链替换为唯一 `e1 prepare-phase3` 入口；
+- 增加 final/staging/failure 三重 ABSENT、现场 `MODEL_SHA256SUMS`、wrapper exit 0、prepublish report PASS、`sha256sum -c PREPARATION_SHA256SUMS` 和 final root direct verifier 门；
+- 明确同 prepare ID 不可重试、failed/staging artifact 永久保留、publish 后异常不得进入 smoke，以及当前本地未提交代码不能直接作为服务器执行依据；
+- 更新 `docs/E1_PHASE3_ENGINEERING.md`：P1 标为本地已实现，记录 final-path rebase、223 外部输入复算、receipt/tree checksum、no-replace 平台语义和 prepublish 映射；保留底层 builder 的 partial 风险说明；
+- 执行 `uv run e1 --help`；
+- 执行 `uv run e1 prepare-phase3 --help`；
+- 执行 `uv run e1 validate`；
+- 执行 `uv run e1 validate --runtime configs/e1/runtime-mock.yaml`。
+
+**结果**
+
+- 主 CLI help 和 `prepare-phase3` help 均退出 0；8 个计划参数完整可见；
+- 两条固定协议校验均退出 0；pilot config 保持有效；
+- runbook 已将 wrapper 确立为唯一正式 phase 3 创建入口，smoke 前四类验收条件均显式记录；
+- 工程说明不再把 P1 描述为未实现，同时没有把本地验收冒充服务器交付或 Linux 运行证据；
+- 未连接服务器、未创建正式 E1 root、未加载模型。
+
+**产物路径**
+
+- `docs/E1_A6000_RUNBOOK.md`
+- `docs/E1_PHASE3_ENGINEERING.md`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无未解决 CLI/config 失败；Linux `renameat2` 能力仍必须在未来已审计代码交付后做服务器 CPU-only preflight。
+
+**下一步**
+
+1. 运行完整 `uv run pytest`；
+2. 完成 diff、固定协议漂移、大文件与禁止产物审计；
+3. 将每个验收步骤独立写入 DEVLOG，不 commit、不 push。
+
+---
+
+### 2026-08-29｜E1 v2 atomic phase 3 wrapper 全量测试
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 20:41:09 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only unit/integration/tiny fixture
+
+**步骤 ID**
+
+- `E1-v2-atomic-phase3-wrapper-full-pytest-v01`
+
+**行动与关键配置**
+
+- 在完整 P0/P1 工作树上执行 `uv run pytest`；
+- 测试范围包含 schema/config、pair/media/plan builders、runner/merge/analysis/freeze/report、P0 preparation verifier、P1 atomic wrapper、CLI help/退出码与 tiny 媒体集成路径；
+- 未使用真实模型、GPU、服务器或正式实验数据输出根。
+
+**结果**
+
+- 完整测试 **85/85 passed**；
+- 总耗时 `121.74s`；exit code 0；
+- P1 新增测试与全部既有回归同时通过，无跳过的已知失败、无中断。
+
+**产物路径**
+
+- 测试源码：`tests/e1/`
+- 实现源码：`src/e1_judge/`
+- 测试临时目录由 pytest 管理，未写入正式 E1 root。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行 `git diff --check` 和状态/差异审计；
+2. 确认固定 protocol/prompt/runtime identity 文件零漂移；
+3. 审计大文件与禁止生成物后写最终验收 DEVLOG。
+
+---
+
+### 2026-08-29｜E1 v2 runbook preparation 重试身份消歧
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 20:43:39 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；文档静态审计
+
+**步骤 ID**
+
+- `E1-v2-phase3-prepare-id-retry-doc-clarification-v01`
+
+**行动与关键配置**
+
+- 在最终 runbook 审计中发现顶部旧泛化表述“失败重试仍使用同一身份和 cache”可能与 P1 的同 prepare ID 禁止重试规则产生歧义；
+- 将其严格限定为 Judge job 的同实验身份/cache 重试；phase 3 preparation 失败明确跳转第 5 节，保留现场并使用新的 prepare ID；
+- 执行 `rg` 交叉检查顶部规则与第 5 节 failure 规则；
+- 执行 `git diff --check -- docs/E1_A6000_RUNBOOK.md docs/E1_PHASE3_ENGINEERING.md`。
+
+**结果**
+
+- 顶部停止规则与第 5 节现均明确：同一 prepare ID 永久不可重试，恢复使用新 ID；
+- 文档 diff check 退出 0，仅有 Windows 工作树 LF→CRLF 提示，无 whitespace error；
+- 不改变研究协议、实验身份或代码行为。
+
+**产物路径**
+
+- `docs/E1_A6000_RUNBOOK.md`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 重新执行最终仓库审计以纳入本条 DEVLOG 与文档修正；
+2. 记录最终状态，不 commit、不 push。
+
+---
+
+### 2026-08-29｜E1 v2 atomic phase 3 wrapper 最终仓库审计
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 20:44:17 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；只读 Git/文件系统审计
+
+**步骤 ID**
+
+- `E1-v2-atomic-phase3-wrapper-final-repository-audit-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`；
+- 对 `configs/e1/pilot.yaml`、固定 runtime template 和四个固定 prompt YAML 逐文件执行 `git diff --quiet`；
+- 合并 tracked diff 与 non-ignored untracked 路径，审计模型 checkpoint、视频、图片、NumPy/Parquet 等禁止产物扩展名；
+- 递归审计工作区中大于 5 MiB 的文件，排除 `.git`、`.venv`、pytest/cache 和既有 ignored `artifacts`；
+- 核对 `HEAD` 与本地 `refs/remotes/origin/main`，并记录最终 `git status --short`；未执行 fetch/pull/push。
+
+**结果**
+
+- `git diff --check` exit 0；仅出现既有 Windows LF→CRLF 工作树提示，无 whitespace error；
+- 固定 protocol/runtime/prompt identity 漂移数 **0**；
+- 变更与 non-ignored untracked 路径共 **13** 个，均为授权范围内现有 P0/P1 code/test/docs/DEVLOG/AGENTS 工作树内容；
+- 禁止产物扩展名数 **0**；排除既有缓存/ignored artifact 后，大于 5 MiB 文件数 **0**；
+- `HEAD` 与本地 `origin/main` 均为 `89a8a7279bc1bdaf2bb4196e02971f349129b5ab`，证明本次未创建 commit；
+- 服务器未连接，未创建/修改正式 E1 输出，未 commit、未 push。
+
+**产物路径**
+
+- 审计记录：`DEVLOG.md`
+- P1 实现：`src/e1_judge/phase3.py`、`src/e1_judge/preparation.py`、`src/e1_judge/cli.py`
+- P1 测试：`tests/e1/test_phase3.py`、`tests/e1/test_preparation.py`
+- 文档：`docs/E1_A6000_RUNBOOK.md`、`docs/E1_PHASE3_ENGINEERING.md`
+
+**问题 / 失败**
+
+- 无未解决本地验收失败；Linux `renameat2(RENAME_NOREPLACE)` 未在 Windows 本机实际执行，必须在未来已审计代码交付后的服务器 CPU-only preflight 中验证，不能把本地 Windows 结果冒充该平台证据。
+
+**下一步**
+
+1. 保持当前未提交工作树供用户审阅；
+2. 不连接服务器、不 commit、不 push；
+3. 经用户后续明确授权后再进行独立的交付/服务器 preflight。
+
+---
+
+### 2026-08-29｜E1 P0/P1 发布与本地 E2 CPU-only 工程授权
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:09:37 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- Git 身份：branch=`main`；HEAD 与本地 `origin/main` 均为 `89a8a7279bc1bdaf2bb4196e02971f349129b5ab`
+- 远程实验环境：未连接；未访问 DATA4；未加载模型或使用 GPU
+
+**步骤 ID**
+
+- `E1-E2-local-publication-engineering-authorization-v01`
+
+**行动与关键配置**
+
+- 用户明确授权将当前已验收的 E1 preparation verifier / atomic phase 3 wrapper 形成审计提交并普通推送到 `main`，禁止 force-push；
+- 用户明确授权按批准计划在本地开展完整 E2 Best-of-N CPU-only 工程，并按独立里程碑审计、提交、普通推送到 `main`；
+- 本地允许范围固定为 tiny fixture、mock/replay、fake command adapter、静态检查、CPU 测试、文档、报告和 DEVLOG；
+- 学校服务器、DATA4、Linux 现场检查、真实候选生成、真实 Judge、正式服务器标注数据、GPU 和远程实验根全部交付服务器端 agent 执行；本地 Codex 不连接、不操作；
+- E1 未产生合法 `PASS_PROVISIONAL` 与 `reward-v0.yaml` 前，E2 只能形成工程和合成验收，不得产生或宣称正式研究测量；不进入 E3/DPO；
+- 在 `AGENTS.md` 固化上述授权与边界。
+
+**结果**
+
+- 当前 E1 发布权限、E2 本地工程范围、分阶段 `main` 推送策略和服务器端职责分界均已明确；
+- 未改变 E0 数据、E1 prompt/threshold/model/split/gate，未运行实验。
+
+**产物路径**
+
+- `AGENTS.md`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 更新 E1 runbook，使正式 preparation PASS 后可在 GPU smoke 前启动两名主标注者，同时保持 Judge dev/frozen 必须等待 smoke；
+2. 重新执行完整本地验收和仓库审计；
+3. 审计通过后创建并普通推送 E1 P0/P1 基线提交。
+
+---
+
+### 2026-08-29｜E1 preparation PASS 后前移正式人标顺序
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:12:00 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未连接；仅修改本地执行手册
+
+**步骤 ID**
+
+- `E1-v2-preparation-before-smoke-annotation-order-v01`
+
+**行动与关键配置**
+
+- 更新 `docs/E1_A6000_RUNBOOK.md`：正式 phase 3 preparation 的 wrapper、prepublish report、direct verifier 与全树 checksum 全部 PASS 后，允许两名主标注者在真实 Judge smoke 前开始 100-pair 盲标；
+- 固定前移条件：两份主标注输出必须 ABSENT，标注者不得看到任何 Judge 结果，preparation 身份/SHA 必须先写 DEVLOG，DATA4 服务与标注文件只由服务器端 agent 操作；
+- 明确 smoke 仍是 dev/frozen Judge 的硬门；smoke 失败时不得运行 dev。仅当 pair、媒体 checksum 和标注协议不变时，已开始的盲标才可保留/继续；相关身份改变时必须停止并重新判断有效性；
+- 此调整只改变两个独立任务的执行顺序，不改变样本、pair、30/70 split、标注协议、prompt、threshold、model identity 或 final gate。
+
+**结果**
+
+- GPU 被占用期间可并行推进正式人工标签，不会把人标进度误报为 Judge smoke 或研究 gate 通过；
+- 第 8 节已明确可在第 7 节前执行，第 9 节仍显式要求 smoke PASS。
+
+**产物路径**
+
+- `docs/E1_A6000_RUNBOOK.md`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无；服务器端实际 preparation、人标和 smoke 均未执行。
+
+**下一步**
+
+1. 运行 E1 P0/P1 完整本地回归、CLI/config 校验；
+2. 完成协议身份和仓库卫生审计；
+3. 审计通过后创建并推送 E1 基线提交。
+
+---
+
+### 2026-08-29｜E1 P0/P1 发布前完整本地回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:13:01 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only pytest/tiny fixture/mock/fake command adapter
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-prepublish-full-pytest-v01`
+
+**行动与关键配置**
+
+- 在当前 E1 preparation verifier、atomic phase 3 wrapper、新授权和人标顺序文档工作树上执行无筛选完整命令 `uv run pytest`；
+- 未使用真实模型、GPU、服务器、DATA4、skip 或已知失败豁免。
+
+**结果**
+
+- **85/85 passed**，耗时 `119.78s`，exit code 0；
+- E0、E1 schema/pairs/media、runner/cache、标注/裁决、metrics/freeze/gate/report、P0 verifier、P1 atomic wrapper 和 CLI 回归同时通过；
+- 文档顺序调整未改变任何代码测试结果。
+
+**产物路径**
+
+- `tests/`
+- `src/e1_judge/`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行 E1 主 CLI、`prepare-phase3` help 和两条 config/runtime validate；
+2. 完成协议 identity、Git diff、禁止产物与大文件审计；
+3. 审计通过后发布基线。
+
+---
+
+### 2026-08-29｜E1 P0/P1 发布前 CLI 与配置验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:13:23 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only CLI/config 静态验收
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-prepublish-cli-config-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run e1 --help`；
+- 执行 `uv run e1 prepare-phase3 --help`；
+- 执行 `uv run e1 validate`；
+- 执行 `uv run e1 validate --runtime configs/e1/runtime-mock.yaml`。
+
+**结果**
+
+- 四条命令均 exit 0；
+- 主 CLI 显示 `prepare-phase3` 与 `verify-preparation`，`prepare-phase3` 的8个正式参数完整；
+- 固定 E1 pilot 与 mock runtime 均继续通过严格校验；
+- 未加载模型、未产生研究结果。
+
+**产物路径**
+
+- `src/e1_judge/cli.py`
+- `configs/e1/`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行最终协议 identity 与仓库卫生审计；
+2. fetch 并确认 `origin/main` 未前进；
+3. 创建 E1 P0/P1 审计提交并普通推送。
+
+---
+
+### 2026-08-29｜E1 P0/P1 最终仓库审计首次脚本失败
+
+**状态：FAILED（已定位，未改变仓库）**
+
+**时间与环境**
+
+- 失败时间：2026-08-29 22:13:56 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-final-repo-audit-attempt-01`
+
+**行动与关键配置**
+
+- 尝试用单个只读 PowerShell 脚本执行 `git diff --check`、固定协议漂移、pending 路径、禁止扩展名、大文件和 prompt SHA 审计；
+- 脚本在 `Where-Object` 内把外部命令与 `$LASTEXITCODE` 放入括号表达式，PowerShell parser 在命令执行前拒绝。
+
+**结果**
+
+- exit code 非零；错误为 `ParserError: Missing closing ')' in expression`；
+- 失败发生在解析阶段，未执行审计命令，未修改任何文件或 Git 状态；
+- 诊断表明需把逐文件 `git diff --quiet` 改为显式 `foreach` 循环。
+
+**产物路径**
+
+- 仅本 DEVLOG 诊断记录；无审计产物。
+
+**问题 / 失败**
+
+- PowerShell 组合表达式语法无效；不是代码或协议失败。
+
+**下一步**
+
+1. 使用显式循环重跑同一只读仓库审计；
+2. 审计通过后记录最终结果；
+3. 再执行 fetch/发布。
+
+---
+
+### 2026-08-29｜E1 P0/P1 最终仓库审计重跑通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:14:28 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程实验环境：未使用；只读 Git/文件系统审计
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-final-repo-audit-attempt-02`
+
+**行动与关键配置**
+
+- 使用显式 PowerShell `foreach` 修正首次脚本语法问题并重跑 `git diff --check`；
+- 对 pilot、Qwen runtime template 和四个 prompt 执行相对 HEAD 的逐文件零漂移检查；
+- 合并 tracked diff 与 non-ignored untracked 路径，扫描视频、数据库、模型权重、NumPy/Parquet 等禁止扩展名；
+- 排除 `.git/.venv/.pytest_cache/__pycache__/artifacts` 后扫描超过 5 MiB 文件；
+- 记录四个 prompt 当前 SHA-256 和待提交路径集合。
+
+**结果**
+
+- `git diff --check` exit 0，仅有 Windows LF→CRLF 提示，无 whitespace error；
+- pending 路径恰为 **13** 个预期 E1 code/test/docs/AGENTS/DEVLOG 文件；
+- 固定 protocol/runtime/prompt identity 漂移数 0；禁止 pending 产物数 0；大于 5 MiB 文件数 0；
+- prompt SHA 仍为 `7f690446...`、`9fe3d4bb...`、`da9a25b...`、`973180e6...`；
+- HEAD 与本地 `origin/main` 均为 `89a8a7279bc1bdaf2bb4196e02971f349129b5ab`。
+
+**产物路径**
+
+- `AGENTS.md`
+- `DEVLOG.md`
+- `docs/E1_A6000_RUNBOOK.md`
+- `docs/E1_PHASE3_ENGINEERING.md`
+- `src/e1_judge/`
+- `tests/e1/`
+
+**问题 / 失败**
+
+- 无未解决审计失败；首次 PowerShell parser 失败已由本次成功重跑闭环。
+
+**下一步**
+
+1. 执行 `git fetch origin` 并重新确认远端未前进；
+2. 创建 E1 P0/P1 实现基线提交；
+3. 普通推送到 `main`，随后写发布记录。
+
+---
+
+### 2026-08-29｜E1 P0/P1 发布前远端身份确认
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:14:56 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远端：GitHub `origin`
+- 远程实验环境：未连接
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-prepublish-origin-identity-v01`
+
+**行动与关键配置**
+
+- 执行 `git fetch origin`；
+- 读取本地 HEAD、`refs/remotes/origin/main` 和 `git status --short --branch`；
+- 未执行 pull、rebase、reset、merge 或服务器操作。
+
+**结果**
+
+- fetch 成功；
+- 本地 HEAD 与最新 `origin/main` 仍均为 `89a8a7279bc1bdaf2bb4196e02971f349129b5ab`，不存在并发前进；
+- branch=`main`，待提交集合仍为已审计的13个 E1 路径。
+
+**产物路径**
+
+- Git remote-tracking ref `origin/main`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无远端冲突。
+
+**下一步**
+
+1. 创建 `Add atomic E1 phase 3 preparation` 实现提交；
+2. 普通推送到 `origin/main`；
+3. 追加发布结果并形成 DEVLOG-only 审计提交。

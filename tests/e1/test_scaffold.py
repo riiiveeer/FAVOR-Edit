@@ -13,7 +13,8 @@ def test_cli_exposes_v2_commands_and_help():
     assert result.exit_code == 0
     for command in (
         "validate", "build-pairs", "build-packets", "annotate", "adjudicate", "plan", "run",
-        "unlock", "merge-results", "analyze", "freeze", "verify", "report",
+        "prepare-phase3", "unlock", "merge-results", "analyze", "freeze", "verify",
+        "verify-preparation", "report",
     ):
         assert command in result.stdout
 

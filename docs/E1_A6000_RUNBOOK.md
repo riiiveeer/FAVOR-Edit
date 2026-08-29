@@ -15,6 +15,11 @@
 > 之前，服务器不得执行 `build-pairs`、`build-packets` 或创建 E1 根；不得通过现场改
 > E0、临时转换 plan 或服务器 patch 绕过。新的 baseline 必须由最终推送后的审计记录提供。
 
+该缺陷的正式发布 baseline 已更新为
+`89a8a7279bc1bdaf2bb4196e02971f349129b5ab`（实现修复 commit 为
+`3e635db6fcb205c37fe2a462885859e5c72aa47e`）。后续 preparation verifier 也必须来自
+明确交付并记录的审计 code snapshot；不得把本地未提交代码或旧 `82ce029...` 当成服务器依据。
+
 固定实验根目录：
 
 ```text
@@ -45,7 +50,8 @@
 - freeze 前代码或协议文件未提交，或 freeze 后有人要求改 prompt、阈值、模型 revision、generation 参数；
 - 准备写入已有输出目录，或准备用 mock/replay 冒充真实测量。
 
-禁止删除或覆盖旧 E0、旧 E1 或失败输出。失败重试仍使用同一身份和 cache；需要改变协议时使用新实验 ID。
+禁止删除或覆盖旧 E0、旧 E1 或失败输出。Judge job 失败重试仍使用同一实验身份和 cache；
+phase 3 preparation 失败则按第 5 节保留现场并使用新的 prepare ID。需要改变协议时使用新实验 ID。
 
 ## 2. 在联网 Linux x86_64 机器准备离线交付包
 
@@ -263,49 +269,117 @@ PY
 
 ## 5. 创建唯一 E1 v02 根目录和 v2 媒体包
 
-首先确认 E0 只读输入存在，并保存前置 checksum：
+正式 phase 3 只能通过原子 wrapper 创建；不得再手工 `mkdir "$E1"`、复制 runtime 或逐条
+执行 `build-pairs/build-packets/plan`。wrapper 所在 code snapshot 必须是经过本地 P1
+验收并明确交付的版本；当前未提交本地代码不能直接作为服务器执行依据。
+
+首先确认 E0 只读输入和模型 manifest 存在，保存前置 checksum，并对 final/staging/failure
+执行三重 ABSENT 门：
 
 ```bash
 test -f "$E0/plan.json"
 test -f "$E0/candidates.json"
 test -f "$E0_AUDIT/audit.csv"
+test -f "$MODEL_DIR/MODEL_SHA256SUMS"
 sha256sum "$E0/plan.json" "$E0/candidates.json" "$E0_AUDIT/audit.csv"
+
+export PREPARE_ID=E1-v2-phase3-preparation-v01
+export PREPARE_STAGING="$(dirname "$E1")/.$(basename "$E1").prepare-$PREPARE_ID.staging"
+export PREPARE_FAILED="$(dirname "$E1")/$(basename "$E1").prepare-$PREPARE_ID.failed"
 test ! -e "$E1"
-mkdir -p "$E1"/{inputs,human,plans,runs,logs}
+test ! -e "$PREPARE_STAGING"
+test ! -e "$PREPARE_FAILED"
+
+df -h /DATA/DATA4/hfy
+df -i /DATA/DATA4/hfy
 ```
 
-配置 runtime，不要直接修改仓库 example：
+先按第 6 节写 `E1-v2-phase3-preparation-v01` 的 PLANNED DEVLOG，记录完整命令、Git、
+E0/model manifest SHA、磁盘/inode、三个 ABSENT 结果和预期 failed artifact。然后只执行：
 
 ```bash
-cp "$PROJECT/configs/e1/runtime-qwen25-vl-7b.example.yaml" "$E1/runtime-dev.yaml"
-export MODEL_MANIFEST_SHA=$(sha256sum "$MODEL_DIR/MODEL_SHA256SUMS" | cut -d' ' -f1)
 cd "$PROJECT"
-uv run python - "$E1/runtime-dev.yaml" <<'PY'
-import os, sys, yaml
-from pathlib import Path
-p = Path(sys.argv[1])
-d = yaml.safe_load(p.read_text())
-d["model"]["manifest_sha256"] = os.environ["MODEL_MANIFEST_SHA"]
-d["adapter"]["python"] = "/DATA/DATA4/hfy/envs/e1-judge-qwen25-vl/bin/python"
-d["adapter"]["script"] = "/home/sunyinan/FAVOR-Edit/scripts/e1_judge_qwen25_vl.py"
-p.write_text(yaml.safe_dump(d, sort_keys=False), encoding="utf-8")
-PY
-
-cd "$PROJECT"
-uv run e1 validate --runtime "$E1/runtime-dev.yaml"
-uv run e1 build-pairs \
-  --plan "$E0/plan.json" --candidates "$E0/candidates.json" \
-  --audit "$E0_AUDIT/audit.csv" --config configs/e1/pilot.yaml \
-  --output "$E1/inputs/pairs.jsonl"
-uv run e1 build-packets \
-  --pairs "$E1/inputs/pairs.jsonl" --output-dir "$E1/inputs/media-packets"
-uv run e1 plan \
-  --pairs "$E1/inputs/pairs.jsonl" --packets "$E1/inputs/media-packets" \
-  --config configs/e1/pilot.yaml --runtime "$E1/runtime-dev.yaml" \
-  --output "$E1/plans/judge-plan-development.jsonl"
+uv run e1 prepare-phase3 \
+  --e0-plan "$E0/plan.json" \
+  --e0-candidates "$E0/candidates.json" \
+  --e0-audit "$E0_AUDIT/audit.csv" \
+  --config "$PROJECT/configs/e1/pilot.yaml" \
+  --runtime-template "$PROJECT/configs/e1/runtime-qwen25-vl-7b.example.yaml" \
+  --model-manifest "$MODEL_DIR/MODEL_SHA256SUMS" \
+  --output-root "$E1" \
+  --prepare-id "$PREPARE_ID"
 ```
 
-验收数量：100 pair、10 个共享 source、50 个共享 candidate、每资产完整 16 帧，plan 共 550 request（dev 165、frozen 385）。任何计数不符都停止。
+wrapper 在同文件系统 staging 内生成 runtime、100 pairs、10 source/50 candidate asset、
+100 packets/overlays 和 550 plan；将全部内部路径重基为 final `$E1` 身份，运行 prepublish
+verifier，生成 receipt/checksum 后才以 no-replace rename 发布。它会对 E0 三文件、10 source、
+50 candidate 和 160 mask 在构建前、发布前、发布后复算 checksum。
+
+### 5.1 smoke 与正式人标前的只读 preparation verification 门
+
+wrapper 返回 0 后，final root 必须存在，staging/failure 必须仍为 ABSENT。随后对已发布
+final root 运行一次不写 output 的 direct verifier，并验收全树 checksum。它们都是
+CPU-only、只读检查，不加载 Qwen，也不替代第 4 节 GPU preflight：
+
+```bash
+export PREPARATION_REPORT="$E1/preparation-verification-v01.json"
+test -d "$E1"
+test ! -e "$PREPARE_STAGING"
+test ! -e "$PREPARE_FAILED"
+test -f "$PREPARATION_REPORT"
+test -f "$E1/phase3-preparation-v01.json"
+test -f "$E1/PREPARATION_SHA256SUMS"
+
+cd "$PROJECT"
+uv run e1 verify-preparation \
+  --pairs "$E1/inputs/pairs.jsonl" \
+  --packets "$E1/inputs/media-packets" \
+  --plan "$E1/plans/judge-plan-development.jsonl" \
+  --config "$PROJECT/configs/e1/pilot.yaml" \
+  --runtime "$E1/runtime-dev.yaml"
+
+cd "$E1"
+sha256sum -c PREPARATION_SHA256SUMS
+
+cd "$PROJECT"
+uv run python - "$PREPARATION_REPORT" <<'PY'
+import json, sys
+from pathlib import Path
+report = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+assert report["status"] == "passed"
+assert report["ready_for_smoke"] is True
+assert not report["failures"]
+assert report["verification_context"]["mode"] == "prepublish-staging"
+print("preparation verification PASS; ready_for_smoke=true")
+PY
+```
+
+PASS gate 必须同时满足：wrapper exit 0；final/staging/failure 状态正确；report 为
+`status=passed`、`ready_for_smoke=true`、`failures=[]`；direct verifier exit 0；
+`sha256sum -c` 全 OK。完成后写 COMPLETE DEVLOG，记录 wrapper JSON、report/receipt/checksum
+自身 SHA 和磁盘/inode。任一不满足都禁止进入第 7 节 smoke，也禁止启动第 8 节正式人标。
+
+wrapper 非零时立即写 FAILED DEVLOG。若 JSON 给出 `failure_root`，必须保留其中
+`PREPARATION_FAILED.json` 和 partial tree；若给出 `staging_root`，说明 failed rename 本身未完成，
+同样原地保留。不得删除、改名、补齐或复用；同一个 prepare ID 永久禁止重试，恢复必须先审计
+并使用新 ID。若异常发生在 publish 后并给出 `published_root`，该 root 不是可用 DONE，仍禁止
+smoke。详见 `docs/E1_PHASE3_ENGINEERING.md`。
+
+### 5.2 GPU 等待期间前移正式人标
+
+第 5.1 节全部 PASS 后，100 pair、媒体、展示随机化和 checksum 身份已经固定。两名主标注者
+可以在第 7 节真实 Judge smoke 之前开始第 8 节正式盲标；该调整只改变互不依赖任务的执行顺序，
+不改变 pair、30/70 split、标注协议、prompt、Judge 阈值或最终 gate。启动前必须同时确认：
+
+- `$E1/human/primary-01.jsonl` 与 `$E1/human/primary-02.jsonl` 均 ABSENT；
+- 两名标注者看不到任何 Judge raw/result、dev selection 或 frozen 指标；
+- preparation report、receipt 和 `PREPARATION_SHA256SUMS` 的 SHA 已写入 DEVLOG；
+- 服务器端 agent 负责 DATA4 上的服务和标注文件；本地工程 agent 不连接服务器或操作 DATA4。
+
+人标开始或完成不放宽 GPU 门。第 9 节 dev Judge 仍必须等第 7 节 4-request smoke 全部通过。
+若 smoke 失败，只要 pair、媒体 checksum 和标注协议未改变，既有盲标可以保留并继续完成；但不得
+进入 dev Judge。若恢复方案改变 pair、媒体或标注协议，必须停止并以新实验身份重新判断人标有效性，
+不得静默复用。
 
 ## 6. DEVLOG 前置与后置模板
 
@@ -390,10 +464,12 @@ smoke 门必须同时满足：
 - `max(peak_vram_mb) < 43008`（42×1024 MB）；
 - raw response、adapter stdout/stderr 和 run log 均保留。
 
-任一失败立即停止，不运行完整 dev。
+任一失败立即停止，不运行完整 dev。已按第 5.2 节开始的人标只有在 pair、媒体 checksum 和标注
+协议均未改变时才可继续；人标进度不能被解释为 smoke 通过。
 
-## 8. 两名主标注者和第三人争议裁决
+## 8. 两名主标注者和第三人争议裁决（可在第 7 节前执行）
 
+本节只要求第 5.1 节 preparation verification 全部 PASS，不要求第 7 节 Judge smoke 已完成。
 两名主标注者必须使用不同 ID，各自完成全部 100 个唯一 pair。通过 SSH port forward 访问仅绑定回环地址的服务，例如本地执行 `ssh -L 8765:127.0.0.1:8765 <server>`。
 
 服务器依次启动：
@@ -566,6 +642,9 @@ uv run e1 report --analysis "$E1/analysis-final-v01" \
 ├── inputs/{pairs.jsonl,media-packets/}
 ├── human/{primary-01.jsonl,primary-02.jsonl,adjudicated.jsonl,agreement*.json}
 ├── plans/{judge-plan-development.jsonl,smoke-4.jsonl,frozen-selected-all.jsonl}
+├── preparation-verification-v01.json
+├── phase3-preparation-v01.json
+├── PREPARATION_SHA256SUMS
 ├── frozen-v01/{protocol.lock.json,judge-plan-frozen.jsonl,protocol/}
 ├── runs/{smoke-4-v01,dev-selection-v01,frozen-eval-v01,dev-final-v01}/
 ├── analysis-dev-v01/

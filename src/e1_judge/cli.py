@@ -107,6 +107,51 @@ def plan_command(
     typer.echo(json.dumps({"requests": len(requests), "output": str(output.resolve())}))
 
 
+@app.command("prepare-phase3")
+def prepare_phase3_command(
+    e0_plan: Path = typer.Option(..., exists=True, dir_okay=False),
+    e0_candidates: Path = typer.Option(..., exists=True, dir_okay=False),
+    e0_audit: Path = typer.Option(..., exists=True, dir_okay=False),
+    config: Path = typer.Option(Path("configs/e1/pilot.yaml"), exists=True, dir_okay=False),
+    runtime_template: Path = typer.Option(..., exists=True, dir_okay=False),
+    model_manifest: Path = typer.Option(..., exists=True, dir_okay=False),
+    output_root: Path = typer.Option(...),
+    prepare_id: str = typer.Option(...),
+) -> None:
+    from .phase3 import Phase3PreparationError, prepare_phase3
+
+    try:
+        summary = prepare_phase3(
+            e0_plan.resolve(),
+            e0_candidates.resolve(),
+            e0_audit.resolve(),
+            config.resolve(),
+            runtime_template.resolve(),
+            model_manifest.resolve(),
+            output_root.resolve(),
+            prepare_id,
+        )
+    except Exception as exc:
+        payload = {
+            "status": "failed",
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+            "ready_for_smoke": False,
+        }
+        if isinstance(exc, Phase3PreparationError):
+            payload.update(
+                {
+                    "stage": exc.stage,
+                    "failure_root": str(exc.failure_root) if exc.failure_root else None,
+                    "staging_root": str(exc.staging_root) if exc.staging_root else None,
+                    "published_root": str(exc.published_root) if exc.published_root else None,
+                }
+            )
+        typer.echo(json.dumps(payload, ensure_ascii=False, sort_keys=True), err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps(summary, ensure_ascii=False, sort_keys=True))
+
+
 @app.command("run")
 def run_command(
     plan: Path = typer.Option(..., exists=True, dir_okay=False),
@@ -192,6 +237,48 @@ def verify_command(
 
     verify_results(plan.resolve(), results.resolve(), human.resolve() if human else None, expect_requests, strict)
     typer.echo("verify passed")
+
+
+@app.command("verify-preparation")
+def verify_preparation_command(
+    pairs: Path = typer.Option(..., exists=True, dir_okay=False),
+    packets: Path = typer.Option(..., exists=True),
+    plan: Path = typer.Option(..., exists=True, dir_okay=False),
+    config: Path = typer.Option(Path("configs/e1/pilot.yaml"), exists=True, dir_okay=False),
+    runtime: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Optional[Path] = typer.Option(None),
+) -> None:
+    from .preparation import PreparationVerificationError, verify_preparation
+
+    try:
+        report = verify_preparation(
+            pairs.resolve(), packets.resolve(), plan.resolve(), config.resolve(),
+            runtime.resolve(), output.resolve() if output else None,
+        )
+    except PreparationVerificationError as exc:
+        typer.echo(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "ready_for_smoke": False,
+                    "failed_checks": len(exc.report["failures"]),
+                    "output": str(output.resolve()) if output else None,
+                },
+                sort_keys=True,
+            ),
+            err=True,
+        )
+        raise typer.Exit(code=1) from exc
+    typer.echo(
+        json.dumps(
+            {
+                "status": report["status"],
+                "ready_for_smoke": report["ready_for_smoke"],
+                "output": str(output.resolve()) if output else None,
+            },
+            sort_keys=True,
+        )
+    )
 
 
 @app.command("report")
