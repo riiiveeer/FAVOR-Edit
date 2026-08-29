@@ -4789,3 +4789,92 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 创建 `Add atomic E1 phase 3 preparation` 实现提交；
 2. 普通推送到 `origin/main`；
 3. 追加发布结果并形成 DEVLOG-only 审计提交。
+
+---
+
+### 2026-08-29｜E1 P0/P1 实现基线提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:15:21 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程实验环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-implementation-commit-v01`
+
+**行动与关键配置**
+
+- 将最终审计通过的13个 E1 P0/P1 code/test/docs/authorization/DEVLOG 路径显式加入 index；
+- 使用提交信息 `Add atomic E1 phase 3 preparation` 创建本地提交；
+- 未使用 amend、rebase、reset 或历史重写。
+
+**结果**
+
+- 实现 commit：`cb5d4ffaf95ef230df4762d73813181f6c5cef1c`；
+- 13 files changed，3935 insertions，33 deletions；新增 preparation verifier、atomic phase 3 wrapper、工程说明和两组专项测试；
+- 本地 `main` 相对 `origin/main` ahead 1；本记录是提交后的唯一新工作树修改。
+
+**产物路径**
+
+- Git commit `cb5d4ffaf95ef230df4762d73813181f6c5cef1c`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无提交失败。
+
+**下一步**
+
+1. 普通推送 `main` 到 `origin`；
+2. 核对远端与本地 commit；
+3. 写发布结果并形成 DEVLOG-only 提交。
+
+---
+
+### 2026-08-29｜E1 P0/P1 实现基线发布
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:15:44 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 发布目标：GitHub `origin/main`
+- 远程实验环境：未连接；未访问 DATA4
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-implementation-publish-v01`
+
+**行动与关键配置**
+
+- 执行普通 `git push origin main`；
+- 未使用 force、force-with-lease、rebase、reset 或历史重写；
+- push 后读取本地 HEAD、本地 remote-tracking `origin/main` 和 branch status。
+
+**结果**
+
+- push 成功：`origin/main` 从 `89a8a727...` 前进到 `cb5d4ffaf95ef230df4762d73813181f6c5cef1c`；
+- 本地 HEAD 与 `origin/main` 精确一致；
+- 发布依据为 85/85 full pytest、CLI/help、两条 validate、固定协议零漂移和仓库卫生审计；
+- push 后唯一工作树修改为本条发布 DEVLOG 记录。
+
+**产物路径**
+
+- Git commit `cb5d4ffaf95ef230df4762d73813181f6c5cef1c`
+- GitHub `origin/main`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无 push 失败或分支冲突。
+
+**下一步**
+
+1. 创建并推送 DEVLOG-only 发布记录提交；
+2. 确认工作树干净；
+3. 开始 E2 milestone 1 的固定协议与本地 CPU-only 实现。
