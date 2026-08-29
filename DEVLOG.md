@@ -4878,3 +4878,361 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 创建并推送 DEVLOG-only 发布记录提交；
 2. 确认工作树干净；
 3. 开始 E2 milestone 1 的固定协议与本地 CPU-only 实现。
+
+---
+
+### 2026-08-29｜E1 P0/P1 DEVLOG-only 发布记录提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:16:12 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程实验环境：未使用
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-publication-devlog-commit-v01`
+
+**行动与关键配置**
+
+- 将实现 commit 与 push 结果的发布记录加入 `DEVLOG.md`；
+- 使用提交信息 `Record E1 phase 3 baseline publication` 创建 DEVLOG-only 提交；
+- 未 amend 或重写已发布实现 commit。
+
+**结果**
+
+- DEVLOG-only commit：`4c70b162824ed4decab1dec8c869c3dc7a07d443`；
+- 本地 `main` 相对 `origin/main` ahead 1；本记录是提交后的唯一工作树修改。
+
+**产物路径**
+
+- Git commit `4c70b162824ed4decab1dec8c869c3dc7a07d443`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无提交失败。
+
+**下一步**
+
+1. 普通推送 DEVLOG-only commit；
+2. 核对远端一致性；
+3. 开始 E2 milestone 1。
+
+---
+
+### 2026-08-29｜E1 P0/P1 DEVLOG-only 提交发布完成
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:16:37 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 发布目标：GitHub `origin/main`
+- 远程实验环境：未连接
+
+**步骤 ID**
+
+- `E1-v2-P0-P1-publication-devlog-push-v01`
+
+**行动与关键配置**
+
+- 执行普通 `git push origin main` 发布 DEVLOG-only commit；
+- push 后核对本地 HEAD、`origin/main` 和 branch status。
+
+**结果**
+
+- push 成功：`origin/main` 从 `cb5d4ff...` 前进到 `4c70b162824ed4decab1dec8c869c3dc7a07d443`；
+- 本地 HEAD 与 `origin/main` 精确一致；
+- 本记录是 E2 milestone 1 开始前唯一未提交工作树修改。
+
+**产物路径**
+
+- Git commit `4c70b162824ed4decab1dec8c869c3dc7a07d443`
+- GitHub `origin/main`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 固定 E2 milestone 1 schema/config/generation-extension/pool/audit 设计；
+2. 实现本地 CPU-only 代码与 tiny fixture 测试；
+3. 验收并分阶段推送 `main`。
+
+---
+
+### 2026-08-29｜E2 milestone 1 固定协议与接口设计
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:17:00 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；设计仅面向本地 CPU-only 工程和未来服务器端 agent 交付
+
+**步骤 ID**
+
+- `E2-bon-m1-protocol-interface-design-v01`
+
+**行动与关键配置**
+
+- 固定 E2 pilot schema v1：DAVIS-2017 train 当前10输入；base seeds=`101/202/303/404/505`，extension seeds=`606/707/808`，每输入8候选；N=`1/2/4/8`；8轮 balanced-cyclic；
+- 固定 milestone 1 公共接口：`e2 validate`、`e2 plan-generation`、`e2 build-pool`；分别负责严格配置、30任务扩展计划和80候选不可变池；
+- `plan-generation` 以 E0 plan 为唯一生成身份来源，只允许 seed/artifact path/generation key/code snapshot 改变；模型、AnyV2V commit、图像编辑器、分辨率、帧数、fps、inversion/PnP/CFG 等语义配置必须继承；
+- `build-pool` 强制 E0 plan/candidates/audit 为50唯一候选，extension plan/candidates/audit 为30唯一候选；每输入8 seeds 精确一致，全部 succeeded、audit usable、视频 checksum 64hex 且实际文件 SHA 可选严格复算；
+- E0 50候选与原 audit 保持只读，新增30候选使用独立 extension root/audit；pool 输出已存在即拒绝，采用原子无覆盖文件发布；
+- 固定后续接口契约：正式 E2 必须等待 E1 `PASS_PROVISIONAL`/`reward-v0`，milestone 1 只产生计划和合成工程证据；
+- 固定职责：本地实现/tests/docs，不访问 DATA4；真实 extension 计划执行、30候选生成、audit 与 pool 构建由服务器端 agent 在唯一目录完成。
+
+**结果**
+
+- milestone 1 的输入、输出、计数、身份、失败关闭和本地/服务器边界已 decision-complete；
+- 未修改 E0/E1 协议或数据，未生成候选，未运行模型。
+
+**产物路径**
+
+- `DEVLOG.md`
+- 计划新增：`configs/e2/`、`src/e2_bon/`、`tests/e2/`
+
+**问题 / 失败**
+
+- 当前真实 E0 每输入只有5候选；新增30候选仍需要未来服务器 GPU。本地只用 tiny fixture 验证8候选协议。
+
+**下一步**
+
+1. 实现 E2 strict models/config validation；
+2. 实现 generation extension planner 与80-candidate pool builder；
+3. 接入独立 `e2` CLI 并运行 milestone 1 定向测试。
+
+---
+
+### 2026-08-29｜E2 milestone 1 实现与定向验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:21:32 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture
+
+**步骤 ID**
+
+- `E2-bon-m1-implementation-targeted-v01`
+
+**行动与关键配置**
+
+- 新增独立 `e2` CLI/package 和固定 `configs/e2/pilot.yaml`，接入 pyproject console script 与 wheel package；
+- 实现 strict `E2ConfigV1`、`PoolCandidateV1`、`CandidatePoolV1`，拒绝额外字段和固定协议漂移；
+- 实现 `e2 validate`：E2 dataset/split/base seeds/sample order 必须与 `configs/w1_manifest.yaml` 精确一致；
+- 实现 `e2 plan-generation`：从10 inversion/50 E0 task 继承全部 input/generation 语义，只生成 seeds 606/707/808 的30个 W1-runner-compatible task；
+- 实现 `e2 build-pool`：合并50+30 plan/candidate/audit，严格检查80唯一 ID、8 seeds/sample、全部 succeeded/usable、task/config/key、16 frame 和视频/帧 SHA，并原子无覆盖写 candidate pool；
+- 新增同目录 hard-link 原子无覆盖 JSON helper；
+- 新增 tiny fixture 和5条专项测试，覆盖30任务、语义漂移、80候选 happy path、checksum/audit corruption、不可覆盖和 CLI help/validate；
+- 执行 `py_compile` 和 `uv run pytest tests/e2 -q`。
+
+**结果**
+
+- 语法检查通过；E2 milestone 1 专项 **5/5 passed**；
+- fixture 仅写 pytest 临时目录，使用假视频/PNG 字节和 mock generation config；
+- `uv` 因缓存与环境 hardlink 不可用回退 copy，只是安装性能 warning，不影响代码原子发布测试；
+- 未访问 DATA4、未生成真实候选、未产生 E2 研究测量。
+
+**产物路径**
+
+- `configs/e2/pilot.yaml`
+- `src/e2_bon/`
+- `tests/e2/`
+- `pyproject.toml`
+
+**问题 / 失败**
+
+- 无未解决定向失败；真实 extension 仍需服务器端 agent 在 GPU 可用时执行。
+
+**下一步**
+
+1. 执行 `e2` CLI help/validate；
+2. 运行完整 pytest 确认 E0/E1 零回归；
+3. 完成 milestone 1 仓库审计并发布。
+
+---
+
+### 2026-08-29｜E2 milestone 1 CLI 与固定配置验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:22:01 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only CLI/config 验收
+
+**步骤 ID**
+
+- `E2-bon-m1-cli-config-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run e2 --help`；
+- 执行 `uv run e2 validate`，默认读取 `configs/e2/pilot.yaml` 与 `configs/w1_manifest.yaml`。
+
+**结果**
+
+- 两条命令 exit 0；
+- CLI 显示 `validate/plan-generation/build-pool` 三个 milestone 1 命令；
+- validate 返回 `valid=true`、`experiment_id=E2-bon-pilot-v01`、`candidates=80`；
+- 固定10 sample 顺序与五个 E0 base seeds 精确匹配 W1 manifest。
+
+**产物路径**
+
+- `configs/e2/pilot.yaml`
+- `src/e2_bon/cli.py`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行无筛选完整 pytest；
+2. 审计 pending 路径、协议漂移、禁止产物和大文件；
+3. 发布 milestone 1。
+
+---
+
+### 2026-08-29｜E2 milestone 1 全量本地回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:24:50 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only full pytest
+
+**步骤 ID**
+
+- `E2-bon-m1-full-pytest-v01`
+
+**行动与关键配置**
+
+- 在完整 E1 已发布基线 + E2 milestone 1 工作树上执行无筛选 `uv run pytest`；
+- 未使用 GPU、服务器、DATA4、真实模型、skip 或 xfail。
+
+**结果**
+
+- 完整测试 **90/90 passed**，耗时 `142.02s`，exit code 0；
+- 新增5条 E2 测试与既有85条 E0/E1 回归同时通过；
+- 当前 E2 结果仅证明 schema/planner/pool 工程正确，不是候选生成或 Best-of-N 研究测量。
+
+**产物路径**
+
+- `tests/`
+- `src/e2_bon/`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行 milestone 1 Git/协议/禁止产物/大文件审计；
+2. fetch 并确认 `origin/main` 未前进；
+3. 创建并发布 milestone 1 实现基线和 DEVLOG-only 记录。
+
+---
+
+### 2026-08-29｜E2 milestone 1 最终仓库审计
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:25:22 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；只读 Git/文件系统审计
+
+**步骤 ID**
+
+- `E2-bon-m1-final-repository-audit-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`；
+- 对 W1 manifest、E1 pilot/runtime/四 prompt 执行相对 HEAD 的零漂移检查；
+- 合并 tracked diff 与 non-ignored untracked 路径，扫描视频/数据库/模型/NumPy/Parquet 禁止扩展名；
+- 排除仓库元数据、虚拟环境、pytest/cache 和既有 ignored artifacts 后扫描超过 5 MiB 文件；
+- 核对 HEAD、`origin/main` 和完整 pending 集合。
+
+**结果**
+
+- `git diff --check` exit 0，仅有预期 LF→CRLF 提示；
+- pending 恰为 **11** 个 E2 config/code/test、pyproject 和逐步 DEVLOG 文件；
+- W1/E1 固定 identity 漂移数 0；禁止产物数 0；超过 5 MiB 文件数 0；
+- HEAD 与 `origin/main` 均为 `4c70b162824ed4decab1dec8c869c3dc7a07d443`。
+
+**产物路径**
+
+- `configs/e2/pilot.yaml`
+- `src/e2_bon/`
+- `tests/e2/`
+- `pyproject.toml`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无未解决审计失败。
+
+**下一步**
+
+1. fetch 并确认远端未前进；
+2. 创建并普通推送 milestone 1 实现提交；
+3. 追加并发布 DEVLOG-only 记录。
+
+---
+
+### 2026-08-29｜E2 milestone 1 发布前远端身份确认
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:25:47 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远端：GitHub `origin`
+
+**步骤 ID**
+
+- `E2-bon-m1-prepublish-origin-identity-v01`
+
+**行动与关键配置**
+
+- 执行 `git fetch origin` 并读取 HEAD 与 `origin/main`；
+- 未执行合并、变基或历史重写。
+
+**结果**
+
+- fetch 成功；HEAD 与最新 `origin/main` 均为 `4c70b162824ed4decab1dec8c869c3dc7a07d443`；
+- 无并发前进，允许发布已审计 milestone 1。
+
+**产物路径**
+
+- Git remote-tracking ref `origin/main`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 创建 milestone 1 实现提交；
+2. 普通推送 `main`；
+3. 写发布记录。

@@ -1,0 +1,26 @@
+schema_version: "1"
+experiment_id: E2-bon-pilot-v01
+dataset: DAVIS-2017
+split: train
+sample_ids:
+  - bear-white
+  - bus-red
+  - elephant-pink
+  - classic-car-blue
+  - dog-tiger
+  - horse-zebra
+  - mallard-swan
+  - hiker-backpack
+  - rider-helmet
+  - car-headlights
+base_seeds: [101, 202, 303, 404, 505]
+extension_seeds: [606, 707, 808]
+n_values: [1, 2, 4, 8]
+subset_design: balanced-cyclic
+replicates: 8
+randomization_seed: 20260829
+bootstrap_seed: 20260829
+bootstrap_iterations: 2000
+human_comparison: n4-vs-n1
+primary_annotators: 2
+third_party_adjudication: true
