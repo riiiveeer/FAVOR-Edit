@@ -5236,3 +5236,89 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 创建 milestone 1 实现提交；
 2. 普通推送 `main`；
 3. 写发布记录。
+
+---
+
+### 2026-08-29｜E2 milestone 1 实现基线提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:26:09 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程实验环境：未使用
+
+**步骤 ID**
+
+- `E2-bon-m1-implementation-commit-v01`
+
+**行动与关键配置**
+
+- 将已验收的 E2 config/schema/generation planner/pool builder/CLI/tests 和逐步 DEVLOG 显式加入 index；
+- 使用提交信息 `Add E2 candidate pool planning` 创建实现提交。
+
+**结果**
+
+- commit：`6d8c4a2dbc87956e2c059804ac56537102381657`；
+- 11 files changed，1063 insertions，1 deletion；
+- 本地 `main` ahead 1；本记录是提交后的唯一工作树修改。
+
+**产物路径**
+
+- Git commit `6d8c4a2dbc87956e2c059804ac56537102381657`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 普通推送实现 commit；
+2. 记录远端一致性；
+3. 创建 DEVLOG-only 发布提交。
+
+---
+
+### 2026-08-29｜E2 milestone 1 实现基线发布
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:26:37 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 发布目标：GitHub `origin/main`
+- 远程实验环境：未连接
+
+**步骤 ID**
+
+- `E2-bon-m1-implementation-publish-v01`
+
+**行动与关键配置**
+
+- 普通执行 `git push origin main`；
+- push 后核对 HEAD 与 `origin/main`。
+
+**结果**
+
+- push 成功：`origin/main` 从 `4c70b16...` 前进到 `6d8c4a2dbc87956e2c059804ac56537102381657`；
+- 本地 HEAD 与 remote-tracking ref 一致；
+- 发布依据为 E2 定向5/5、全量90/90、CLI/validate 和仓库审计。
+
+**产物路径**
+
+- Git commit `6d8c4a2dbc87956e2c059804ac56537102381657`
+- GitHub `origin/main`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 创建并推送 DEVLOG-only 发布提交；
+2. 固定 milestone 2 preparation/runner/rubric qualification 设计；
+3. 开始本地 CPU-only 实现。
