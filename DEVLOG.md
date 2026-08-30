@@ -6054,3 +6054,90 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 创建 E2 milestone 2 实现基线提交；
 2. 记录精确提交 SHA；
 3. 普通推送到 `origin/main` 并核对远端一致性。
+
+---
+
+### 2026-08-30｜E2 milestone 2 实现基线提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:09:31 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E2-bon-m2-implementation-commit-v01`
+
+**行动与关键配置**
+
+- 精确 stage milestone 2 的9个预期 code/test/DEVLOG 文件；
+- 执行 staged `git diff --cached --check`；
+- 创建普通提交 `git commit -m "Add E2 atomic judge orchestration"`。
+
+**结果**
+
+- staged diff check 通过；
+- 提交成功：`d64c24425de9288e356ab5bd4619436847793f65`；
+- 提交统计：9 files changed，2048 insertions，4 deletions；新增 preparation、qualification、runner 和 milestone 2 测试；
+- 提交后本地 `main` 相对 `origin/main` ahead 1，除本条待记录 DEVLOG 外无其他新开发改动。
+
+**产物路径**
+
+- Git commit `d64c24425de9288e356ab5bd4619436847793f65`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 普通推送 `main` 到 `origin/main`；
+2. 核对远端 SHA 与本地实现 SHA 一致；
+3. 创建 DEVLOG-only 发布记录提交并推送。
+
+---
+
+### 2026-08-30｜E2 milestone 2 实现基线普通推送
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:10:01 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：仅 GitHub remote；未连接学校服务器、未访问 DATA4
+
+**步骤 ID**
+
+- `E2-bon-m2-implementation-push-v01`
+
+**行动与关键配置**
+
+- 执行普通 `git push origin main`；
+- 推送后核对本地 HEAD、`origin/main` 与工作树状态；
+- 未使用 force-push。
+
+**结果**
+
+- push 成功：`origin/main` 从 `c941ee496d0e39a1196ee4bfe629cc197624f186` 前进到 `d64c24425de9288e356ab5bd4619436847793f65`；
+- 本地 HEAD 与 `origin/main` 精确一致；
+- 发布依据为97/97 full pytest、CLI/config验收、冻结身份门定向测试与最终仓库审计；
+- push 后唯一工作树修改为本条及前一条提交/推送 DEVLOG 记录。
+
+**产物路径**
+
+- Git commit `d64c24425de9288e356ab5bd4619436847793f65`
+- Git remote `origin/main`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 创建 DEVLOG-only milestone 2 发布记录提交；
+2. 普通推送该记录；
+3. 核对工作树 clean 后进入 milestone 3 本地 CPU-only 实现。
