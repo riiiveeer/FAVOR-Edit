@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
+from PIL import Image
 
 from e2_bon.cli import app
 from e2_bon.io import read_json
@@ -25,7 +26,7 @@ def _extension_records(fixture, plan_path: Path):
         frames = []
         for index in range(16):
             frame = video.parent / f"{index:05d}.png"
-            frame.write_bytes(f"{candidate_id}-{index}".encode())
+            Image.new("RGB", (8, 8), (index, int(task["config"]["seed"]) % 255, 80)).save(frame)
             frames.append(frame)
         records.append(CandidateRecord(
             candidate_id=candidate_id, sample_id=task["sample_id"], generation_key=task["generation_key"],

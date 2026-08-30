@@ -5322,3 +5322,735 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 创建并推送 DEVLOG-only 发布提交；
 2. 固定 milestone 2 preparation/runner/rubric qualification 设计；
 3. 开始本地 CPU-only 实现。
+
+---
+
+### 2026-08-29｜E2 milestone 1 DEVLOG-only 发布提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:26:57 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+
+**步骤 ID**
+
+- `E2-bon-m1-publication-devlog-commit-v01`
+
+**行动与关键配置**
+
+- 使用 `Record E2 milestone 1 publication` 创建 DEVLOG-only 提交。
+
+**结果**
+
+- commit：`c941ee496d0e39a1196ee4bfe629cc197624f186`；本地 main ahead 1。
+
+**产物路径**
+
+- Git commit `c941ee496d0e39a1196ee4bfe629cc197624f186`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 普通推送该提交；
+2. 核对远端一致性；
+3. 开始 milestone 2。
+
+---
+
+### 2026-08-29｜E2 milestone 1 DEVLOG-only 发布完成
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:27:29 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 发布目标：GitHub `origin/main`
+
+**步骤 ID**
+
+- `E2-bon-m1-publication-devlog-push-v01`
+
+**行动与关键配置**
+
+- 普通推送 `c941ee496d0e39a1196ee4bfe629cc197624f186` 到 `origin/main` 并核对 refs。
+
+**结果**
+
+- push 成功；本地 HEAD 与 `origin/main` 精确一致；
+- 本记录是 milestone 2 开始前唯一未提交修改。
+
+**产物路径**
+
+- GitHub `origin/main`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 记录 milestone 2 固定设计；
+2. 实现 preparation/runner/rubric qualification；
+3. 完成本地验收和分阶段发布。
+
+---
+
+### 2026-08-29｜E2 milestone 2 preparation、runner 与 rubric 资格设计
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:28:00 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；本步骤为 CPU-only 工程设计
+
+**步骤 ID**
+
+- `E2-bon-m2-preparation-runner-qualification-design-v01`
+
+**行动与关键配置**
+
+- 固定 `e2 prepare` 输入：80 candidate pool、E2 config、E1 `decision.json`、`reward-v0.yaml`、frozen config/protocol/runtime、可选 `auxiliary-rubric-v0.yaml`、唯一 output root 和 prepare ID；
+- 准备前硬门固定为 E1 decision=`PASS_PROVISIONAL`、reward provisional=true、selected method/model/prompt/parser/runtime/protocol identity 互相一致；任一不符失败关闭；
+- 固定80候选构造280无序 pair、10 source/80 candidate asset、280 packet、8轮×10 sample=80 design trial；primary swap plan 精确560请求；
+- selected method 为 rubric 时分维度直接复用 primary；selected method 为 pairwise 时，只有独立 `auxiliary-rubric-v0` PASS 才生成额外560 rubric 请求，否则后续多目标状态必须 `NOT_APPLICABLE`；
+- `e2 qualify-rubric` 固定使用 E1 frozen 70 pair、两人/第三人 adjudicated labels、140个 rubric swap result 和 dev metrics 中预先选择的 rubric threshold，执行 E1 同一 accuracy/swap/coverage/category 四门；PASS/FAIL 均原子写审计 artifact，绝不替换 `reward-v0`；
+- 新 E2 request/result 使用 `split=e2-pilot` 与 stage=`primary/auxiliary-rubric`，不扩宽 E1 Pydantic split；E2 runner 复用相同 backend/runtime/cache/envelope 语义但使用独立 `.e2-run.lock`；
+- preparation 使用同文件系统 staging、failed artifact、final 三重 ABSENT 和 Linux/Windows no-replace publish；内部 manifest 声明 final 路径，prepublish verifier 通过 final→staging 物理映射验收；
+- 正式 command/runtime 只能由服务器端 agent 执行；本地只运行 mock/fake adapter，summary 必须标记 `research_measurements=0`。
+
+**结果**
+
+- milestone 2 的依赖门、精确计数、plan identity、辅助 rubric 边界、runner 契约、原子失败语义与服务器职责已固定；
+- 未运行真实 Judge、未创建 DATA4 输出。
+
+**产物路径**
+
+- `DEVLOG.md`
+- 计划扩展：`src/e2_bon/`、`tests/e2/`、`e2` CLI
+
+**问题 / 失败**
+
+- pairwise 主方法本身无四维输出；若 auxiliary rubric 未通过同等级资格门，多目标分析只能诚实输出不可用。
+
+**下一步**
+
+1. 实现 E2 pair/request/result/design schema 和 preparation；
+2. 实现独立 runner 与 rubric qualification；
+3. 执行定向 mock/atomic/gate 测试。
+
+---
+
+### 2026-08-29｜E2 milestone 2 首轮定向测试夹具失败
+
+**状态：FAILED（已定位）**
+
+**时间与环境**
+
+- 失败时间：2026-08-29 22:38:56 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/mock
+
+**步骤 ID**
+
+- `E2-bon-m2-targeted-attempt-01`
+
+**行动与关键配置**
+
+- 完成 E2 pair/design/request/result schema、atomic preparation、独立 runner、rubric qualification、CLI 和4条 milestone 2 测试；
+- 执行 `py_compile`；
+- 执行 `uv run pytest tests/e2/test_m1.py tests/e2/test_m2.py -q`。
+
+**结果**
+
+- 语法检查通过；9个组合用例中8个通过、1个失败；
+- preparation 280 pair/80 trial/560 plan、mock runner 560 cache、E1 gate failure preservation 等路径已通过；
+- 唯一失败位于 rubric qualification 测试辅助函数 `_write_jsonl`：目标 `tmp/.../good/` 未在写入前创建，触发 `FileNotFoundError`；
+- 失败发生在构造测试输入阶段，尚未进入 qualification 实现，不代表指标或 gate 逻辑失败。
+
+**产物路径**
+
+- `src/e2_bon/preparation.py`
+- `src/e2_bon/runner.py`
+- `src/e2_bon/qualification.py`
+- `tests/e2/test_m2.py`
+
+**问题 / 失败**
+
+- 测试 JSONL helper 缺少 `path.parent.mkdir(parents=True, exist_ok=True)`。
+
+**下一步**
+
+1. 修复测试 helper 创建父目录；
+2. 重跑 milestone 2 定向组合；
+3. 若仍失败，逐项记录并修复。
+
+---
+
+### 2026-08-29｜E2 milestone 2 定向验收重跑通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:40:56 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/mock
+
+**步骤 ID**
+
+- `E2-bon-m2-targeted-attempt-02`
+
+**行动与关键配置**
+
+- 在测试 JSONL helper 中增加父目录创建；
+- 原命令重跑 `uv run pytest tests/e2/test_m1.py tests/e2/test_m2.py -q`。
+
+**结果**
+
+- milestone 1+2 定向组合 **9/9 passed**；
+- 280 pair、80 balanced trial、560 primary request、final 路径声明、atomic publish/ABSENT、mock 560/560、第二次560 cache hit、research_measurements=0、E1 FAIL failed artifact、rubric qualification PASS/category FAIL 均通过；
+- 首次 fixture 失败已闭环，无未解决定向失败。
+
+**产物路径**
+
+- `src/e2_bon/`
+- `tests/e2/`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 增加 pairwise-primary + qualified auxiliary-rubric 560计划专项；
+2. 执行 E2 CLI/help 和完整 pytest；
+3. 完成 milestone 2 审计发布。
+
+---
+
+### 2026-08-29｜E2 pairwise primary 与 qualified rubric 双计划验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:42:49 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture
+
+**步骤 ID**
+
+- `E2-bon-m2-pairwise-auxiliary-plan-v01`
+
+**行动与关键配置**
+
+- 增加专项测试覆盖 E1 selected method=`pairwise-swap-v1`；
+- 无 auxiliary artifact 时 preparation 必须发布 primary 560 plan、标记 `NOT_APPLICABLE` 且不生成 rubric plan；
+- 提供与 E1 protocol fingerprint 匹配的 `PASS_AUXILIARY_RUBRIC` artifact 时，必须同时生成560 primary pairwise 和560 auxiliary rubric 请求；
+- 运行单项 pytest。
+
+**结果**
+
+- 专项 **1/1 passed**；
+- primary/auxiliary method、stage、请求数与 artifact gate 均符合固定设计；
+- 未经资格门的 rubric 不会被静默用于多目标分析。
+
+**产物路径**
+
+- `tests/e2/test_m2.py`
+- `src/e2_bon/preparation.py`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行 E2 CLI help/prepare/run/qualify help；
+2. 运行完整 pytest；
+3. 完成仓库审计和 milestone 2 发布。
+
+---
+
+### 2026-08-29｜E2 milestone 2 CLI 与配置验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-29 22:43:23 +08:00
+- 执行位置：本地 Windows 工作区 `D:\lab idea`
+- 远程环境：未使用；CPU-only CLI/config
+
+**步骤 ID**
+
+- `E2-bon-m2-cli-config-v01`
+
+**行动与关键配置**
+
+- 执行 `e2 --help`、`e2 prepare --help`、`e2 run --help`、`e2 qualify-rubric --help` 和 `e2 validate`。
+
+**结果**
+
+- 五条命令均 exit 0；
+- 主 CLI 显示 milestone 1+2 共7个命令；
+- prepare 的 pool/E1 gate/frozen/runtime/output/prepare-id/auxiliary 参数完整；run 与 rubric qualification 参数完整；
+- E2 fixed config 继续返回 valid=true、80 candidates。
+
+**产物路径**
+
+- `src/e2_bon/cli.py`
+- `configs/e2/pilot.yaml`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行完整 pytest；
+2. 审计 milestone 2 pending 和固定协议；
+3. 发布实现与 DEVLOG-only 提交。
+
+---
+
+### 2026-08-30｜E2 milestone 2 全量回归会话中断审计
+
+**状态：INTERRUPTED / RESULT UNKNOWN**
+
+**时间与环境**
+
+- 审计时间：2026-08-30 09:48:37 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only
+
+**步骤 ID**
+
+- `E2-bon-m2-full-regression-attempt-01`
+
+**行动与关键配置**
+
+- 2026-08-29 夜间曾启动 `uv run pytest` 全量回归；
+- 会话 `49463` 仅返回了持续的部分测试进度点，尚未捕获 pytest 汇总与进程退出码时，Codex 会话因额度中断；
+- 2026-08-30 恢复后轮询该会话得到 `Unknown process id 49463`，无法从原会话恢复最终状态；
+- 复查工作树、`HEAD` 与 `origin/main`：E2 milestone 2 未提交改动仍完整，`HEAD == origin/main == c941ee496d0e39a1196ee4bfe629cc197624f186`。
+
+**结果**
+
+- 不把部分进度输出视为测试通过；本次全量回归结果明确记为未知；
+- 未发现部分提交、部分推送或远端基线漂移；
+- 必须从头重跑全量 pytest 后才可继续发布验收。
+
+**产物路径**
+
+- `DEVLOG.md`
+- 本地未提交 E2 milestone 2 工作树
+
+**问题 / 失败**
+
+- 原 pytest 进程及最终退出码不可恢复，这是会话中断而非已确认的代码测试失败。
+
+**下一步**
+
+1. 从头运行 `uv run pytest` 并捕获完整汇总与退出码；
+2. 立即记录重跑结果；
+3. 结果通过后执行 milestone 2 仓库审计与发布。
+
+---
+
+### 2026-08-30｜E2 milestone 2 全量回归重跑通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 09:53:36 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/mock
+
+**步骤 ID**
+
+- `E2-bon-m2-full-regression-attempt-02`
+
+**行动与关键配置**
+
+- 从头执行 `uv run pytest`；
+- 未复用前一晚退出状态未知的测试会话；
+- 捕获完整 pytest 汇总与进程退出码。
+
+**结果**
+
+- **95/95 passed**；
+- 运行时间 `253.55s (0:04:13)`；
+- 进程 exit code 0；
+- E0/W1/E1 既有测试与 E2 milestone 1/2 测试全量通过。
+
+**产物路径**
+
+- `tests/`
+- 本地 E2 milestone 2 工作树
+
+**问题 / 失败**
+
+- 无；前一晚未知结果已由本次完整重跑取代，但历史中断记录永久保留。
+
+**下一步**
+
+1. 执行 milestone 2 diff、协议身份、禁止产物、大文件与 untracked 审计；
+2. `git fetch origin` 并确认远端基线无并发前进；
+3. 创建并普通推送 milestone 2 实现基线。
+
+---
+
+### 2026-08-30｜E2 milestone 2 Python 编译验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 09:54:41 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only static check
+
+**步骤 ID**
+
+- `E2-bon-m2-compileall-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run python -m compileall -q src tests`。
+
+**结果**
+
+- exit code 0；`src/` 与 `tests/` 中 Python 文件全部可编译；
+- 未产生需要纳入版本控制的编译产物。
+
+**产物路径**
+
+- `src/`
+- `tests/`
+
+**问题 / 失败**
+
+- 无编译错误。
+
+**下一步**
+
+1. 加固 E1 reward/frozen threshold 身份门；
+2. 增加阈值漂移拒绝测试；
+3. 重跑定向与全量测试。
+
+---
+
+### 2026-08-30｜E2 milestone 2 发布前依赖门审阅诊断
+
+**状态：FIX REQUIRED**
+
+**时间与环境**
+
+- 诊断时间：2026-08-30 09:54:41 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；本地只读代码审阅
+
+**步骤 ID**
+
+- `E2-bon-m2-e1-threshold-identity-review-v01`
+
+**行动与关键配置**
+
+- 对照计划中“正式 E2 preparation 必须验证 E1 reward、frozen protocol、prompt/runtime/model fingerprints，缺失或不一致失败关闭”的要求，逐项检查 `src/e2_bon/preparation.py::_dependencies`；
+- 核对 E1 `reward-v0.yaml` 生成字段与 `FrozenProtocolV2` 字段。
+
+**结果**
+
+- 已有门禁会核对 PASS_PROVISIONAL、全部可靠性门、selected method、runtime fingerprint、model revision、prompt/parser identity；
+- 发现 `reward-v0` 的 `confidence_threshold` 与 `absolute_delta_threshold` 尚未和 frozen protocol、frozen config 三方精确对齐；
+- 这不会使已有 mock 测试失败，但会留下阈值身份漂移未被 preparation 拒绝的缺口，故 milestone 2 暂不发布。
+
+**产物路径**
+
+- `src/e2_bon/preparation.py`
+- `src/e1_judge/metrics.py`
+- `src/e1_judge/models.py`
+
+**问题 / 失败**
+
+- E1 冻结阈值身份门不完整。
+
+**下一步**
+
+1. 在 preparation 依赖门中精确核对 reward/protocol/config 的两项冻结阈值；
+2. 新增任一阈值漂移均失败并保留 failed artifact 的测试；
+3. 重新执行受影响测试与全量回归。
+
+---
+
+### 2026-08-30｜E2 milestone 2 冻结依赖身份门加固实现
+
+**状态：IMPLEMENTED / TEST PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 09:56:38 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only code/test fixture
+
+**步骤 ID**
+
+- `E2-bon-m2-frozen-identity-hardening-v01`
+
+**行动与关键配置**
+
+- 将 E1 decision 的可靠性门收紧为四个固定键且值必须逐项为布尔 `true`，避免空门集合被 `all()` 接受；
+- 核对 frozen protocol 的 config checksum、全部 prompt checksum 和由 code snapshot/config/runtime/prompt/selection 重算的 protocol fingerprint；
+- 将 `reward-v0`、frozen config、frozen protocol 的 confidence/absolute-delta threshold 做三方精确对齐；
+- auxiliary rubric artifact 同样要求四个固定可靠性门全部为真；
+- 更新测试 fixture 使用真实重算的 protocol fingerprint，并新增两项 reward threshold 漂移的参数化拒绝测试，要求失败现场永久保留。
+
+**结果**
+
+- 实现与测试用例已写入工作树；
+- 尚未宣称通过，等待定向与全量 pytest。
+
+**产物路径**
+
+- `src/e2_bon/preparation.py`
+- `tests/e2/test_m2.py`
+
+**问题 / 失败**
+
+- 无已知实现阻塞；测试待执行。
+
+**下一步**
+
+1. 运行 `uv run pytest tests/e2/test_m2.py -q`；
+2. 若通过，重新运行无筛选全量 pytest；
+3. 再执行最终仓库审计。
+
+---
+
+### 2026-08-30｜E2 milestone 2 冻结身份门定向回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 09:58:57 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/mock
+
+**步骤 ID**
+
+- `E2-bon-m2-frozen-identity-targeted-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/e2/test_m2.py -q`；
+- 覆盖真实 protocol fingerprint 重算、confidence/absolute-delta 两类阈值漂移拒绝、PASS gate、rubric qualification、280 pair/560 request、cache resume 与 atomic failure preservation。
+
+**结果**
+
+- **7/7 passed**，进程 exit code 0；
+- 两种冻结阈值漂移均失败关闭并保留 `PREPARATION_FAILED.json`；
+- 原有 milestone 2 行为无定向回归。
+
+**产物路径**
+
+- `src/e2_bon/preparation.py`
+- `tests/e2/test_m2.py`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 从头运行无筛选 `uv run pytest`；
+2. 全绿后完成最终仓库审计；
+3. fetch 并发布 milestone 2。
+
+---
+
+### 2026-08-30｜E2 milestone 2 身份门加固后最终全量回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:04:18 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/mock
+
+**步骤 ID**
+
+- `E2-bon-m2-final-full-regression-v01`
+
+**行动与关键配置**
+
+- 在冻结依赖门加固后从头执行无筛选 `uv run pytest`；
+- 捕获完整测试汇总与退出码。
+
+**结果**
+
+- **97/97 passed**；
+- 运行时间 `282.03s (0:04:42)`；
+- 进程 exit code 0；
+- 相比加固前95项，新增的两项 reward threshold 漂移拒绝测试均纳入全量回归且通过。
+
+**产物路径**
+
+- `tests/`
+- 本地 E2 milestone 2 工作树
+
+**问题 / 失败**
+
+- 无未解决测试失败。
+
+**下一步**
+
+1. 执行最终 Git/diff/固定身份/禁止产物/大文件审计；
+2. fetch 并确认 `origin/main` 未并发前进；
+3. 发布 milestone 2 实现基线。
+
+---
+
+### 2026-08-30｜E2 milestone 2 最终仓库审计首次脚本计数失败
+
+**状态：INVALID / RETRY REQUIRED**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:08:02 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；只读 Git/文件系统审计
+
+**步骤 ID**
+
+- `E2-bon-m2-final-repository-audit-attempt-01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`、固定 W1/E1 identity drift、pending/禁止扩展名/大文件/HEAD 身份组合审计；
+- pending 组合表达式使用了 `@((git diff ...), (git ls-files ...))`。
+
+**结果**
+
+- `git diff --check` exit 0，仅有预期 LF→CRLF 提示；
+- 固定 identity 漂移、禁止产物、大文件均返回0；HEAD 与本地 tracking main 均为 `c941ee496d0e39a1196ee4bfe629cc197624f186`；
+- 但 pending 被保留为两个嵌套数组，错误输出 `PendingCount=2`，而数组内实际共有9条路径；因此本次组合审计整体判定无效，不作为发布依据。
+
+**产物路径**
+
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- PowerShell pending 数组未展平，计数错误。
+
+**下一步**
+
+1. 分别初始化 tracked 数组并追加 untracked 数组后排序去重；
+2. 重跑完整只读审计并要求精确 pending=9；
+3. 审计通过后再 fetch。
+
+---
+
+### 2026-08-30｜E2 milestone 2 最终仓库审计通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:08:33 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；只读 Git/文件系统审计
+
+**步骤 ID**
+
+- `E2-bon-m2-final-repository-audit-attempt-02`
+
+**行动与关键配置**
+
+- 用显式 tracked 数组初始化并追加 non-ignored untracked 数组，排序去重后重跑 pending 审计；
+- 执行 `git diff --check`；
+- 对 `configs/w1_manifest.yaml` 与完整 `configs/e1/` 相对 HEAD 做固定 identity 零漂移检查；
+- 对 pending 扫描视频、数据库、模型、NumPy、Parquet 等禁止扩展名；
+- 排除 `.git`、`.venv`、pytest/cache、`__pycache__` 与既有 ignored `artifacts` 后扫描超过 5 MiB 文件；
+- 核对 HEAD 与本地 tracking main。
+
+**结果**
+
+- `git diff --check` exit 0，仅有预期 Windows LF→CRLF 工作树提示；
+- pending 精确为 **9** 个：`DEVLOG.md`、3个 E2 module 修改/新增共5个源文件、3个 E2 测试修改/新增；
+- W1/E1 fixed identity drift **0**；禁止产物 **0**；超过5 MiB文件 **0**；
+- HEAD 与本地 `origin/main` 均为 `c941ee496d0e39a1196ee4bfe629cc197624f186`；
+- 服务器未连接，DATA4 未访问，未创建真实研究产物。
+
+**产物路径**
+
+- `src/e2_bon/`
+- `tests/e2/`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无未解决审计失败；首次错误计数记录保留但已由本次有效重跑闭环。
+
+**下一步**
+
+1. 执行 `git fetch origin`；
+2. 确认远端 `main` 仍为预期里程碑1基线；
+3. 创建并普通推送 milestone 2 实现提交。
+
+---
+
+### 2026-08-30｜E2 milestone 2 发布前远端身份确认
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:09:04 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：仅访问 Git remote；未连接学校服务器、未访问 DATA4
+
+**步骤 ID**
+
+- `E2-bon-m2-prefetch-origin-identity-v01`
+
+**行动与关键配置**
+
+- 执行 `git fetch origin`；
+- fetch 成功后分别执行 `git rev-parse HEAD` 与 `git rev-parse origin/main`，并查看远端最近3条历史。
+
+**结果**
+
+- fetch exit code 0；
+- `HEAD == origin/main == c941ee496d0e39a1196ee4bfe629cc197624f186`；
+- 远端未发生并发前进，仍为已发布的 E2 milestone 1 DEVLOG 基线；
+- 允许按计划创建普通提交，禁止 force-push 的约束保持不变。
+
+**产物路径**
+
+- Git remote `origin/main`
+- 本地 Git refs
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 创建 E2 milestone 2 实现基线提交；
+2. 记录精确提交 SHA；
+3. 普通推送到 `origin/main` 并核对远端一致性。

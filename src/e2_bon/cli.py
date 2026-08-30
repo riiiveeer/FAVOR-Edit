@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -53,6 +54,81 @@ def build_pool_command(
         config.resolve(), output.resolve(), verify_files=True,
     )
     typer.echo(json.dumps({"candidates": payload["candidate_count"], "samples": payload["sample_count"], "output": str(output.resolve())}, sort_keys=True))
+
+
+@app.command("prepare")
+def prepare_command(
+    pool: Path = typer.Option(..., exists=True, dir_okay=False),
+    config: Path = typer.Option(Path("configs/e2/pilot.yaml"), exists=True, dir_okay=False),
+    e1_decision: Path = typer.Option(..., exists=True, dir_okay=False),
+    reward_v0: Path = typer.Option(..., exists=True, dir_okay=False),
+    frozen_config: Path = typer.Option(..., exists=True, dir_okay=False),
+    frozen_protocol: Path = typer.Option(..., exists=True, dir_okay=False),
+    runtime: Path = typer.Option(..., exists=True, dir_okay=False),
+    output_root: Path = typer.Option(...),
+    prepare_id: str = typer.Option(...),
+    auxiliary_rubric: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+) -> None:
+    from .preparation import E2PreparationError, prepare_e2
+
+    try:
+        result = prepare_e2(
+            pool.resolve(), config.resolve(), e1_decision.resolve(), reward_v0.resolve(),
+            frozen_config.resolve(), frozen_protocol.resolve(), runtime.resolve(), output_root.resolve(),
+            prepare_id, auxiliary_rubric.resolve() if auxiliary_rubric else None,
+        )
+    except E2PreparationError as exc:
+        typer.echo(json.dumps({
+            "status": "failed", "stage": exc.stage, "error": str(exc),
+            "failure_root": str(exc.failure_root) if exc.failure_root else None,
+            "staging_root": str(exc.staging_root) if exc.staging_root else None,
+        }, sort_keys=True), err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps(result, sort_keys=True))
+
+
+@app.command("run")
+def run_command(
+    plan: Path = typer.Option(..., exists=True, dir_okay=False),
+    runtime: Path = typer.Option(..., exists=True, dir_okay=False),
+    experiment_dir: Path = typer.Option(...),
+    cache: Path = typer.Option(...),
+) -> None:
+    from .runner import run_e2_judge
+
+    typer.echo(json.dumps(run_e2_judge(plan.resolve(), runtime.resolve(), experiment_dir.resolve(), cache.resolve()), sort_keys=True))
+
+
+@app.command("unlock")
+def unlock_command(
+    experiment_dir: Path = typer.Option(..., exists=True, file_okay=False),
+    reason: str = typer.Option(...),
+) -> None:
+    from .runner import unlock
+
+    unlock(experiment_dir.resolve(), reason)
+    typer.echo(json.dumps({"unlocked": str(experiment_dir.resolve())}, sort_keys=True))
+
+
+@app.command("qualify-rubric")
+def qualify_rubric_command(
+    pairs: Path = typer.Option(..., exists=True, dir_okay=False),
+    human: Path = typer.Option(..., exists=True, dir_okay=False),
+    results: Path = typer.Option(..., exists=True, dir_okay=False),
+    dev_metrics: Path = typer.Option(..., exists=True, dir_okay=False),
+    e1_config: Path = typer.Option(..., exists=True, dir_okay=False),
+    frozen_protocol: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+) -> None:
+    from .qualification import qualify_auxiliary_rubric
+
+    payload = qualify_auxiliary_rubric(
+        pairs.resolve(), human.resolve(), results.resolve(), dev_metrics.resolve(),
+        e1_config.resolve(), frozen_protocol.resolve(), output.resolve(),
+    )
+    typer.echo(json.dumps({"decision": payload["decision"], "output": str(output.resolve())}, sort_keys=True))
+    if payload["decision"] != "PASS_AUXILIARY_RUBRIC":
+        raise typer.Exit(code=1)
 
 
 def main() -> None:

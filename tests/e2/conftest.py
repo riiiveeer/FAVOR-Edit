@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from PIL import Image
 
 from w1_pipeline.hashing import sha256_file
 from w1_pipeline.models import CandidateRecord, CandidateStatus, GenerationConfig, InputRecord
@@ -36,8 +37,8 @@ def e2_m1_fixture(tmp_path: Path):
         mask = tmp_path / "mask" / f"{index:05d}.png"
         frame.parent.mkdir(parents=True, exist_ok=True)
         mask.parent.mkdir(parents=True, exist_ok=True)
-        frame.write_bytes(f"source-{index}".encode())
-        mask.write_bytes(f"mask-{index}".encode())
+        Image.new("RGB", (8, 8), (index, 20, 30)).save(frame)
+        Image.new("L", (8, 8), 255 if index % 2 else 0).save(mask)
         source_frames.append(str(frame))
         masks.append(str(mask))
 
@@ -84,7 +85,7 @@ def e2_m1_fixture(tmp_path: Path):
             frames = []
             for frame_index in range(16):
                 frame = video.parent / f"{frame_index:05d}.png"
-                frame.write_bytes(f"{candidate_id}-{frame_index}".encode())
+                Image.new("RGB", (8, 8), (frame_index, seed % 255, 40)).save(frame)
                 frames.append(frame)
             records.append(CandidateRecord(
                 candidate_id=candidate_id, sample_id=sample_id, generation_key=key, config=generation,

@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from . import SCHEMA_VERSION
+from e1_judge.models import MediaFileV2, RequestMediaV2
 
 
 class StrictModel(BaseModel):
@@ -89,3 +90,114 @@ class CandidatePoolV1(StrictModel):
         if len(set(ids)) != 80:
             raise ValueError("candidate pool IDs must be unique")
         return self
+
+
+class CandidateRefV1(StrictModel):
+    candidate_id: str = Field(min_length=1)
+    seed: int
+    video_path: str = Field(min_length=1)
+    video_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class E2PairV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    experiment_id: Literal["E2-bon-pilot-v01"]
+    pair_id: str = Field(min_length=1)
+    sample_id: str = Field(min_length=1)
+    task_type: Literal["attribute", "object", "local"]
+    instruction: str = Field(min_length=1)
+    target_caption: str = Field(min_length=1)
+    source_video_path: str = Field(min_length=1)
+    source_video_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_frame_paths: List[str] = Field(min_length=16, max_length=16)
+    mask_frame_paths: List[str] = Field(default_factory=list)
+    candidate_a: CandidateRefV1
+    candidate_b: CandidateRefV1
+
+    @model_validator(mode="after")
+    def canonical_candidates(self) -> "E2PairV1":
+        if self.candidate_a.candidate_id >= self.candidate_b.candidate_id:
+            raise ValueError("E2 pair candidates must be lexicographically ordered")
+        return self
+
+
+class BonTrialV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    experiment_id: Literal["E2-bon-pilot-v01"]
+    trial_id: str = Field(min_length=1)
+    sample_id: str = Field(min_length=1)
+    replicate: int = Field(ge=0, le=7)
+    candidate_order: List[str] = Field(min_length=8, max_length=8)
+    subsets: Dict[str, List[str]]
+
+
+E2Method = Literal["pairwise-swap-v1", "rubric-swap-v1"]
+E2Stage = Literal["primary", "auxiliary-rubric"]
+
+
+class E2JudgeRequestV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    experiment_id: Literal["E2-bon-pilot-v01"]
+    stage: E2Stage
+    split: Literal["e2-pilot"]
+    request_id: str = Field(min_length=1)
+    judge_key: str = Field(pattern=r"^[0-9a-f]{64}$")
+    pair_id: str = Field(min_length=1)
+    sample_id: str = Field(min_length=1)
+    task_type: Literal["attribute", "object", "local"]
+    instruction: str = Field(min_length=1)
+    target_caption: str = Field(min_length=1)
+    method: E2Method
+    comparison_direction: Literal["a_vs_b", "b_vs_a"]
+    candidate_a_id: str = Field(min_length=1)
+    candidate_b_id: str = Field(min_length=1)
+    source: RequestMediaV2
+    candidate_a: RequestMediaV2
+    candidate_b: RequestMediaV2
+    mask_overlay: Optional[MediaFileV2] = None
+    media_packet_checksum: str = Field(pattern=r"^[0-9a-f]{64}$")
+    backend: Literal["mock", "command", "replay"]
+    model_name: str = Field(min_length=1)
+    model_revision: str = Field(min_length=1)
+    model_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    prompt_version: str = Field(min_length=1)
+    prompt_checksum: str = Field(pattern=r"^[0-9a-f]{64}$")
+    rendered_prompt: str = Field(min_length=1)
+    parser_version: str = Field(min_length=1)
+    generation_parameters: Dict[str, Any]
+    runtime_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
+    e1_protocol_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
+    reward_artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    code_snapshot: str = Field(min_length=1)
+
+
+class E2JudgeResultV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    experiment_id: Literal["E2-bon-pilot-v01"]
+    stage: E2Stage
+    split: Literal["e2-pilot"]
+    request_id: str = Field(min_length=1)
+    judge_key: str = Field(pattern=r"^[0-9a-f]{64}$")
+    pair_id: str = Field(min_length=1)
+    sample_id: str = Field(min_length=1)
+    method: E2Method
+    comparison_direction: Literal["a_vs_b", "b_vs_a"]
+    candidate_a_id: str = Field(min_length=1)
+    candidate_b_id: str = Field(min_length=1)
+    status: Literal["succeeded", "failed"]
+    parsed: Optional[Dict[str, Any]] = None
+    raw_response: Dict[str, Any] = Field(default_factory=dict)
+    parse_error: Optional[str] = None
+    runtime_seconds: float = Field(ge=0)
+    peak_vram_mb: float = Field(ge=0)
+    prompt_version: str = Field(min_length=1)
+    prompt_checksum: str = Field(pattern=r"^[0-9a-f]{64}$")
+    parser_version: str = Field(min_length=1)
+    generation_parameters: Dict[str, Any]
+    model_name: str = Field(min_length=1)
+    model_revision: str = Field(min_length=1)
+    model_manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    runtime_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
+    e1_protocol_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
+    reward_artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    created_at: str = Field(min_length=1)
