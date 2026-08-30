@@ -79,7 +79,7 @@ def _result(request: E2JudgeRequestV1, status: str, parsed=None, raw=None, error
     return E2JudgeResultV1(
         experiment_id=request.experiment_id, stage=request.stage, split=request.split,
         request_id=request.request_id, judge_key=request.judge_key, pair_id=request.pair_id,
-        sample_id=request.sample_id, method=request.method,
+        sample_id=request.sample_id, method=request.method, backend=request.backend,
         comparison_direction=request.comparison_direction,
         candidate_a_id=request.candidate_a_id, candidate_b_id=request.candidate_b_id,
         status=status, parsed=parsed, raw_response=raw or {}, parse_error=error,

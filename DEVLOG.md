@@ -6141,3 +6141,973 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 创建 DEVLOG-only milestone 2 发布记录提交；
 2. 普通推送该记录；
 3. 核对工作树 clean 后进入 milestone 3 本地 CPU-only 实现。
+
+---
+
+### 2026-08-30｜E2 milestone 2 DEVLOG-only 发布记录提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:10:26 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E2-bon-m2-devlog-publication-commit-v01`
+
+**行动与关键配置**
+
+- 用 `git diff --name-only` guard 确认待提交路径严格只有 `DEVLOG.md`；
+- 执行 staged diff check；
+- 创建 `git commit -m "Record E2 milestone 2 publication"`。
+
+**结果**
+
+- DEVLOG-only guard 与 staged diff check 通过；
+- 提交成功：`f9a03b521adc0c187ccb8e3d3c408943964b77b3`；
+- 提交统计：1 file changed，87 insertions；
+- 本地 `main` 相对远端 ahead 1，等待普通推送。
+
+**产物路径**
+
+- Git commit `f9a03b521adc0c187ccb8e3d3c408943964b77b3`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 普通推送 DEVLOG-only commit；
+2. 核对 HEAD 与 `origin/main`；
+3. 进入 E2 milestone 3 设计与实现。
+
+---
+
+### 2026-08-30｜E2 milestone 2 DEVLOG-only 发布记录普通推送
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:10:54 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：仅 GitHub remote；未连接学校服务器、未访问 DATA4
+
+**步骤 ID**
+
+- `E2-bon-m2-devlog-publication-push-v01`
+
+**行动与关键配置**
+
+- 执行普通 `git push origin main` 推送 DEVLOG-only commit；
+- 推送后核对本地 HEAD、`origin/main` 与工作树状态；
+- 未使用 force-push。
+
+**结果**
+
+- push 成功：`origin/main` 从 `d64c24425de9288e356ab5bd4619436847793f65` 前进到 `f9a03b521adc0c187ccb8e3d3c408943964b77b3`；
+- 本地 HEAD 与 `origin/main` 精确一致；
+- E2 milestone 2 的“实现基线 + DEVLOG-only 发布记录”双提交链完成；
+- 唯一工作树修改为本条 push 后 DEVLOG 记录，将随 milestone 3 实现基线纳入下一提交。
+
+**产物路径**
+
+- Git commit `f9a03b521adc0c187ccb8e3d3c408943964b77b3`
+- Git remote `origin/main`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 固化 milestone 3 本地接口与 fail-closed 设计；
+2. 实现选择、人标、统计、报告、verifier；
+3. 编写只交给服务器端 agent 的独立 runbook。
+
+---
+
+### 2026-08-30｜E2 milestone 3 选择、人标与统计接口设计冻结
+
+**状态：DECIDED / IMPLEMENTATION PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:13:27 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；本地协议/接口设计
+
+**步骤 ID**
+
+- `E2-bon-m3-interface-design-v01`
+
+**行动与关键配置**
+
+- 固化 `select` 输入为 E2 config/design/pairs/primary results/reward-v0，以及可选 rubric results/qualified auxiliary artifact；
+- primary pair 每个无序 pair 必须有两条成功方向结果，先映射到 canonical candidate，再要求双向 preference 一致；只有 decisive 且最小 confidence 达到 E1 frozen reward threshold 的比较进入按 sample 独立拟合的 ridge-stabilized Bradley–Terry；
+- random baseline 用 fixed config seed + trial/N 做 deterministic hash sampling；主 reward 以 BT utility 再 candidate ID 升序破同分；
+- rubric 可用时，四个维度分别执行相同 swap/confidence/BT 流程并映射为0..1 utility；等权线性按四维均值，鲁棒方法按 Pareto 非支配层→最小维度 utility→几何平均→candidate ID 升序确定性破同分；rubric 未经资格门时两者显式 `NOT_APPLICABLE`；
+- human plan 固定从 primary reward 的同一 trial 提取 N=4 与 N=1 共80组；相同 checksum 自动 `identical_selection` tie，不进入人工 UI；其余项按 fixed seed/annotator identity 确定性随机左右方向，UI 不显示 N 身份；
+- 两名不同主标注者必须完整覆盖全部非同一视频项；任何五字段争议均要求不同第三人完整覆盖；最终 adjudicated 输出恢复成80项；
+- 主 tie-aware overall score 固定为 N4 win=1、tie=0.5、uncertain=0.5、N1 win=0，并同时报告 decisive win rate、tie/uncertain、四维偏好、agreement 与 Cohen kappa，防止 neutral-imputed 主值掩盖 uncertain；
+- 95% CI 以10个 sample 为 cluster、固定 seed、2000次有放回重采样；`meets_m1_target` 只检查 point estimate>=0.60，不自动声明显著；faithfulness/preservation bootstrap 上界低于0.5时单独发 degradation warning；
+- 理论成本按10 sample×8轮的 N、双向全 pair 请求计数，实际成本报告完整80候选/560主请求及可选560 rubric请求的总计与每trial摊销；mock/replay 全链保持 `research_measurements=0`。
+
+**结果**
+
+- milestone 3 数据链和统计解释已冻结，可进入实现；
+- 未改变 E1/E0 protocol、threshold、prompt、model revision、30/70 split 或 research gate。
+
+**产物路径**
+
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 尚未实现与测试；正式人标 UI 和 GPU/Judge 运行仍只允许服务器端 agent 按 runbook 执行。
+
+**下一步**
+
+1. 新增 milestone 3 strict models 与 selection/annotation/analysis/report/verify modules；
+2. 扩展 `e2` CLI；
+3. 增加 known BT、Pareto、blind/adjudication、identical tie、cluster bootstrap 与 mock E2E 测试。
+
+---
+
+### 2026-08-30｜E2 milestone 3 选择引擎实现
+
+**状态：IMPLEMENTED / TEST PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:17:12 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only Python implementation
+
+**步骤 ID**
+
+- `E2-bon-m3-selection-engine-v01`
+
+**行动与关键配置**
+
+- 新增 strict selection、human comparison、human annotation、adjudicated comparison schema；
+- 新增 ridge-stabilized Newton Bradley–Terry 拟合，输出 centered log ability；
+- 实现 E2 560结果的 method/stage/split/artifact/protocol/candidate/双方向完整身份检查；
+- 实现 canonical swap 合并、冻结 confidence filtering、按sample独立 BT；
+- 实现 fixed-seed random、primary BT、四维等权线性与 Pareto→max-min→geometric→ID 选择；
+- 实现未资格 rubric `NOT_APPLICABLE`、primary rubric 和 qualified auxiliary rubric 两条合法路径；
+- 生成80项 primary N=4 vs N=1 human plan，并以视频 checksum 决定 `identical_selection`；
+- selection 输出使用 atomic no-replace JSON，mock/replay 强制 `research_measurements=0`。
+
+**结果**
+
+- `src/e2_bon/models.py` 与新 `src/e2_bon/selection.py` 已实现；
+- 尚未执行测试，不宣称选择引擎通过。
+
+**产物路径**
+
+- `src/e2_bon/models.py`
+- `src/e2_bon/selection.py`
+
+**问题 / 失败**
+
+- 待定向测试验证 BT 收敛、swap/threshold 过滤、Pareto破同分和完整选择数量。
+
+**下一步**
+
+1. 实现 E2 blind annotation UI/adjudication；
+2. 实现 analysis/report/verifier；
+3. 完成 CLI 后统一编译与定向测试。
+
+---
+
+### 2026-08-30｜E2 milestone 3 盲标与第三人裁决实现
+
+**状态：IMPLEMENTED / TEST PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:19:19 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；本地 CPU-only engineering
+
+**步骤 ID**
+
+- `E2-bon-m3-human-annotation-v01`
+
+**行动与关键配置**
+
+- 新增 E2 专用本地 HTTP blind annotation UI，页面仅显示 source、Candidate Left/Right、instruction/target，不显示 N=4/N=1 或 candidate ID；
+- 按 comparison ID、annotator ID、fixed seed 确定性随机左右方向，并保存 canonical a/b/tie/uncertain；
+- 自动从 UI 排除 `identical_selection`，支持第三人用 disputed comparison filter 只标争议项；
+- adjudicator 强制两个主文件来自不同 annotator 且完整覆盖全部非同一视频项；五项字段任一不一致即争议；
+- 第三人必须是不同身份并精确覆盖全部且仅争议项；缺失时写 no-replace preliminary report 后失败关闭；
+- 最终输出将相同 checksum 项自动补为 annotation-free tie，保证恰好80项，并输出逐维 agreement/Cohen kappa、tie/uncertain 与争议审计。
+
+**结果**
+
+- `src/e2_bon/annotations.py` 已实现；
+- 尚未启动 UI 或执行正式人标；正式 server-hosted annotation 仍只交付服务器端 agent；
+- 尚未执行本地测试，不宣称模块通过。
+
+**产物路径**
+
+- `src/e2_bon/annotations.py`
+
+**问题 / 失败**
+
+- 待测试 blind HTML、方向映射、完整覆盖、第三人约束和自动 tie。
+
+**下一步**
+
+1. 实现 cluster-bootstrap analysis 与成本报告；
+2. 实现 Markdown/SVG/CSV reporting 和 verifier；
+3. 完成 CLI 与定向测试。
+
+---
+
+### 2026-08-30｜E2 milestone 3 统计、成本、报告与 verifier 实现
+
+**状态：IMPLEMENTED / TEST PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:22:04 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only Python/report engineering
+
+**步骤 ID**
+
+- `E2-bon-m3-analysis-report-verify-v01`
+
+**行动与关键配置**
+
+- 实现80项 adjudicated identity 校验与 sample-cluster percentile bootstrap（10 clusters×8 rounds、fixed seed、config固定2000次）；
+- 实现 overall/四维 tie-aware rate、decisive rate、tie/uncertain、M1 target flag 和 faithfulness/preservation CI退化告警；
+- 实现理论独立 trial 生成/Judge计数，以及完整80候选/560 primary/可选560 rubric的实际 runtime 与每trial摊销成本；
+- analysis 输出采用 final/staging/failed 三路径 ABSENT 与 no-replace publish；
+- 实现 Markdown、win-rate SVG、cost SVG、cost CSV 与 report manifest，报告明确 mock/replay 无研究测量；
+- 实现 preparation SHA256SUMS、selection依赖、80人标、2000次cluster bootstrap、成本计数、report artifact 与 mock/replay research flag 的 fail-closed verifier；
+- verifier 输出使用 atomic no-replace JSON，只有 formal-command 且全项通过才标记 ready for research interpretation。
+
+**结果**
+
+- 新增 analysis、reporting、verification 三个模块；
+- 尚未执行编译/测试，不宣称通过。
+
+**产物路径**
+
+- `src/e2_bon/analysis.py`
+- `src/e2_bon/reporting.py`
+- `src/e2_bon/verification.py`
+
+**问题 / 失败**
+
+- 待测试2000次聚类重采样、atomic no-overwrite、mock report和全链 verifier。
+
+**下一步**
+
+1. 扩展 `e2` CLI 的 select/annotate/adjudicate/analyze/report/verify；
+2. 编写服务器端 agent runbook；
+3. 增加完整 milestone 3 测试并执行编译/回归。
+
+---
+
+### 2026-08-30｜E2 milestone 3 CLI 与服务器交付 runbook 实现
+
+**状态：IMPLEMENTED / TEST PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:23:43 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；仅编写服务器端 agent 操作说明
+
+**步骤 ID**
+
+- `E2-bon-m3-cli-server-runbook-v01`
+
+**行动与关键配置**
+
+- 为 `e2` CLI 新增 `select`、`annotate`、`adjudicate`、`analyze`、`report`、`verify` 六个公共命令；
+- select 暴露 `mock|replay|formal-command` measurement mode 与可选 qualified rubric 双参数；
+- annotate 暴露 packets/annotator/host/port/filter，adjudicate 强制可重复 `--annotation` 两文件；
+- analyze/report/verify 显式接收全部身份依赖与可选 rubric artifact；verify失败返回非零；
+- 新增服务器端 agent 专用 runbook，固定三个 DATA4 根、E1 PASS gate、Linux no-replace preflight、30候选GPU生成、人工粗审、原子 preparation、真实 Judge、双人盲标/第三人、分析回传顺序；
+- 手册明确三个根及 staging/failed 必须预先 ABSENT，失败现场保留，E1无合法 reward-v0 时不得创建正式 E2 根，不得进入 E3/DPO。
+
+**结果**
+
+- CLI 与 runbook 已写入工作树；
+- 本地 agent 未执行 runbook、未连接学校服务器、未访问 DATA4、未加载真实模型；
+- 尚未执行 CLI/编译/测试，不宣称通过。
+
+**产物路径**
+
+- `src/e2_bon/cli.py`
+- `docs/E2_SERVER_RUNBOOK.md`
+
+**问题 / 失败**
+
+- 待测试 Typer 参数、全链数据 identity 与报告/verifier。
+
+**下一步**
+
+1. 编写 milestone 3 synthetic/mock tests；
+2. 先运行 compileall 和定向 pytest；
+3. 修复后运行完整 mock E2E 与全量回归。
+
+---
+
+### 2026-08-30｜E2 milestone 3 首轮 Python 编译检查
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:24:12 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only static check
+
+**步骤 ID**
+
+- `E2-bon-m3-compileall-attempt-01`
+
+**行动与关键配置**
+
+- 执行 `uv run python -m compileall -q src/e2_bon`。
+
+**结果**
+
+- exit code 0；milestone 3 新增/修改的 E2 Python 模块均可编译；
+- 未发现语法或 import-time compile error。
+
+**产物路径**
+
+- `src/e2_bon/`
+
+**问题 / 失败**
+
+- 无编译错误；行为与数据契约仍待测试。
+
+**下一步**
+
+1. 新增 milestone 3 synthetic/mock tests；
+2. 运行定向 pytest；
+3. 逐项记录并修复行为失败。
+
+---
+
+### 2026-08-30｜E2 milestone 3 synthetic/mock 测试实现
+
+**状态：IMPLEMENTED / EXECUTION PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:27:17 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；tiny synthetic/mock only
+
+**步骤 ID**
+
+- `E2-bon-m3-test-implementation-v01`
+
+**行动与关键配置**
+
+- 新增10 sample×8 candidate、280 pair、80 balanced trial、560双方向 mock-format result 的纯 synthetic fixture；
+- 覆盖 known Bradley–Terry ordering、centered ability、Pareto dominated removal 与 candidate ID破同分；
+- 覆盖 swap inconsistency、低confidence过滤、pairwise rubric `NOT_APPLICABLE`、rubric primary四方法1280选择、atomic no-overwrite；
+- 覆盖 fixed blind direction、HTML不泄露N/candidate ID、70非同一视频双人完整标注、1项第三人争议、10项自动 identical tie；
+- 覆盖80项 overall rate、2000次10-cluster bootstrap、mock research=0、analysis no-overwrite、Markdown/SVG/CSV report 和 end-to-end verifier；
+- 加固 adjudicator：逐条重算并核对每位 primary/third annotator 的显示方向；
+- 加固 verifier：明确要求 `e2-preparation-v01.json` 与 `preparation-verification-v01.json` 均为 passed。
+
+**结果**
+
+- `tests/e2/test_m3.py` 及两项实现加固已写入工作树；
+- 尚未运行测试，不宣称通过。
+
+**产物路径**
+
+- `tests/e2/test_m3.py`
+- `src/e2_bon/annotations.py`
+- `src/e2_bon/verification.py`
+
+**问题 / 失败**
+
+- 待 pytest 捕获 schema、BT数值、Typer、统计和 verifier 行为问题。
+
+**下一步**
+
+1. 运行 `uv run pytest tests/e2/test_m3.py -q`；
+2. 逐项记录任何失败并修复；
+3. 定向全绿后运行 milestone 1+2+3 E2组合与全量 pytest。
+
+---
+
+### 2026-08-30｜E2 milestone 3 首轮定向回归通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:28:13 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only synthetic/mock
+
+**步骤 ID**
+
+- `E2-bon-m3-targeted-attempt-01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/e2/test_m3.py -q`。
+
+**结果**
+
+- **5/5 passed**，进程 exit code 0；
+- known BT/Pareto、swap/threshold、pairwise/rubric selection、blind direction/third adjudication/identical tie、2000次cluster bootstrap、report与mock verifier E2E全部通过；
+- mock全链 `research_measurements=0`，final verification通过但 `ready_for_research_interpretation=false`，符合非研究输出约束。
+
+**产物路径**
+
+- `tests/e2/test_m3.py`
+- `src/e2_bon/`
+
+**问题 / 失败**
+
+- 无定向失败；仍需 E2组合与全仓库回归。
+
+**下一步**
+
+1. 运行 `uv run pytest tests/e2 -q`；
+2. 修复任何 milestone 1/2 回归；
+3. E2组合通过后执行 CLI/help 与全量 pytest。
+
+---
+
+### 2026-08-30｜E2 milestone 1+2+3 组合回归通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:31:05 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/synthetic/mock
+
+**步骤 ID**
+
+- `E2-bon-all-milestones-targeted-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/e2 -q`，组合 milestone 1候选池、milestone 2 preparation/runner/qualification 与 milestone 3 selection/human/analysis/report/verify。
+
+**结果**
+
+- **17/17 passed**，进程 exit code 0；
+- milestone 1/2 既有 E2 contract 无回归；
+- milestone 3 新 schema/CLI imports 未破坏候选池、atomic preparation、cache resume 或 rubric qualification。
+
+**产物路径**
+
+- `tests/e2/`
+- `src/e2_bon/`
+
+**问题 / 失败**
+
+- 无 E2 组合失败；仍需公共 CLI逐条验收与全仓库回归。
+
+**下一步**
+
+1. 执行 E2主 help/validate及六个新增命令help；
+2. 运行无筛选完整 pytest；
+3. 全绿后进行 milestone 3 最终协议/仓库审计。
+
+---
+
+### 2026-08-30｜E2 milestone 3 CLI 组合验收脚本输出截断
+
+**状态：INVALID / RETRY REQUIRED**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:31:35 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only CLI check
+
+**步骤 ID**
+
+- `E2-bon-m3-cli-acceptance-attempt-01`
+
+**行动与关键配置**
+
+- 尝试在 PowerShell foreach 中依次执行主 `--help`、`validate` 和六个新增命令 `--help`；
+- 每条 Typer/Rich 输出通过管道连接 `Select-Object -First 8` 以限制日志。
+
+**结果**
+
+- 仅捕获第一条 `e2 --help` 的前8行；没有捕获后续命令标记或最终 `E2_CLI_ACCEPTANCE=PASS`；
+- 外层进程虽 exit 0，但不能证明八条命令全部执行，故本次结果无效；
+- 诊断为 `Select-Object -First` 提前关闭 Rich/Typer 输出管道导致组合脚本未留下完整执行证据。
+
+**产物路径**
+
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- CLI验收编排脚本不可靠，不是已确认的 E2 CLI 功能失败。
+
+**下一步**
+
+1. 将八条命令作为相互独立的进程执行；
+2. 逐项核对 exit code 与关键命令名/参数；
+3. 有效重跑通过后再进入全量 pytest。
+
+---
+
+### 2026-08-30｜E2 milestone 3 CLI 独立重跑验收通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:32:05 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only CLI/config
+
+**步骤 ID**
+
+- `E2-bon-m3-cli-acceptance-attempt-02`
+
+**行动与关键配置**
+
+- 将 `e2 --help`、`e2 validate`、`e2 select --help`、`annotate --help`、`adjudicate --help`、`analyze --help`、`report --help`、`verify --help` 作为八个相互独立进程执行；
+- 逐项捕获完整输出和 exit code。
+
+**结果**
+
+- 八条命令全部 exit 0；
+- 主 help 列出 milestone 1+2+3 共13个命令；
+- `validate` 返回 valid=true、experiment_id固定、candidates=80；
+- select 的measurement mode/rubric双参数、annotate filter、adjudicate重复annotation、analyze/report/verify依赖参数均完整；
+- 首次管道截断问题已闭环，本次为有效验收依据。
+
+**产物路径**
+
+- `src/e2_bon/cli.py`
+- `configs/e2/pilot.yaml`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行无筛选完整 `uv run pytest`；
+2. 全绿后执行代码/协议/仓库卫生审阅；
+3. 发现缺口则补测试并重新全量回归。
+
+---
+
+### 2026-08-30｜E2 milestone 3 首轮全仓库回归通过
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:36:59 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/synthetic/mock
+
+**步骤 ID**
+
+- `E2-bon-m3-full-regression-attempt-01`
+
+**行动与关键配置**
+
+- 执行无筛选完整 `uv run pytest`；
+- 捕获完整汇总与进程退出码。
+
+**结果**
+
+- **102/102 passed**；
+- 运行时间 `260.71s (0:04:20)`；
+- 进程 exit code 0；
+- E0/W1/E1 既有测试与 E2 milestone 1/2/3 全部通过。
+
+**产物路径**
+
+- `tests/`
+- 本地 E2 milestone 3 工作树
+
+**问题 / 失败**
+
+- 无未解决测试失败；仍需发布前代码与仓库审计。
+
+**下一步**
+
+1. 审阅正式模式依赖身份、统计口径和 runbook边界；
+2. 执行 diff/protocol/禁止产物/大文件/untracked审计；
+3. 如有加固改动，补测试并重新全量回归。
+
+---
+
+### 2026-08-30｜E2 milestone 3 正式 measurement provenance 审阅诊断
+
+**状态：FIX REQUIRED**
+
+**时间与环境**
+
+- 诊断时间：2026-08-30 10:37:55 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；本地只读代码/测试审阅
+
+**步骤 ID**
+
+- `E2-bon-m3-measurement-provenance-review-v01`
+
+**行动与关键配置**
+
+- 审阅 E2 request→runner result→select→analysis 的 backend/provenance 传递；
+- 对照“mock/replay只能 research_measurements=0”和正式 E2 model/runtime/prompt fingerprints fail-closed 要求检查 result schema 与 selection identity gate。
+
+**结果**
+
+- E2 request 有 `backend`，但独立 E2 result schema/runner 未保留该字段；
+- `select --measurement-mode formal-command` 当前只能相信调用参数，无法从 result record 证明结果确由 command backend 产生；
+- selection 会核对 artifact/protocol/pair/方向，但尚未强制560条结果的 backend/model/runtime/prompt/parser identity 单一，也未把结果 model/prompt identity 与 `reward-v0` 对齐；
+- 因而存在把 mock/replay 结果误标成正式 research measurements，或混合身份结果进入选择的风险；milestone 3 暂不发布。
+
+**产物路径**
+
+- `src/e2_bon/models.py`
+- `src/e2_bon/runner.py`
+- `src/e2_bon/selection.py`
+- `tests/e2/test_m3.py`
+
+**问题 / 失败**
+
+- 正式 measurement provenance 与结果 identity gate 不完整；这不是已执行研究结果问题，本地尚无研究测量。
+
+**下一步**
+
+1. 在独立 E2 result schema/runner中持久化 backend；
+2. selection绑定 measurement mode↔backend，强制结果 identity单一并与reward对齐；
+3. 新增 mock伪装formal与混合identity拒绝测试，重跑定向/组合/全量。
+
+---
+
+### 2026-08-30｜E2 milestone 3 measurement provenance 加固实现
+
+**状态：IMPLEMENTED / TEST PENDING**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:38:54 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only code/test fixture
+
+**步骤 ID**
+
+- `E2-bon-m3-measurement-provenance-hardening-v01`
+
+**行动与关键配置**
+
+- 在独立 `E2JudgeResultV1` schema 中增加固定 backend 字段，并由 E2 runner 从原 request 持久化；
+- selection要求560个 request ID与judge key均唯一，且 backend/model name/model revision/model manifest/runtime/prompt/parser identity全文件单一；
+- measurement mode 与 backend 固定绑定：mock→mock、replay→replay、formal-command→command，禁止仅靠调用参数把mock/replay伪装为正式测量；
+- 主结果的 model revision、prompt version/checksum、parser version 必须与 `reward-v0` 精确一致；
+- auxiliary rubric 的 backend必须匹配measurement mode，model/runtime identity必须与primary一致；
+- synthetic reward/result fixture补齐冻结身份，新增mock伪装formal和混合model revision两项拒绝测试。
+
+**结果**
+
+- provenance加固与测试用例已写入工作树；
+- 尚未执行测试，不宣称通过。
+
+**产物路径**
+
+- `src/e2_bon/models.py`
+- `src/e2_bon/runner.py`
+- `src/e2_bon/selection.py`
+- `tests/e2/test_m3.py`
+
+**问题 / 失败**
+
+- 待确认 milestone 2 runner/cached result schema 和 milestone 3 全链均兼容新 backend字段。
+
+**下一步**
+
+1. 运行 `uv run pytest tests/e2/test_m2.py tests/e2/test_m3.py -q`；
+2. 定向通过后运行 E2组合；
+3. 最终重新运行全仓库 pytest。
+
+---
+
+### 2026-08-30｜E2 measurement provenance 加固后定向回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:41:20 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only synthetic/mock
+
+**步骤 ID**
+
+- `E2-bon-m2-m3-provenance-targeted-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/e2/test_m2.py tests/e2/test_m3.py -q`；
+- 联合覆盖milestone 2 runner/cache与milestone 3 result provenance/selection/human/analysis/report/verify。
+
+**结果**
+
+- **13/13 passed**，进程 exit code 0；
+- E2 runner生成的新 backend字段可被cache与result schema正确恢复；
+- mock结果伪装formal-command与混合model revision均按预期失败关闭；
+- 既有atomic preparation、qualification和mock E2E无回归。
+
+**产物路径**
+
+- `tests/e2/test_m2.py`
+- `tests/e2/test_m3.py`
+- `src/e2_bon/`
+
+**问题 / 失败**
+
+- 无定向失败；仍需完整E2与全仓库最终回归。
+
+**下一步**
+
+1. 运行完整 `uv run pytest tests/e2 -q`；
+2. 运行无筛选 `uv run pytest`；
+3. 全绿后完成最终仓库审计。
+
+---
+
+### 2026-08-30｜E2 三里程碑 provenance 加固后组合回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:44:13 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/synthetic/mock
+
+**步骤 ID**
+
+- `E2-bon-all-milestones-final-targeted-v01`
+
+**行动与关键配置**
+
+- 在 measurement provenance 加固后执行完整 `uv run pytest tests/e2 -q`。
+
+**结果**
+
+- **18/18 passed**，进程 exit code 0；
+- milestone 1候选扩展/80池、milestone 2 atomic preparation/runner/qualification、milestone 3 selection/human/statistics/report/verifier全部通过；
+- provenance新增拒绝用例已进入组合回归。
+
+**产物路径**
+
+- `tests/e2/`
+- `src/e2_bon/`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 从头运行最终无筛选 `uv run pytest`；
+2. 记录完整汇总；
+3. 执行最终协议/仓库卫生审计并发布milestone 3。
+
+---
+
+### 2026-08-30｜E2 milestone 3 provenance 加固后最终全仓库回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:49:01 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only tiny fixture/synthetic/mock
+
+**步骤 ID**
+
+- `E2-bon-m3-final-full-regression-v01`
+
+**行动与关键配置**
+
+- 在 backend provenance与mixed identity gate加固后，从头执行无筛选完整 `uv run pytest`；
+- 捕获完整pytest汇总与退出码。
+
+**结果**
+
+- **103/103 passed**；
+- 运行时间 `259.38s (0:04:19)`；
+- 进程 exit code 0；
+- 相比首轮102项，新增mock伪装formal/混合身份拒绝测试已纳入，E0/W1/E1与全部E2测试无回归。
+
+**产物路径**
+
+- `tests/`
+- 本地 E2 milestone 3 工作树
+
+**问题 / 失败**
+
+- 无未解决测试失败。
+
+**下一步**
+
+1. 重新执行 compileall 和最终 Git/protocol/runbook/仓库卫生审计；
+2. fetch并确认远端无并发前进；
+3. 创建并普通推送 milestone 3 实现与DEVLOG-only发布记录。
+
+---
+
+### 2026-08-30｜E2 milestone 3 最终 Python 编译验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:49:23 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；CPU-only static check
+
+**步骤 ID**
+
+- `E2-bon-m3-final-compileall-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run python -m compileall -q src tests`。
+
+**结果**
+
+- exit code 0；全部源代码与测试Python文件可编译；
+- 未产生需要版本控制的编译产物。
+
+**产物路径**
+
+- `src/`
+- `tests/`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行最终Git diff/protocol/runbook/禁止产物/大文件审计；
+2. 审计通过后fetch；
+3. 发布milestone 3。
+
+---
+
+### 2026-08-30｜E2 milestone 3 最终仓库与授权边界审计
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:50:09 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；只读 Git/文件系统/runbook审计
+
+**步骤 ID**
+
+- `E2-bon-m3-final-repository-boundary-audit-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`；
+- 合并 tracked diff 与 non-ignored untracked，和11条预期milestone 3路径精确比较；
+- 对 `configs/w1_manifest.yaml` 与完整 `configs/e1/` 相对HEAD执行fixed identity零漂移检查；
+- 对pending扫描视频、数据库、模型、NumPy、Parquet等禁止扩展名；排除仓库元数据、虚拟环境、cache和ignored artifacts后扫描超过5 MiB文件；
+- 搜索本地 `src/e2_bon`、`tests/e2` 中 DATA4/ssh/scp 引用，确认服务器路径只存在于server runbook；
+- 核对runbook三个固定DATA4根、ABSENT前置和“不得进入E3/DPO”边界；
+- 核对HEAD与本地tracking main。
+
+**结果**
+
+- `git diff --check` PASS，仅有预期Windows LF→CRLF提示；
+- pending精确为 **11** 个，和预期集合差异 **0**；
+- W1/E1 fixed identity drift **0**；禁止产物 **0**；超过5 MiB文件 **0**；
+- 本地E2 source/test服务器操作引用 **0**；runbook三个固定根无缺失，包含ABSENT/no-overwrite和禁止E3/DPO约束；
+- `HEAD == origin/main == f9a03b521adc0c187ccb8e3d3c408943964b77b3`（尚未fetch）；
+- 学校服务器未连接、DATA4未访问、真实模型未加载、正式研究根未创建。
+
+**产物路径**
+
+- `src/e2_bon/`
+- `tests/e2/`
+- `docs/E2_SERVER_RUNBOOK.md`
+- `DEVLOG.md`
+
+**问题 / 失败**
+
+- 无未解决审计失败。
+
+**下一步**
+
+1. 执行 `git fetch origin`；
+2. 确认远端仍为milestone 2 DEVLOG基线；
+3. 创建并普通推送milestone 3实现基线。
+
+---
+
+### 2026-08-30｜E2 milestone 3 发布前远端身份确认
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:50:36 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：仅Git remote；未连接学校服务器、未访问DATA4
+
+**步骤 ID**
+
+- `E2-bon-m3-prefetch-origin-identity-v01`
+
+**行动与关键配置**
+
+- 执行 `git fetch origin`；
+- fetch后分别核对本地HEAD、`origin/main`与远端最近历史。
+
+**结果**
+
+- fetch exit code 0；
+- `HEAD == origin/main == f9a03b521adc0c187ccb8e3d3c408943964b77b3`；
+- 远端无并发前进，仍为E2 milestone 2 DEVLOG-only发布基线；
+- 可按授权创建普通提交，继续禁止force-push。
+
+**产物路径**
+
+- Git remote `origin/main`
+- 本地 Git refs
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 创建E2 milestone 3实现基线提交；
+2. 记录精确SHA并普通推送；
+3. 创建并推送DEVLOG-only发布记录。

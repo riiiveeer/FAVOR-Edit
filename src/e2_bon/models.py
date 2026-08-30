@@ -181,6 +181,7 @@ class E2JudgeResultV1(StrictModel):
     pair_id: str = Field(min_length=1)
     sample_id: str = Field(min_length=1)
     method: E2Method
+    backend: Literal["mock", "command", "replay"]
     comparison_direction: Literal["a_vs_b", "b_vs_a"]
     candidate_a_id: str = Field(min_length=1)
     candidate_b_id: str = Field(min_length=1)
@@ -201,3 +202,122 @@ class E2JudgeResultV1(StrictModel):
     e1_protocol_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
     reward_artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     created_at: str = Field(min_length=1)
+
+
+SelectionMethod = Literal["random", "primary-bradley-terry", "equal-linear", "pareto-maxmin"]
+HumanPreference = Literal["a", "b", "tie", "uncertain"]
+HumanOutcome = Literal["n4", "n1", "tie", "uncertain"]
+
+
+class E2SelectionV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    trial_id: str = Field(min_length=1)
+    sample_id: str = Field(min_length=1)
+    replicate: int = Field(ge=0, le=7)
+    n: Literal[1, 2, 4, 8]
+    method: SelectionMethod
+    candidate_id: str = Field(min_length=1)
+    candidate_video_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    utility: Optional[float] = None
+    dimension_utilities: Dict[str, float] = Field(default_factory=dict)
+
+
+class E2HumanComparisonV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    comparison_id: str = Field(min_length=1)
+    trial_id: str = Field(min_length=1)
+    sample_id: str = Field(min_length=1)
+    replicate: int = Field(ge=0, le=7)
+    instruction: str = Field(min_length=1)
+    target_caption: str = Field(min_length=1)
+    n4_candidate_id: str = Field(min_length=1)
+    n4_video_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    n1_candidate_id: str = Field(min_length=1)
+    n1_video_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    identical_selection: bool
+    randomization_seed: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def checksum_identity(self) -> "E2HumanComparisonV1":
+        identical = self.n4_video_sha256 == self.n1_video_sha256
+        if self.identical_selection != identical:
+            raise ValueError("identical_selection must exactly match candidate video checksums")
+        return self
+
+
+class E2SelectionBundleV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    experiment_id: Literal["E2-bon-pilot-v01"]
+    measurement_mode: Literal["mock", "replay", "formal-command"]
+    method_status: Dict[SelectionMethod, Literal["AVAILABLE", "NOT_APPLICABLE"]]
+    selections: List[E2SelectionV1] = Field(min_length=640, max_length=1280)
+    human_comparisons: List[E2HumanComparisonV1] = Field(min_length=80, max_length=80)
+    primary_method: E2Method
+    confidence_threshold: float = Field(ge=0, le=1)
+    dependencies: Dict[str, Any]
+    comparison_audit: Dict[str, Any]
+    research_measurements: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def fixed_selection_counts(self) -> "E2SelectionBundleV1":
+        selection_ids = [(item.trial_id, item.n, item.method) for item in self.selections]
+        if len(selection_ids) != len(set(selection_ids)):
+            raise ValueError("E2 selections must be unique by trial/N/method")
+        comparison_ids = [item.comparison_id for item in self.human_comparisons]
+        if len(set(comparison_ids)) != 80:
+            raise ValueError("E2 human plan requires 80 unique comparisons")
+        return self
+
+
+class E2HumanAnnotationV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    annotation_id: str = Field(min_length=1)
+    comparison_id: str = Field(min_length=1)
+    annotator_id: str = Field(min_length=1)
+    display_direction: Literal["a_vs_b", "b_vs_a"]
+    faithfulness_preference: HumanPreference
+    preservation_preference: HumanPreference
+    temporal_consistency_preference: HumanPreference
+    visual_quality_preference: HumanPreference
+    overall_preference: HumanPreference
+    confidence: float = Field(ge=0, le=1)
+    notes: str = ""
+    started_at: str = Field(min_length=1)
+    submitted_at: str = Field(min_length=1)
+
+
+class E2AdjudicatedComparisonV1(StrictModel):
+    schema_version: Literal["1"] = SCHEMA_VERSION
+    comparison_id: str = Field(min_length=1)
+    trial_id: str = Field(min_length=1)
+    sample_id: str = Field(min_length=1)
+    replicate: int = Field(ge=0, le=7)
+    n4_candidate_id: str = Field(min_length=1)
+    n1_candidate_id: str = Field(min_length=1)
+    identical_selection: bool
+    automatic_tie: bool
+    annotator_ids: List[str] = Field(default_factory=list, max_length=2)
+    primary_agreement: Optional[bool] = None
+    third_annotator_id: Optional[str] = None
+    faithfulness_outcome: HumanOutcome
+    preservation_outcome: HumanOutcome
+    temporal_consistency_outcome: HumanOutcome
+    visual_quality_outcome: HumanOutcome
+    overall_outcome: HumanOutcome
+    adjudicated_at: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def automatic_tie_contract(self) -> "E2AdjudicatedComparisonV1":
+        if self.automatic_tie != self.identical_selection:
+            raise ValueError("automatic_tie is reserved for identical selections")
+        if self.automatic_tie:
+            outcomes = (
+                self.faithfulness_outcome, self.preservation_outcome,
+                self.temporal_consistency_outcome, self.visual_quality_outcome,
+                self.overall_outcome,
+            )
+            if any(value != "tie" for value in outcomes) or self.annotator_ids:
+                raise ValueError("identical selections must be annotation-free ties")
+        elif len(self.annotator_ids) != 2 or self.primary_agreement is None:
+            raise ValueError("non-identical selections require two primary annotators")
+        return self

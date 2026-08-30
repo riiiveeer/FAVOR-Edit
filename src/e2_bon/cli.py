@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import typer
 
@@ -128,6 +128,129 @@ def qualify_rubric_command(
     )
     typer.echo(json.dumps({"decision": payload["decision"], "output": str(output.resolve())}, sort_keys=True))
     if payload["decision"] != "PASS_AUXILIARY_RUBRIC":
+        raise typer.Exit(code=1)
+
+
+@app.command("select")
+def select_command(
+    config: Path = typer.Option(Path("configs/e2/pilot.yaml"), exists=True, dir_okay=False),
+    design: Path = typer.Option(..., exists=True, dir_okay=False),
+    pairs: Path = typer.Option(..., exists=True, dir_okay=False),
+    primary_results: Path = typer.Option(..., exists=True, dir_okay=False),
+    reward_v0: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+    measurement_mode: str = typer.Option("mock", help="mock, replay, or formal-command"),
+    rubric_results: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+    auxiliary_rubric: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+) -> None:
+    from .selection import select_candidates
+
+    payload = select_candidates(
+        config.resolve(), design.resolve(), pairs.resolve(), primary_results.resolve(),
+        reward_v0.resolve(), output.resolve(), measurement_mode,
+        rubric_results.resolve() if rubric_results else None,
+        auxiliary_rubric.resolve() if auxiliary_rubric else None,
+    )
+    typer.echo(json.dumps({
+        "selections": len(payload["selections"]), "human_comparisons": 80,
+        "output": str(output.resolve()), "research_measurements": payload["research_measurements"],
+    }, sort_keys=True))
+
+
+@app.command("annotate")
+def annotate_command(
+    selection: Path = typer.Option(..., exists=True, dir_okay=False),
+    packets: Path = typer.Option(..., exists=True, file_okay=False),
+    annotator_id: str = typer.Option(...),
+    output: Path = typer.Option(...),
+    host: str = typer.Option("127.0.0.1"),
+    port: int = typer.Option(8766, min=1, max=65535),
+    comparison_filter: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+) -> None:
+    from .annotations import run_annotation_server
+
+    run_annotation_server(
+        selection.resolve(), packets.resolve(), annotator_id, output.resolve(), host, port,
+        comparison_filter.resolve() if comparison_filter else None,
+    )
+
+
+@app.command("adjudicate")
+def adjudicate_command(
+    selection: Path = typer.Option(..., exists=True, dir_okay=False),
+    annotation: List[Path] = typer.Option(..., exists=True, dir_okay=False),
+    third: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+    report: Path = typer.Option(...),
+) -> None:
+    from .annotations import adjudicate_e2
+
+    records = adjudicate_e2(
+        selection.resolve(), [path.resolve() for path in annotation],
+        third.resolve() if third else None, output.resolve(), report.resolve(),
+    )
+    typer.echo(json.dumps({"adjudicated": len(records), "output": str(output.resolve())}, sort_keys=True))
+
+
+@app.command("analyze")
+def analyze_command(
+    config: Path = typer.Option(Path("configs/e2/pilot.yaml"), exists=True, dir_okay=False),
+    selection: Path = typer.Option(..., exists=True, dir_okay=False),
+    adjudicated: Path = typer.Option(..., exists=True, dir_okay=False),
+    agreement_report: Path = typer.Option(..., exists=True, dir_okay=False),
+    pool: Path = typer.Option(..., exists=True, dir_okay=False),
+    primary_results: Path = typer.Option(..., exists=True, dir_okay=False),
+    output_dir: Path = typer.Option(...),
+    rubric_results: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+) -> None:
+    from .analysis import analyze_e2
+
+    payload = analyze_e2(
+        config.resolve(), selection.resolve(), adjudicated.resolve(), agreement_report.resolve(),
+        pool.resolve(), primary_results.resolve(), output_dir.resolve(),
+        rubric_results.resolve() if rubric_results else None,
+    )
+    typer.echo(json.dumps({
+        "status": payload["status"],
+        "tie_aware_win_rate": payload["metrics"]["overall"]["tie_aware_win_rate"],
+        "output_dir": str(output_dir.resolve()),
+    }, sort_keys=True))
+
+
+@app.command("report")
+def report_command(
+    analysis_dir: Path = typer.Option(..., exists=True, file_okay=False),
+    output_dir: Path = typer.Option(...),
+) -> None:
+    from .reporting import report_e2
+
+    payload = report_e2(analysis_dir.resolve(), output_dir.resolve())
+    typer.echo(json.dumps({"status": payload["status"], "output_dir": str(output_dir.resolve())}, sort_keys=True))
+
+
+@app.command("verify")
+def verify_command(
+    preparation_root: Path = typer.Option(..., exists=True, file_okay=False),
+    selection: Path = typer.Option(..., exists=True, dir_okay=False),
+    adjudicated: Path = typer.Option(..., exists=True, dir_okay=False),
+    analysis_dir: Path = typer.Option(..., exists=True, file_okay=False),
+    report_dir: Path = typer.Option(..., exists=True, file_okay=False),
+    primary_results: Path = typer.Option(..., exists=True, dir_okay=False),
+    reward_v0: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+    rubric_results: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+    auxiliary_rubric: Optional[Path] = typer.Option(None, exists=True, dir_okay=False),
+) -> None:
+    from .verification import verify_e2
+
+    payload = verify_e2(
+        preparation_root.resolve(), selection.resolve(), adjudicated.resolve(),
+        analysis_dir.resolve(), report_dir.resolve(), primary_results.resolve(), reward_v0.resolve(),
+        output.resolve(), rubric_results.resolve() if rubric_results else None,
+        auxiliary_rubric.resolve() if auxiliary_rubric else None,
+    )
+    typer.echo(json.dumps(payload, sort_keys=True))
+    if payload["status"] != "passed":
         raise typer.Exit(code=1)
 
 
