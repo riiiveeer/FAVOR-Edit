@@ -1,0 +1,84 @@
+schema_version: "1"
+experiment_id: DEFENSE-MVP-v01
+dataset: DAVIS-2017
+split: train
+primary_sample_ids:
+  - bear-white
+  - bus-red
+  - elephant-pink
+  - classic-car-blue
+  - hiker-backpack
+  - rider-helmet
+  - car-headlights
+qualitative_sample_ids:
+  - dog-tiger
+  - horse-zebra
+  - mallard-swan
+seeds: [101, 202, 303, 404, 505]
+n_values: [1, 2, 4]
+replicates: 5
+n4_vs_n1_replicates: 4
+pareto_vs_linear_replicates: 2
+randomization_seed: 20260901
+bootstrap_seed: 20260901
+bootstrap_iterations: 2000
+mask_threshold: 0.5
+min_mask_fraction: 0.001
+max_mask_fraction: 0.95
+color_rules:
+  bear-white:
+    color_name: white
+    hue_ranges: [[0.0, 1.0]]
+    saturation_min: 0.0
+    saturation_max: 0.25
+    value_min: 0.70
+    value_max: 1.0
+    require_new_color: false
+  bus-red:
+    color_name: red
+    hue_ranges: [[0.0, 0.06], [0.94, 1.0]]
+    saturation_min: 0.35
+    saturation_max: 1.0
+    value_min: 0.25
+    value_max: 1.0
+    require_new_color: false
+  elephant-pink:
+    color_name: pink
+    hue_ranges: [[0.89, 0.99]]
+    saturation_min: 0.18
+    saturation_max: 0.75
+    value_min: 0.55
+    value_max: 1.0
+    require_new_color: false
+  classic-car-blue:
+    color_name: blue
+    hue_ranges: [[0.52, 0.72]]
+    saturation_min: 0.30
+    saturation_max: 1.0
+    value_min: 0.20
+    value_max: 1.0
+    require_new_color: false
+  hiker-backpack:
+    color_name: red
+    hue_ranges: [[0.0, 0.06], [0.94, 1.0]]
+    saturation_min: 0.35
+    saturation_max: 1.0
+    value_min: 0.25
+    value_max: 1.0
+    require_new_color: true
+  rider-helmet:
+    color_name: yellow
+    hue_ranges: [[0.10, 0.20]]
+    saturation_min: 0.35
+    saturation_max: 1.0
+    value_min: 0.40
+    value_max: 1.0
+    require_new_color: true
+  car-headlights:
+    color_name: blue
+    hue_ranges: [[0.52, 0.72]]
+    saturation_min: 0.25
+    saturation_max: 1.0
+    value_min: 0.45
+    value_max: 1.0
+    require_new_color: true

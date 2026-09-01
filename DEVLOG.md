@@ -7199,3 +7199,1096 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 创建DEVLOG-only milestone 3发布记录提交；
 2. 普通推送该记录；
 3. 核对最终工作树clean与远端一致性。
+
+---
+
+### 2026-08-30｜E2 milestone 3 DEVLOG-only 发布记录提交
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:52:05 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `E2-bon-m3-devlog-publication-commit-v01`
+
+**行动与关键配置**
+
+- 用路径计数guard确认待提交范围严格只有`DEVLOG.md`；
+- 执行staged diff check；
+- 创建`git commit -m "Record E2 milestone 3 publication"`。
+
+**结果**
+
+- DEVLOG-only guard与staged diff check通过；
+- 提交成功：`b2cffed46f353b5d7b4727c8db5e69d2c27740e2`；
+- 提交统计：1 file changed，88 insertions；
+- 本地`main`相对远端ahead 1，等待普通推送。
+
+**产物路径**
+
+- Git commit `b2cffed46f353b5d7b4727c8db5e69d2c27740e2`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 普通推送DEVLOG-only commit；
+2. 核对HEAD与`origin/main`；
+3. 记录最终发布状态。
+
+---
+
+### 2026-08-30｜E2 milestone 3 DEVLOG-only 发布记录普通推送
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-08-30 10:52:59 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：仅GitHub remote；未连接学校服务器、未访问DATA4
+
+**步骤 ID**
+
+- `E2-bon-m3-devlog-publication-push-v01`
+
+**行动与关键配置**
+
+- 执行普通 `git push origin main` 推送DEVLOG-only commit；
+- 推送后核对本地HEAD、`origin/main`与工作树；
+- 未使用force-push。
+
+**结果**
+
+- push成功：`origin/main`从`539083e89ca9b0ee0a4a25681d1ef3a7264ab615`前进到`b2cffed46f353b5d7b4727c8db5e69d2c27740e2`；
+- 本地HEAD与`origin/main`精确一致；
+- E2 milestone 3“实现基线 + DEVLOG-only发布记录”双提交链完成；
+- E1发布、E2 milestone 1/2/3本地CPU-only工程均已发布到main；
+- 本条是第二次push后的本地最终回执，也是唯一未提交工作树修改；不再创建第三个发布提交，避免为记录DEVLOG-only提交的push产生无限递归记录。
+
+**产物路径**
+
+- Git commit `b2cffed46f353b5d7b4727c8db5e69d2c27740e2`
+- Git remote `origin/main`
+- `docs/E2_SERVER_RUNBOOK.md`
+
+**问题 / 失败**
+
+- 无；正式E2仍被E1 PASS_PROVISIONAL/reward-v0 gate阻挡，且所有DATA4/GPU/真实Judge/正式人标操作仍必须由服务器端agent执行。
+
+**下一步**
+
+1. 将精确实现commit `539083e89ca9b0ee0a4a25681d1ef3a7264ab615`、发布commit `b2cffed46f353b5d7b4727c8db5e69d2c27740e2`和server runbook交给服务器端agent；
+2. 服务器端agent先完成E1 gate与Linux no-replace/DATA4 ABSENT preflight；
+3. A6000可用后按runbook生成30候选、运行真实Judge并回传正式审计包。
+
+---
+
+### 2026-09-01｜Defense MVP 本地 CPU 工程与发布授权落盘
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 21:39:28 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；未连接学校服务器、未访问 DATA4、未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-authorization-v01`
+
+**行动与关键配置**
+
+- 根据用户在当前会话中的明确授权，在 `AGENTS.md` 新增 Defense MVP 本地 CPU 工程与发布授权；
+- 固定暂定题目为“基于约束式多目标排序的指令视频编辑候选选择与盲评系统”，目标交付日期为 2026-09-08；
+- 授权覆盖本地代码、测试、配置、文档、DEVLOG、CPU-only 分析、报告、slides、录屏支持、审计提交与普通推送；
+- 固定禁止边界：本地 agent 不操作学校服务器/DATA4/GPU，不修改 sealed E0，不改变或绕过 E1/E2 固定门禁，不把 mock/synthetic/replay 冒充真实测量；
+- 执行 `rg -n -A 14 '^## Current Defense MVP' AGENTS.md` 与 `git diff --check -- AGENTS.md` 验证授权文本和 whitespace。
+
+**结果**
+
+- 授权边界已写入 `AGENTS.md`；
+- 静态文本检查与 `git diff --check` 通过，仅有 Windows LF/CRLF 提示，不构成 whitespace error；
+- 项目完成标准固定为：可复现系统、三方法完整比较、双人盲评、诚实统计报告和答辩材料；不要求算法必须得到正向胜率。
+
+**产物路径**
+
+- `D:\\lab idea\\AGENTS.md`
+- `D:\\lab idea\\DEVLOG.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 编写独立 Defense MVP 详细施工方案，覆盖数据回传、算法、模块、里程碑、验收与降级边界；
+2. 静态校验施工方案后立即追加独立 DEVLOG 记录；
+3. 先交用户审阅方案，不启动功能代码。
+
+---
+
+### 2026-09-01｜Defense MVP 施工方案首次补丁解析失败
+
+**状态：FAILED（未修改目标文档）**
+
+**时间与环境**
+
+- 失败时间：2026-09-01 21:44:28 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-plan-document-patch-attempt-v01`
+
+**行动与关键配置**
+
+- 尝试通过单个长 `apply_patch` 新增 `docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md`；
+- 补丁正文包含算法公式、数据协议、逐日计划和验收边界；
+- 嵌套工具脚本在执行补丁前发生 JavaScript `SyntaxError: Unexpected identifier 'text'`。
+
+**结果**
+
+- `apply_patch` 未执行，目标施工文档不存在；
+- 只读复核 `plan_file_exists=False`；
+- `AGENTS.md`、既有 `DEVLOG.md` 内容和其他工作树文件未被本次失败修改。
+
+**产物路径**
+
+- 无目标文档产物；诊断记录写入 `D:\\lab idea\\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 单个超长 JavaScript template literal 的转义/解析失败，必须避免继续使用同一组织方式。
+
+**下一步**
+
+1. 将施工文档拆分为多个较小 `apply_patch`；
+2. 使用逐行数组拼接补丁字符串，避免 template literal 解析；
+3. 文件完成后执行结构、关键词、编码和 `git diff --check` 验收。
+
+---
+
+### 2026-09-01｜Defense MVP 详细施工方案编写与静态验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 21:47:28 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；未连接学校服务器、未访问 DATA4、未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-construction-plan-v01`
+
+**行动与关键配置**
+
+- 新增 `docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md`，固定 2026-09-08 交付、独立 `defense_mvp` 模块、7+3 数据边界、三种选择方法、N=1/2/4、42×2 双人盲评、负结果接受标准和本地 CPU-only 边界；
+- 写明 E0 只读回传包最小文件集、本地 ignore 路径、F/P/T/Q 代理指标、约束式 Pareto/max-min、分歧聚合、Bradley–Terry、2,000 次 sample-cluster bootstrap、CLI/模块结构和 9 月 1–8 日逐日里程碑；
+- 写明风险降级、DEVLOG/commit/push 审计、slides/录屏/讲稿结构与功能代码开工 gate；
+- 运行 PowerShell 静态校验，检查 20 个必需标记、heading、code fence 配对、UTF-8 replacement character；
+- 执行 `git diff --check -- AGENTS.md DEVLOG.md docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md` 和工作树范围核对。
+
+**结果**
+
+- 施工方案共 534 行、57 个 Markdown heading、8 个 code fence，20/20 必需标记存在；
+- code fence 配对、UTF-8、结构与 `git diff --check` 全部通过；仅有 Windows LF/CRLF 提示，不构成 whitespace error；
+- 当前改动严格为 `AGENTS.md`、`DEVLOG.md` 和新增施工方案；
+- 本步骤未启动功能代码、测试、CPU 正式测量、人评、slides 或服务器操作。
+
+**产物路径**
+
+- `D:\\lab idea\\docs\\DEFENSE_MVP_CONSTRUCTION_PLAN.md`
+- `D:\\lab idea\\AGENTS.md`
+- `D:\\lab idea\\DEVLOG.md`
+
+**问题 / 失败**
+
+- 无未解决失败；首次长补丁解析失败已由上一条独立记录保留，拆分补丁后成功。
+
+**下一步**
+
+1. 将施工方案交用户审阅，等待确认开工 gate；
+2. 用户/服务器端 agent 按第 3.3 节准备 E0 只读回传包；
+3. 用户确认方案后从 D1 scaffold + ingest 开始，每个可验证步骤即时记录 DEVLOG。
+
+---
+
+### 2026-09-01｜服务器 E0 回传提示词首次补丁格式失败
+
+**状态：FAILED（未修改目标文档）**
+
+**时间与环境**
+
+- 失败时间：2026-09-01 21:54:22 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-data-handoff-prompt-patch-attempt-v01`
+
+**行动与关键配置**
+
+- 尝试在同一 `apply_patch` 中更新施工方案状态并新增服务器 agent 回传提示词；
+- JavaScript 补丁数组的一行删除标记未作为字符串封装，被求值为 `NaN`；
+- `apply_patch` 在 verification 阶段以 `invalid hunk` 拒绝。
+
+**结果**
+
+- 目标提示词文件不存在，施工方案状态仍为待审阅；
+- 多文件补丁未部分应用，现有文件未被此次失败修改。
+
+**产物路径**
+
+- 无目标产物；诊断记录写入 `D:\\lab idea\\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 多文件 patch 数组中混入非字符串表达式。
+
+**下一步**
+
+1. 单独更新施工方案状态；
+2. 单独新增提示词文件并分块追加；
+3. 每个补丁行都使用显式字符串，完成后静态验收。
+
+---
+
+### 2026-09-01｜Defense MVP 施工方案正式批准开工
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 21:54:46 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-construction-plan-approval-v01`
+
+**行动与关键配置**
+
+- 用户明确要求设计服务器数据回传提示词并“按方案开工”；
+- 将施工方案状态从待审阅更新为“用户已于 2026-09-01 确认方案并授权开工”；
+- 执行状态文本核对与 `git diff --check -- docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md`。
+
+**结果**
+
+- D0 开工 gate 的用户确认条件满足；
+- 文档状态与当前授权一致，whitespace 验收通过。
+
+**产物路径**
+
+- `D:\\lab idea\\docs\\DEFENSE_MVP_CONSTRUCTION_PLAN.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 新增服务器端 E0 回传包 agent 提示词；
+2. 提示词验收和 DEVLOG 完成后进入 D1 scaffold。
+
+---
+
+### 2026-09-01｜学校服务器 E0 回传包 Agent 提示词设计与验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 21:56:32 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用；未连接学校服务器、未访问 DATA4、未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-e0-handoff-agent-prompt-v01`
+
+**行动与关键配置**
+
+- 新增可直接交给服务器端 agent 的 E0 回传包提示词；
+- 固定 package ID/目标、只读源发现、14 项硬输入门、唯一 staging、no-replace 发布、稳定相对路径布局、PACKAGE_MANIFEST/PACKAGE_VERIFICATION/PACKAGE_SHA256SUMS 和 POSIX tar；
+- 固定硬计数为 10 sample、50 candidate、60 MP4、160 source frames、160 masks、800 candidate frames；
+- 明确禁止修改 E0、启动 GPU、补造 audit、复制模型/cache/latent、覆盖既有 package 或修改服务器 Git worktree；
+- 运行 15 个必需标记、heading、code fence、UTF-8、破坏性指令扫描和 `git diff --check`。
+
+**结果**
+
+- 提示词共 301 行、12 个 heading、6 个 code fence；
+- 15/15 必需标记、围栏配对、UTF-8、破坏性指令扫描和 whitespace 验收通过；
+- 施工方案状态已更新为用户确认开工；
+- 本地未执行任何服务器命令。
+
+**产物路径**
+
+- `D:\\lab idea\\docs\\defense_mvp\\DATA_HANDOFF_AGENT_PROMPT.md`
+- `D:\\lab idea\\docs\\DEFENSE_MVP_CONSTRUCTION_PLAN.md`
+
+**问题 / 失败**
+
+- 无未解决失败；首次多文件补丁格式失败已由前置独立记录保留。
+
+**下一步**
+
+1. 用户将提示词第 2–11 节交给服务器端 agent；
+2. 本地进入 D1 scaffold，新增 `defense_mvp` package、config、CLI 和 tiny fixture；
+3. 在真实 tar 回传前只运行 tiny/CPU 工程测试，不产生正式测量。
+
+---
+
+### 2026-09-01｜Defense MVP 独立包、冻结配置与 CLI 骨架
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 21:59:11 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`，CPU-only
+- 远程环境：未使用；未连接学校服务器、未访问 DATA4、未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-scaffold-v01`
+
+**行动与关键配置**
+
+- 新增独立 `src/defense_mvp` package、`defense` CLI entry point 与 `configs/defense_mvp/pilot.yaml`；
+- 用 Pydantic 严格冻结 7+3 sample、5 seeds、N=1/2/4、5 replicates、42 comparison/annotator、2,000 bootstrap、mask 阈值和 7 个 HSV color rule；
+- 新增配置漂移拒绝与 CLI 计数测试；
+- `uv run` 因 pyproject entry/package 变化重新构建并安装本地 editable package；无新增第三方依赖、无 uv.lock 变化；
+- 依次运行配置测试、`defense validate-config`、`defense --help`、compileall 和 `git diff --check`。
+
+**结果**
+
+- `tests/defense_mvp/test_config_cli.py`：3/3 passed；
+- CLI 固定输出 10 sample、50 candidate、35 quantitative、15 qualitative、42 comparison/annotator；
+- CLI help 显示 `version` 与 `validate-config`；
+- `src/defense_mvp` / `tests/defense_mvp` compileall 与 whitespace 验收通过；
+- uv hardlink 不可用时回退 full copy，仅为性能提示，不影响安装或测试。
+
+**产物路径**
+
+- `D:\\lab idea\\configs\\defense_mvp\\pilot.yaml`
+- `D:\\lab idea\\src\\defense_mvp\\`
+- `D:\\lab idea\\tests\\defense_mvp\\test_config_cli.py`
+- `D:\\lab idea\\pyproject.toml`
+
+**问题 / 失败**
+
+- 无未解决失败。
+
+**下一步**
+
+1. 实现 package manifest 的严格 schema；
+2. 实现只读 ingest verifier、路径安全、SHA/count/cardinality 检查和原子 no-replace receipt；
+3. 使用 tiny handoff fixture 覆盖成功与篡改失败路径。
+
+---
+
+### 2026-09-01｜回传提示词 manifest 精确字段补丁解析失败
+
+**状态：FAILED（未修改目标提示词）**
+
+**时间与环境**
+
+- 失败时间：2026-09-01 22:08:08 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-handoff-schema-doc-patch-attempt-v01`
+
+**行动与关键配置**
+
+- 在 ingest 5 个完整树测试通过后，尝试给服务器提示词补充严格 JSON 字段模板；
+- 补丁数组中一个 `@@` hunk marker 未作为字符串封装，JavaScript 在调用 `apply_patch` 前报 `SyntaxError: Invalid or unexpected token`。
+
+**结果**
+
+- 目标提示词未改变，精确字段模板标记不存在；
+- 已通过的 ingest 测试结果和代码文件未受影响。
+
+**产物路径**
+
+- 无本次目标产物；诊断记录写入 `D:\\lab idea\\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 补丁脚本语法错误。
+
+**下一步**
+
+1. 使用仅含单个明确 context 的小补丁追加 JSON schema；
+2. 静态验收提示词与 Pydantic schema 一致；
+3. 再运行 Defense MVP 组合测试与 CLI smoke。
+
+---
+
+### 2026-09-01｜Defense MVP E0 回传包 ingest verifier 与原子 receipt
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 22:11:46 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`，CPU-only
+- 远程环境：未使用；未连接学校服务器、未访问 DATA4、未使用 GPU、未读取真实 E0
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-ingest-v01`
+
+**行动与关键配置**
+
+- 扩展严格 package schema：安全 POSIX 相对路径、sample/candidate/media/frame set、source identity、固定 count 与 payload inventory；
+- 实现全树 `PACKAGE_SHA256SUMS` 排序/唯一/覆盖校验、symlink/path escape 拒绝、逐文件 SHA/size、combined frame checksum、10×5 sample/seed 矩阵和 original plan/candidates/audit 交叉身份验证；
+- 固定仅接受 `status=succeeded`、backend=anyv2v 的真实 E0 candidate；
+- 实现 `verify-delivery` 与 `ingest` CLI、read-only source before/after identity、normalized manifest、ingest receipt、INGEST_SHA256SUMS 和跨 Windows/Linux no-replace directory publish；
+- 新增完整 cardinality tiny handoff factory：60 MP4、160 source frames、160 masks、800 candidate frames，文件内容仅为测试字节；
+- 覆盖 happy ingest、媒体篡改、unsafe `../` path、既有输出拒绝和 CLI verifier；
+- 将服务器 agent 提示词补充为与 Pydantic 对齐的精确 JSON 字段及 payload/admin checksum 边界；
+- 运行 `uv run pytest tests/defense_mvp -q`、CLI validate/help、compileall、提示词 schema/fence 检查和 `git diff --check`。
+
+**结果**
+
+- Defense MVP 组合测试：8/8 passed；
+- full-tree tiny fixture 验证 1,180 个唯一媒体引用，篡改与路径逃逸均 fail-closed；
+- `defense --help` 已显示 `version/validate-config/verify-delivery/ingest`；
+- compileall、提示词精确 schema、code fence 和 whitespace 验收通过；
+- 未产生真实 CPU 指标、正式人评或研究结论。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\models.py`
+- `D:\\lab idea\\src\\defense_mvp\\io.py`
+- `D:\\lab idea\\src\\defense_mvp\\ingest.py`
+- `D:\\lab idea\\src\\defense_mvp\\cli.py`
+- `D:\\lab idea\\tests\\defense_mvp\\conftest.py`
+- `D:\\lab idea\\tests\\defense_mvp\\test_ingest.py`
+- `D:\\lab idea\\docs\\defense_mvp\\DATA_HANDOFF_AGENT_PROMPT.md`
+
+**问题 / 失败**
+
+- 无未解决实现失败；提示词 JSON schema 补丁的首次脚本语法失败已由前置独立记录保留。
+
+**下一步**
+
+1. 补充 archive/tar 安全检查与更快的低层 checksum 单测（如 D1 审阅要求）；
+2. 运行全仓库 pytest，确认独立 package 未破坏 W1/E1/E2；
+3. 执行仓库卫生审计，形成 D1 审计提交并普通推送。
+
+---
+
+### 2026-09-01｜Defense MVP archive 安全接收首次补丁解析失败
+
+**状态：FAILED（未修改 archive 目标文件）**
+
+**时间与环境**
+
+- 失败时间：2026-09-01 22:14:04 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-archive-receiver-patch-attempt-v01`
+
+**行动与关键配置**
+
+- 尝试用单一补丁新增 archive 安全检查、CLI 命令和 4 个测试；
+- 多 hunk JavaScript 数组中再次存在未字符串化的 `@@`，脚本在 `apply_patch` 前报 SyntaxError。
+
+**结果**
+
+- `src/defense_mvp/archive.py` 与 `tests/defense_mvp/test_archive.py` 均不存在；
+- CLI、ingest 实现和既有 8/8 测试结果未受影响。
+
+**产物路径**
+
+- 无本次目标产物；诊断记录写入 `D:\\lab idea\\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 复合补丁脚本格式错误。
+
+**下一步**
+
+1. 分别新增 archive 模块、更新 CLI、增加 tests；
+2. 每个补丁只使用单一 hunk 或 Add File；
+3. 完成后运行 archive 定向与 Defense MVP 组合回归。
+
+---
+
+### 2026-09-01｜Archive 测试 Python 3.9 类型注解修补脚本失败
+
+**状态：FAILED（未应用兼容性修补）**
+
+**时间与环境**
+
+- 失败时间：2026-09-01 22:15:40 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-archive-test-typing-patch-attempt-v01`
+
+**行动与关键配置**
+
+- archive 模块、CLI 命令和测试文件已分别成功落盘；
+- 随后尝试把测试中的 `str | None` 改为 Python 3.9 兼容的 `Optional[str]`；
+- 第二个 hunk marker 未字符串化，脚本在调用 `apply_patch` 前失败。
+
+**结果**
+
+- 类型注解仍为 `str | None`；
+- archive 实现和测试主体未受影响，测试尚未执行。
+
+**产物路径**
+
+- 已存在但尚未验收：`D:\\lab idea\\src\\defense_mvp\\archive.py`、`D:\\lab idea\\tests\\defense_mvp\\test_archive.py`。
+
+**问题 / 失败**
+
+- 复合修补脚本格式错误。
+
+**下一步**
+
+1. 单独添加 `Optional` import；
+2. 单独替换 `_sidecar` 注解；
+3. 运行 archive 定向测试。
+
+---
+
+### 2026-09-01｜Defense MVP tar 安全接收与 no-replace 解包
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 22:16:47 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`，CPU-only
+- 远程环境：未使用；测试 archive 仅含本地 tiny fixture
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-archive-receiver-v01`
+
+**行动与关键配置**
+
+- 新增 `extract-delivery`：校验 tar sidecar SHA、固定 top-level package ID、最多 5,000 members、最多 20 GiB expanded bytes；
+- 拒绝绝对路径、`..`、反斜杠、NUL、非 canonical path、重复 member、symlink、hardlink、device 和 FIFO；
+- 手工流式解包 regular file，不调用不受控 `extractall`；
+- 解包后再次运行完整 `verify_delivery`，只在 package verifier PASS 且 archive before/after SHA 不变时 no-replace 发布；
+- 失败 staging 写入诊断并保留为唯一 `.failed` artifact；
+- 测试覆盖完整 package 解包复验、tar SHA 不符、path escape 和 symlink。
+
+**结果**
+
+- `tests/defense_mvp/test_archive.py`：4/4 passed；
+- `defense --help` 显示 `extract-delivery`；
+- compileall 与 `git diff --check` 通过；
+- Python 3.9 兼容类型注解已修复。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\archive.py`
+- `D:\\lab idea\\src\\defense_mvp\\cli.py`
+- `D:\\lab idea\\tests\\defense_mvp\\test_archive.py`
+
+**问题 / 失败**
+
+- 无未解决失败；首次复合补丁和随后类型注解补丁脚本失败均已在前置记录中保留。
+
+**下一步**
+
+1. 运行全部 Defense MVP 测试；
+2. 运行全仓库 pytest 和 compileall；
+3. 核对配置、CLI、文档、忽略规则和 Git diff 后发布 D1 基线。
+
+---
+
+### 2026-09-01｜Ingest 语义身份加固复合补丁解析失败
+
+**状态：FAILED（语义加固未应用）**
+
+**时间与环境**
+
+- 失败时间：2026-09-01 22:18:11 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-ingest-semantic-hardening-patch-attempt-v01`
+
+**行动与关键配置**
+
+- 代码审阅后已成功把全树 checksum 排除规则从“任意同 basename”收紧为“只排除根 PACKAGE_SHA256SUMS”；
+- 随后尝试在一个复合补丁中增加 original candidate config/snapshot、source identity 列表和 sample metadata/crop 交叉验证；
+- 复合数组仍含未字符串化 hunk marker，脚本在 `apply_patch` 前失败。
+
+**结果**
+
+- checksum basename 修复已应用；
+- 语义身份加固标记不存在，相关代码未部分应用；
+- 已通过的 archive/ingest 测试未被本次失败重跑。
+
+**产物路径**
+
+- 已修改待验收：`D:\\lab idea\\src\\defense_mvp\\ingest.py`。
+
+**问题 / 失败**
+
+- 复合 patch 脚本格式错误。
+
+**下一步**
+
+1. 分别补入 candidate、source identity、plan/sample 三组检查；
+2. 增加 metadata drift 失败测试；
+3. 运行 ingest/Defense/full regression。
+
+---
+
+### 2026-09-01｜Ingest semantic drift 测试补丁解析失败
+
+**状态：FAILED（测试未新增；加固代码待验收）**
+
+**时间与环境**
+
+- 失败时间：2026-09-01 22:19:13 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-ingest-semantic-drift-test-patch-attempt-v01`
+
+**行动与关键配置**
+
+- candidate generation/config/snapshot、source identity lists、plan seed/config 与 sample metadata/crop 加固已通过分块补丁应用；
+- 随后尝试新增 manifest instruction drift 失败测试；
+- 测试补丁含未字符串化 hunk marker，脚本解析失败。
+
+**结果**
+
+- `ingest.py` 已含语义身份检查；
+- `test_manifest_semantic_drift` 尚不存在；
+- 加固代码尚未运行测试。
+
+**产物路径**
+
+- 待验收：`D:\\lab idea\\src\\defense_mvp\\ingest.py`。
+
+**问题 / 失败**
+
+- 测试 patch 脚本格式错误。
+
+**下一步**
+
+1. 在单一函数定义前插入 semantic drift 测试；
+2. 运行 ingest 定向测试；
+3. 通过后记录 semantic hardening 完成。
+
+---
+
+### 2026-09-01｜Semantic drift 测试插入产生重复测试诊断
+
+**状态：FAILED（机械重复；尚未运行测试）**
+
+**时间与环境**
+
+- 诊断时间：2026-09-01 22:19:47 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-semantic-test-duplicate-diagnosis-v01`
+
+**行动与关键配置**
+
+- semantic drift 测试已插入；
+- 只读行审阅发现原 `test_ingest_rejects_existing_output` 被保留，同时生成了内容相同的 `_legacy_removed` 函数。
+
+**结果**
+
+- 测试文件语法完整，但会重复创建/校验同一完整 fixture，徒增运行时间；
+- 尚未运行该状态下的测试。
+
+**产物路径**
+
+- 待修：`D:\\lab idea\\tests\\defense_mvp\\test_ingest.py`。
+
+**问题 / 失败**
+
+- 补丁 context 替换方式导致旧函数体被复制。
+
+**下一步**
+
+1. 删除第 76–81 行重复函数；
+2. 运行 ingest 定向测试；
+3. 记录 semantic hardening 验收。
+
+---
+
+### 2026-09-01｜Ingest original-record 语义身份门加固与定向验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 22:21:21 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`，CPU-only
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-ingest-semantic-hardening-v01`
+
+**行动与关键配置**
+
+- 收紧 PACKAGE_SHA256SUMS 排除规则，只排除 package 根的 checksum 文件；
+- 交叉核验 original candidates 与 package candidate 的 generation_key、code_snapshot、完整 generation config；
+- 核验 manifest source identity 中 code/model/AnyV2V commit 集合；
+- 核验 original plan candidate/sample/seed/config、sample sequence/task/instruction/target/crop 与 source/mask checksum；
+- 新增 instruction drift fail-closed 测试，并删除误生成的重复 existing-output 测试；
+- 运行完整 ingest 定向测试。
+
+**结果**
+
+- `tests/defense_mvp/test_ingest.py`：6/6 passed；
+- happy ingest、媒体篡改、路径逃逸、semantic drift、既有输出和 CLI verifier 全部覆盖；
+- 语义漂移不会在 SHA 更新后绕过 original-record identity gate。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\ingest.py`
+- `D:\\lab idea\\tests\\defense_mvp\\test_ingest.py`
+
+**问题 / 失败**
+
+- 无未解决失败；前置 patch 脚本错误和重复测试诊断均已单独保留。
+
+**下一步**
+
+1. 运行全部 Defense MVP 测试；
+2. 运行全仓库回归、compileall、CLI/config/doc 静态验收；
+3. 完成仓库卫生审计并发布 D1 基线。
+
+---
+
+### 2026-09-01｜Defense MVP D1 全仓库回归
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 22:28:49 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`，CPU-only
+- 远程环境：未使用；未读取真实 E0、未运行正式 CPU 指标
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-full-regression-v01`
+
+**行动与关键配置**
+
+- 在 config/ingest/archive 定向测试全部通过后运行无筛选 `uv run pytest`；
+- 测试树包含既有 W1/E1/E2 与新增 Defense MVP 13 项测试；
+- 未使用 skip、xfail、mock 冒充正式研究结果或真实媒体。
+
+**结果**
+
+- **116/116 passed**；
+- runtime：391.16 秒（6 分 31 秒）；
+- Defense MVP 独立 package 未破坏 W1/E1/E2 既有回归。
+
+**产物路径**
+
+- `D:\\lab idea\\tests\\`
+- `D:\\lab idea\\src\\defense_mvp\\`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行 compileall、全部 Defense CLI/config 和文档静态验收；
+2. 执行 Git/大文件/忽略规则/路径卫生审计；
+3. 形成 D1 审计提交并普通推送。
+
+---
+
+### 2026-09-01｜Defense MVP D1 CLI、编译与文档静态验收
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 22:29:19 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`，CPU-only
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-static-validation-v01`
+
+**行动与关键配置**
+
+- 运行 `uv run python -m compileall -q src tests`；
+- 运行 `uv run defense version`、`uv run defense validate-config` 与 help smoke；
+- 检查施工方案/服务器提示词 UTF-8、code fence 配对、行数和 package/checksum/no-replace/800-frame/schema 标记；
+- 运行全工作树 `git diff --check`。
+
+**结果**
+
+- compileall 通过；Defense 版本 `0.1.0`；
+- 配置输出 10/50/35/15/42 固定计数；
+- 施工方案 534 行/8 fences，服务器提示词 341 行/8 fences，UTF-8 与必需标记通过；
+- `git diff --check` 通过，仅有 Windows LF/CRLF 提示。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\`
+- `D:\\lab idea\\configs\\defense_mvp\\pilot.yaml`
+- `D:\\lab idea\\docs\\DEFENSE_MVP_CONSTRUCTION_PLAN.md`
+- `D:\\lab idea\\docs\\defense_mvp\\DATA_HANDOFF_AGENT_PROMPT.md`
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 扫描待提交路径、ignored/large/binary/absolute-path 泄漏；
+2. 核对远端身份和 staged diff；
+3. 创建 D1 审计提交并普通推送。
+
+---
+
+### 2026-09-01｜Defense MVP D1 仓库卫生审计
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 22:29:57 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未使用
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-repository-hygiene-v01`
+
+**行动与关键配置**
+
+- 列出全部 modified/untracked 路径并验证未跟踪项只位于 Defense config/docs/src/tests；
+- 扫描新增目录中的视频、数据库、checkpoint、模型、archive 和超过 5 MiB 文件；
+- 核对 `uv.lock` 未变化；
+- 确认 `data/raw/defense_mvp` 与 `artifacts/defense_mvp` 仍受 gitignore；
+- 扫描 code/config/tests 中 Windows 机器绝对路径泄漏；
+- 核对最终 `git status --short --branch`。
+
+**结果**
+
+- 待发布范围为 3 个 modified 文件与 14 个 Defense 新文件；
+- 无大文件、媒体、模型、数据库、archive 或意外 untracked；
+- `__pycache__/*.pyc` 仅为本地 ignored 编译产物，不进入 Git；
+- uv.lock 无变化，无新增第三方依赖；
+- data/artifacts ignore 与绝对路径扫描通过。
+
+**产物路径**
+
+- 待提交代码与文档：`D:\\lab idea\\configs\\defense_mvp`、`docs\\defense_mvp`、`src\\defense_mvp`、`tests\\defense_mvp`；
+- 仓库状态：`D:\\lab idea\\.git`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. `git fetch origin` 并核对 `main`/`origin/main` 身份；
+2. staged path guard、staged diff 和 staged whitespace；
+3. 创建 D1 实现基线提交并普通推送。
+
+---
+
+### 2026-09-01｜Defense MVP D1 发布前远端身份确认
+
+**状态：DONE**
+
+**时间与环境**
+
+- 完成时间：2026-09-01 22:30:28 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：仅 GitHub origin；未连接学校服务器
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-prepublish-remote-identity-v01`
+
+**行动与关键配置**
+
+- 执行 `git fetch origin`；
+- 核对本地 HEAD、`origin/main` 与 merge-base；
+- 远端若前进则 fail-closed，不进入 staging。
+
+**结果**
+
+- HEAD = `b2cffed46f353b5d7b4727c8db5e69d2c27740e2`；
+- origin/main = `b2cffed46f353b5d7b4727c8db5e69d2c27740e2`；
+- merge-base 相同，无需 rebase/merge；
+- 工作树改动仍严格为已审计 Defense D0/D1 范围。
+
+**产物路径**
+
+- Git remote `origin/main`；
+- 本地仓库 `D:\\lab idea`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. staged path guard 与 staged diff/whitespace；
+2. 创建 D1 基线提交；
+3. 普通推送到 main 并记录回执。
+
+---
+
+## Defense MVP D1 首次暂存检查（发现 Markdown 行尾空格）
+
+- 完成时间：2026-09-01 22:32:04 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-staged-guard-attempt-01`
+
+**行动与关键配置**
+
+- 使用显式路径暂存 Defense MVP D0/D1 范围，未使用 `git add .`；
+- 执行 `git diff --cached --name-status`、`git diff --cached --check`、`git diff --cached --stat`；
+- 预期暂存 17 个文件。
+
+**结果**
+
+- 暂存文件数量与范围正确：3 个既有文件修改、14 个 Defense MVP 新文件，共 17 个；
+- `git diff --cached --check` 未通过：施工方案第 3–7 行及服务器交接提示词第 3–4 行存在共 7 处 Markdown 行尾空格；
+- 未创建提交，未推送。
+
+**产物路径**
+
+- `D:\\lab idea\\docs\\DEFENSE_MVP_CONSTRUCTION_PLAN.md`；
+- `D:\\lab idea\\docs\\defense_mvp\\DATA_HANDOFF_AGENT_PROMPT.md`；
+- Git 暂存区。
+
+**问题 / 失败**
+
+- Markdown blockquote 使用了行尾双空格作为换行，但仓库 whitespace guard 将其判为 trailing whitespace；需要改为普通独立引用行。
+
+**下一步**
+
+1. 移除 7 处行尾空格；
+2. 重新暂存受影响文档及 DEVLOG；
+3. 重跑完整 staged path/whitespace guard。
+
+---
+
+## Defense MVP D1 Markdown whitespace 修复
+
+- 完成时间：2026-09-01 22:32:31 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-markdown-whitespace-fix-v01`
+
+**行动与关键配置**
+
+- 移除施工方案顶部 5 处及服务器交接提示词顶部 2 处 Markdown 行尾双空格；
+- 保留每项为独立 blockquote 行，文本语义不变。
+
+**结果**
+
+- 7 处已知 trailing whitespace 已清除；
+- 未改变施工协议、数据回传契约、代码或测试逻辑。
+
+**产物路径**
+
+- `D:\\lab idea\\docs\\DEFENSE_MVP_CONSTRUCTION_PLAN.md`；
+- `D:\\lab idea\\docs\\defense_mvp\\DATA_HANDOFF_AGENT_PROMPT.md`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 重新暂存两份文档和 DEVLOG；
+2. 运行最终 staged scope 与 whitespace guard；
+3. 创建 D1 基线提交。
+
+---
+
+## Defense MVP D1 最终暂存范围审计
+
+- 完成时间：2026-09-01 22:33:01 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-final-staged-guard-v01`
+
+**行动与关键配置**
+
+- 重新暂存修复后的两份文档与 DEVLOG；
+- 用显式 17 路径 allowlist 对比 `git diff --cached --name-only`；
+- 执行 `git diff --cached --check`；
+- 解析 `git diff --cached --numstat` 检查二进制文件。
+
+**结果**
+
+- 预期 17 个文件，实际 17 个；missing=0，extra=0；
+- staged whitespace guard 通过；
+- staged binary count=0；
+- 暂存区仅包含已审计的 Defense MVP D0/D1 文档、配置、代码、测试及授权/日志变更。
+
+**产物路径**
+
+- Git 暂存区；
+- `D:\\lab idea\\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 将本条记录重新暂存；
+2. 创建 Defense MVP D1 基线提交；
+3. 普通推送到 `origin/main` 并记录提交与推送回执。
