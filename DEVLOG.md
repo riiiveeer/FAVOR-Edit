@@ -8292,3 +8292,83 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 将本条记录重新暂存；
 2. 创建 Defense MVP D1 基线提交；
 3. 普通推送到 `origin/main` 并记录提交与推送回执。
+
+---
+
+## Defense MVP D1 基线提交
+
+- 完成时间：2026-09-01 22:33:25 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-baseline-commit-v01`
+
+**行动与关键配置**
+
+- 在最终 staged allowlist 与 whitespace guard 通过后创建提交；
+- 提交命令：`git commit -m "Add Defense MVP audited ingest foundation"`；
+- 未使用 amend、rebase 或 force push。
+
+**结果**
+
+- 提交成功；
+- commit：`f5d5e12c162f19ddae22ea015d3cef368fe23dae`；
+- 共提交 17 个文件，3268 insertions、1 deletion；
+- 提交完成后工作树干净。
+
+**产物路径**
+
+- Git commit `f5d5e12c162f19ddae22ea015d3cef368fe23dae`；
+- 本地分支 `main`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 执行普通 `git push origin main`；
+2. 核对远端 SHA；
+3. 记录发布回执并创建 DEVLOG-only 审计提交。
+
+---
+
+## Defense MVP D1 基线普通推送回执
+
+- 完成时间：2026-09-01 22:33:52 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：GitHub `origin`；未连接学校服务器
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-baseline-push-v01`
+
+**行动与关键配置**
+
+- 执行普通 `git push origin main`；
+- 随后使用 `git ls-remote origin refs/heads/main` 核对远端分支身份；
+- 未使用 force push。
+
+**结果**
+
+- 推送成功：`b2cffed..f5d5e12  main -> main`；
+- 本地 HEAD：`f5d5e12c162f19ddae22ea015d3cef368fe23dae`；
+- 远端 `origin/main`：`f5d5e12c162f19ddae22ea015d3cef368fe23dae`；
+- 本地与远端 SHA 完全一致。
+
+**产物路径**
+
+- GitHub `origin/main`；
+- commit `f5d5e12c162f19ddae22ea015d3cef368fe23dae`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 对当前 DEVLOG-only 变更执行 whitespace 与范围检查；
+2. 创建发布回执审计提交并普通推送；
+3. 留存最终推送回执，避免无限递归提交日志。
