@@ -9975,3 +9975,21 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：16/16 路径匹配、0 binary、0 media、无超大文件，staged whitespace 通过。范围只含 DEVLOG、Defense 配置、8 个 Defense 模块、4 个 Defense 测试文件、2 个 Defense 文档。tar 与 sidecar 仍未跟踪未暂存；E0/E1/E2 无修改。
 - 产物：Git index；保留所有真实实验、复跑及失败诊断目录。
 - 下一步：将本审计记录重新暂存，创建 D2 审计提交，然后普通 push origin main。
+
+## Defense MVP D2 审计提交
+
+- 时间：2026-09-03 09:47:44 +08:00；环境：本地 Windows，main。
+- 步骤 ID：`DEFENSE-MVP-d2-commit-v01`。
+- 命令：`git commit -m "Add audited Defense MVP CPU scoring and selection"`。
+- 结果：退出码 0，提交 `94a67799a31fa5c9eb0753de0a9869be2b1d1222`，16 文件；功能、配置、测试、协议实现回执及本次施工 DEVLOG 入库。未包含 tar/sidecar 或实验媒体。
+- 产物：本地 Git commit 94a6779；原始与已验收输出不变。
+- 下一步：普通 push 到 origin/main，成功后另建 DEVLOG-only 发布回执提交。
+
+## Defense MVP D2 功能提交普通推送
+
+- 时间：2026-09-03 09:48:03 +08:00；环境：本地 Windows → GitHub origin/main。
+- 步骤 ID：`DEFENSE-MVP-d2-push-v01`。
+- 命令：`git push origin main`；`git rev-parse HEAD origin/main`。
+- 结果：普通推送成功，`c381cc7..94a6779 main -> main`；HEAD 与 origin/main 均为 `94a67799a31fa5c9eb0753de0a9869be2b1d1222`。未 force-push，没有远程服务器操作。
+- 产物：远端 D2 功能审计提交 94a6779；数据包和全部实验媒体只保留本地。
+- 下一步：仅提交本地提交/推送回执的 DEVLOG 增量，再普通推送；最终该推送回执允许作为唯一未提交 tracked 修改保留。
