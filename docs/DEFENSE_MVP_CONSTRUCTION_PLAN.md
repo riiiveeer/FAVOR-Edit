@@ -1,13 +1,15 @@
 # Defense MVP 详细施工方案
 
 > 暂定题目：**基于约束式多目标排序的指令视频编辑候选选择与盲评系统**
-> 文档版本：v1.1-d2（2026-09-03 实现对照更新）
+> 文档版本：v1.2-d3（2026-09-03 实现对照更新）
 > 制定日期：2026-09-01
 > 目标完成日期：2026-09-08
 > 施工环境：本地 Windows、CPU-only
 > 当前状态：**用户已于 2026-09-01 确认方案并授权开工**
 
-D1 兼容接收和 D2 真实 CPU 评分/选择已落地产物；正式人评、统计报告与答辩材料尚未完成。
+D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评工程已落地；正式人评尚未启动。
+统计报告与答辩材料尚未完成。D3 详细方案、操作命令和验收证据见
+[D3 实现回执](defense_mvp/D3_IMPLEMENTATION_RECEIPT.md) 与 [标注指南](defense_mvp/ANNOTATION_GUIDE.md)。
 实际运行、冻结身份、重建命令及 D3 接口见 [D2 实现回执](defense_mvp/D2_IMPLEMENTATION_RECEIPT.md)。
 
 ---
@@ -59,7 +61,7 @@ CPU 指标描述编辑、保持、时序和质量代理
 - 3 个对象转换任务的 15 个候选进入定性能力边界案例；
 - 随机、等权线性、约束式 Pareto 三种选择方法均可复现运行；
 - N=1/2/4 设计、选择、比较计划和成本统计完整；
-- 两名独立标注者各完成约 42 个 blind comparison；
+- 两名独立标注者各完成 32 个实际观看题，加上 10 项共享自动平局，各形成 42 项 coverage；
 - 生成一致率、Cohen's kappa、Bradley–Terry 排名、tie-aware win rate 和
   2,000 次 sample-cluster bootstrap 结果；
 - 生成 Markdown、CSV、SVG/PNG 和案例页；
@@ -367,10 +369,18 @@ uv run defense select --design <design.json> --metrics <metrics.jsonl> --output 
 ```
 
 上述命令已实现；本次交接的 ingest 也必须显式传同一 `--compat-profile`。省略参数仍为
-严格模式，兼容档案只绑定唯一原始包。以下为 D3–D6 待实现命令，不可当作现成接口：
+严格模式，兼容档案只绑定唯一原始包。D3 已实现（参数详见标注指南）：
 
 ```powershell
-uv run defense annotate --plan <comparisons.json> --annotator-id annotator-a --output <new-file>
+uv run defense prepare-annotation --selection <dir> --ingest <manifest> --output <new-dir> --mode formal
+uv run defense annotate --bundle <dir> --annotator-id annotator-a --output <annotator-a-dir> [--resume]
+uv run defense export-annotations --bundle <dir> --session <dir> --output <new-dir>
+uv run defense verify-annotations --bundle <dir> --export <a-export> --export <b-export>
+```
+
+以下为 D4–D6 待实现命令，不可当作现成接口：
+
+```powershell
 uv run defense aggregate --plan <comparisons.json> --left <a.jsonl> --right <b.jsonl> --output <new-dir>
 uv run defense analyze --aggregate <dir> --selection <file> --output <new-dir>
 uv run defense report --analysis <dir> --output <new-dir>
@@ -425,10 +435,10 @@ qualitative-only；正式人评前配置已冻结。
 
 ### 9 月 4 日：D3 blind annotation
 
-- 生成 42 comparison 的 no-replace 计划；
+- 复用已冻结的 D2 42 comparison 计划，生成独立 no-replace 盲评包；
 - 实现本地 range-video 标注页面与两个 annotator 身份；
 - 验证 A/B 方向平衡；
-- 用户和第二位同学独立开始标注。
+- 工程验收完成后由用户邀请第二位同学，独立启动正式标注；D3施工期间正式回答为0。
 
 **退出条件**：页面不泄漏方法、N、seed 和分数；annotator-a/b 输出路径分离；媒体
 checksum 与冻结选择一致。
@@ -440,7 +450,7 @@ checksum 与冻结选择一致。
 - 计算 kappa、Bradley–Terry、win rate、bootstrap 和成本；
 - 生成第一版主表与失败案例。
 
-**退出条件**：84 条原始记录或 automatic tie 解释完整；分析可由冻结输入完全重建。
+**退出条件**：64 条真人原始回答 + 10 项共享 automatic tie，各人42 coverage；分析可由冻结输入完全重建。
 
 ### 9 月 6 日：D5 report + slides draft
 

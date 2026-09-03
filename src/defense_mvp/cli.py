@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import typer
 
@@ -117,6 +117,54 @@ def extract_delivery_command(
 ) -> None:
     receipt = extract_delivery_archive(archive, checksum, config, output, compat_profile)
     typer.echo(json.dumps(receipt, sort_keys=True))
+
+
+@app.command("prepare-annotation")
+def prepare_annotation_command(
+    selection: Path = typer.Option(..., exists=True, file_okay=False),
+    ingest: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+    mode: str = typer.Option(..., help="formal or practice; practice can never count as formal evidence"),
+    config: Path = typer.Option(Path("configs/defense_mvp/annotation-v1.yaml")),
+    pilot: Path = typer.Option(Path("configs/defense_mvp/pilot.yaml")),
+    metrics: Optional[Path] = typer.Option(None),
+    design: Optional[Path] = typer.Option(None),
+    fixture_native_media: bool = typer.Option(False, help="Practice-only fake-byte unit fixtures; never formal media"),
+) -> None:
+    from .annotation_bundle import prepare_annotation
+    typer.echo(json.dumps(prepare_annotation(selection, ingest, output, mode, config, pilot, metrics, design, fixture_native_media), sort_keys=True))
+
+
+@app.command("annotate")
+def annotate_command(
+    bundle: Path = typer.Option(..., exists=True, file_okay=False),
+    annotator_id: str = typer.Option(..., help="annotator-a or annotator-b"),
+    output: Path = typer.Option(..., help="Independent session directory, basename equals annotator ID"),
+    resume: bool = typer.Option(False, help="Explicitly resume the same bundle/protocol/identity"),
+    port: int = typer.Option(8765, min=0, max=65535),
+) -> None:
+    from .annotation_server import serve_annotation
+    serve_annotation(bundle, annotator_id, output, resume, port)
+
+
+@app.command("export-annotations")
+def export_annotations_command(
+    bundle: Path = typer.Option(..., exists=True, file_okay=False),
+    session: Path = typer.Option(..., exists=True, file_okay=False),
+    output: Path = typer.Option(...),
+) -> None:
+    from .annotation_export import export_annotations
+    typer.echo(json.dumps(export_annotations(bundle, session, output), sort_keys=True))
+
+
+@app.command("verify-annotations")
+def verify_annotations_command(
+    bundle: Path = typer.Option(..., exists=True, file_okay=False),
+    exports: Optional[List[Path]] = typer.Option(None, "--export", exists=True, file_okay=False),
+    allow_practice: bool = typer.Option(False, help="Verify practice engineering only, never formal evidence"),
+) -> None:
+    from .annotation_export import verify_annotations
+    typer.echo(json.dumps(verify_annotations(bundle, exports, allow_practice), sort_keys=True))
 
 
 if __name__ == "__main__":

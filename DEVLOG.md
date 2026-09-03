@@ -9993,3 +9993,666 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：普通推送成功，`c381cc7..94a6779 main -> main`；HEAD 与 origin/main 均为 `94a67799a31fa5c9eb0753de0a9869be2b1d1222`。未 force-push，没有远程服务器操作。
 - 产物：远端 D2 功能审计提交 94a6779；数据包和全部实验媒体只保留本地。
 - 下一步：仅提交本地提交/推送回执的 DEVLOG 增量，再普通推送；最终该推送回执允许作为唯一未提交 tracked 修改保留。
+
+## Defense MVP D2 发布回执提交
+
+- 时间：2026-09-03 09:48:20 +08:00；环境：本地 Windows，main。
+- 步骤 ID：`DEFENSE-MVP-d2-publication-receipt-commit-v01`。
+- 行动：精确暂存 DEVLOG.md，确认 staged 仅 1 路径且 whitespace 通过；执行 `git commit -m "Record Defense MVP D2 publication"`。
+- 结果：退出码 0，提交 `d5ae95e5f35320ad3d749b637db63197c77a519e`，只含 D2 功能提交与推送回执，没有新增功能/实验变更。
+- 产物：本地 Git commit d5ae95e；本条及随后的 final push 回执按既定避免无限递归规则留在本地 DEVLOG。
+- 下一步：普通推送 d5ae95e，核对远端/本地身份和最终工作树。
+
+## Defense MVP D2 最终推送与交付状态（本地回执）
+
+- 时间：2026-09-03 09:48:39 +08:00；环境：本地 Windows → GitHub origin/main。
+- 步骤 ID：`DEFENSE-MVP-d2-final-push-v01`。
+- 命令：`git push origin main`；`git rev-parse HEAD origin/main`；`git status --short`；`git diff --check`。
+- 结果：普通推送成功，HEAD/origin/main 均为 `d5ae95e5f35320ad3d749b637db63197c77a519e`；whitespace 检查通过。工作树唯一 tracked 修改是 DEVLOG 的本地最终发布回执；原始 tar 和 sidecar 两项继续未跟踪，未纳入提交。
+- 交付：D2 功能提交 `94a6779` 与发布回执提交 `d5ae95e` 已在 main；35 定量/15 定性、315 选择、42 比较均已真实运行并校验。最终源码全仓 130 项通过、最终 Defense 39 项通过，联合覆盖最终 collection 142 项；原始传输与媒体身份不变。
+- 产物：`docs/defense_mvp/D2_IMPLEMENTATION_RECEIPT.md`、更新后的施工方案、既有 raw/ingest/metrics/design/selection 目录；没有正式人评记录或人评结论。
+- 下一步：D3 本地双人盲评界面，先做匿名化播放、两人独立会话、断点保存、方向映射与 42 项 coverage 验收，再开始正式人评。无需继续索取服务器媒体。
+- 本地回执说明：为避免发布回执无限递归，本条及上条不再立即建立第三个 DEVLOG-only 提交；下个正常施工提交可一并纳入。
+
+## Defense MVP D3 新对话施工提示词
+
+- 时间：2026-09-03 10:29 +08:00；环境：本地 Windows `D:\lab idea`。
+- 步骤 ID：`DEFENSE-MVP-d3-agent-handoff-prompt-v01`。
+- 行动：按用户“在新对话详细施工 D3”的要求，只读核对 main/工作树、selection-summary、pilot/comparisons/selection-lock SHA；使用 OpenAI Docs 提示词指导，以目标、必要上下文、约束、交付和验收组织完整新对话交接文档。
+- 关键配置：基线 HEAD/origin/main 仍为 `d5ae95e5f35320ad3d749b637db63197c77a519e`；comparisons SHA `486dad879372b6f687a380ebe4e102d61b6df89392426c7cc3aea7e9aeffb9cb`、selection-lock SHA `99ce0522397707649aa34d82cfde3c3df4a5d898acbc702d6e53282f07741fb2`、pilot SHA `19f827d1ce84604eb68336fe549b7530a67d6b4074ad92b05b4cc8d63663feae` 均与 D2 一致。
+- 结果：新增完整施工提示词，补齐聊天中 D3 方案、匿名化泄漏点、11/11+5/5 方向平衡、同机隔离、持久化/恢复、64 真人回答与 10 共享自动平局的覆盖语义、隔离练习、发布和停止点。本轮没有实现 D3、启动服务、写正式答案、修改冻结配置或提交/推送。
+- 产物：`docs/defense_mvp/D3_IMPLEMENTATION_AGENT_PROMPT.md`；用户将在新对话显式要求读取执行。本文档是施工输入，不代表 D3 已经实现或正式人评协议已落地冻结。
+- 下一步：检查提示词文档、引用路径和工作树范围；提供可直接复制的新对话启动词。
+
+## Defense MVP D3 交接文档检查
+
+- 时间：2026-09-03 10:33:05 +08:00；环境：本地 Windows。
+- 步骤 ID：`DEFENSE-MVP-d3-agent-handoff-check-v01`。
+- 行动：PowerShell 检查提示词尾部空白、14 个必需本地引用路径、tracked 修改范围，并执行 `git diff --check`。
+- 结果：182 行文档，无尾部空白；14 个输入路径均存在；检查退出码 0。tracked 修改仅 DEVLOG，新提示词未跟踪；功能代码、D2 冻结输入未修改。未运行开发测试，因为本轮仅交接文档，不宣称新功能通过验收。
+- 产物：`D:\lab idea\docs\defense_mvp\D3_IMPLEMENTATION_AGENT_PROMPT.md`。
+- 下一步：用户在同一本地项目的新对话中粘贴启动词，承接 agent 先完整阅读本文再进入 D3 施工。
+
+
+## Defense MVP D3 现场核对与施工方案
+
+- 时间：2026-09-03T02:38:08.980Z；环境：本地 Windows CPU-only。
+- 步骤 ID：D3.0-audit-plan。
+- 行动：完整阅读交接指令、AGENTS、总方案、D2 回执、必要 DEVLOG/源码/测试；核对 git status/branch/HEAD/origin/main、四项输入 SHA，写详细施工方案。
+- 结果：基线 d5ae95e 与快照一致，无重叠冲突；pilot/ingest/comparisons/selection-lock 身份一致。用户文本路径不存在，rg 找到实际 docs/defense_mvp/D3_IMPLEMENTATION_AGENT_PROMPT.md。保留既有改动；未重跑 D2，未启动正式会话。
+- 产物：docs/defense_mvp/D3_CONSTRUCTION_PLAN.md。协议细化固定 confidence 编码、分目的哈希、内核单写锁、不可变逐题记录、草稿 CAS、包与导出身份链；研究边界不变。
+- 下一步：D3.1 实现并验证关联输入链、严格模型和匿名包。
+
+
+## D3.1 输入门禁与匿名包实现
+
+- 时间：2026-09-03T02:42:06.910Z；环境：本地 Windows CPU-only；步骤 ID：D3.1-code。
+- 行动：新增独立 annotation-v1 配置、严格 comparison/answer/session/coverage 模型、D2 关联清单和跨锁校验、60 视频 SHA 检查、42 比较角色矩阵、确定性方向/题序、staging/no-replace 包与环境回执。
+- 结果：实现已落盘待测试；formal 绑定四项已验收 SHA，practice 独立标记；未重新运行 D2 或创建正式回答。
+- 产物：src/defense_mvp/annotation_models.py、annotation_bundle.py、configs/defense_mvp/annotation-v1.yaml。
+- 下一步：D3.1 定向验证真实只读输入链与映射，补充验收测试。
+
+
+## D3.1 真实输入链与方向只读验收
+
+- 时间：2026-09-03T02:42:30.744Z；环境：本地 Windows CPU-only；步骤 ID：D3.1-real-validation。
+- 命令：uv run python 调用 validate_inputs(formal) 与 mapping_for(annotator-a/b)，输入为既有 D2 selection/ingest/metrics/design 与 pilot。
+- 结果：退出码 0，4.69 秒；42 比较、60 视频、20 个输入文件均通过；两人各 11A/11B + 5A/5B。未重建 D2 或写正式人答。
+- 产物：命令输出中的比较/视频/输入计数和各类别方向；真实媒体只读。
+- 下一步：按验证结果推进存储层与测试。
+
+
+## D3.2 单写与恢复存储实现
+
+- 时间：2026-09-03T02:45:00.969Z；环境：本地 Windows CPU-only；步骤 ID：D3.2-code。
+- 行动：新增内核文件锁、显式 resume/身份目录、不可变原子逐题记录、草稿 CAS、请求幂等/冲突、时间与 canonical 验证；运行回执记录遗留 pending 文件。补强 load_bundle 重新核对 D2 输入关系，拒绝仅重算包内 checksum 的映射/媒体关系漂移。
+- 结果：实现已写入待故障测试；正式目录尚未创建。只允许草稿原子替换，正式记录不覆盖，未知锁/损坏记录不静默处理。
+- 产物：src/defense_mvp/annotation_store.py、annotation_bundle.py。
+- 下一步：实现 HTTP/播放器接口，再以隔离 fixture 联合验收存储与路由。
+
+
+## D3.3 匿名本地服务与播放器实现
+
+- 时间：2026-09-03T02:49:06.409Z；环境：本地 Windows CPU-only；步骤 ID：D3.3-code。
+- 行动：新增 loopback HTTP、一次性入口/HttpOnly cookie/CSRF/Origin、严格路由与当前题媒体授权；实现完整/单段 Range、匿名固定错误、CSP；新增三路播放/暂停/重播/拖动、五字段主动选择、confidence、草稿保存与确认重试界面。
+- 结果：源码完成待浏览器与攻击面验收；方法/比较 ID/原始路径保留服务端。播放状态不是精确劳动成本，正式人答未产生。
+- 产物：src/defense_mvp/annotation_server.py、annotation_ui.html。
+- 下一步：D3.4 导出、coverage、CLI 与隔离故障测试。
+
+
+## D3.4 导出与覆盖接口实现
+
+- 时间：2026-09-03T02:50:56.455Z；环境：本地 Windows CPU-only；步骤 ID：D3.4-code。
+- 行动：实现持锁验证的 no-replace JSONL/事实清单/coverage/自动平局导出、单人/双人 verifier 和四个 CLI；明确 incomplete/complete、single/dual、practice/formal。
+- 结果：不统计偏好；自动平局保持共享系统来源，无 confidence/人工时间。正式包可以只读验证但不会创建会话或答案。待联合验收。
+- 产物：src/defense_mvp/annotation_export.py、cli.py。
+- 下一步：构建隔离 tiny fixtures 与全矩阵验收测试，修复实测缺陷。
+
+
+## D3 里程碑验收测试实现
+
+- 时间：2026-09-03T02:55:10.633Z；环境：本地 Windows CPU-only；步骤 ID：D3-tests-code。
+- 行动：新增独立 test_blind_annotation.py，覆盖 D2 跨锁/重算清单后的关系篡改、映射、严格字段、草稿/幂等/故障/pending、双进程与退出恢复、匿名 HTTP/Range/CSRF、练习双人导出与伪造 coverage 拒绝。
+- 配置：使用已有 handoff_factory 的 tiny fake 字节 + synthetic metrics；全部生成答案为 practice，不作为真实播放证据。
+- 结果：测试已写入，下一步执行；真实输入与 D2 均未改动。
+- 产物：tests/defense_mvp/test_blind_annotation.py。
+- 下一步：运行 D3 定向测试，逐次记录失败及修复。
+
+
+## D3 首次浏览器练习包准备
+
+- 时间：2026-09-03T02:56:37.161Z；环境：本地 Windows CPU-only；步骤 ID：D3.5-browser-prepare-initial。
+- 命令：uv run defense prepare-annotation --selection artifacts/defense_mvp/DEFENSE-MVP-v01/selection --ingest artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json --output artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-initial/practice-bundle --mode practice。
+- 结果：退出码 0，2.04 秒，42/10/32；bundle SHA e4fb830588ec3c654f0e46a7ab6dad3bf286a7ccb2570fd67d077fea514a2468。只读复用真实媒体，practice 标签明确；正式答案 0。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-initial/practice-bundle，含源码/依赖回执；浏览器连接已建立。
+- 下一步：启动隔离练习服务，核对真实播放与提交 UI；等待定向测试退出。
+
+
+## D3 练习服务首次启动
+
+- 时间：2026-09-03T02:57:01.881Z；环境：本地 Windows CPU-only；步骤 ID：D3.5-browser-start-initial。
+- 命令：uv run defense annotate --bundle artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-initial/practice-bundle --annotator-id annotator-a --output artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-initial/annotator-a --port 8765。
+- 结果：练习服务成功监听 127.0.0.1:8765，终端 session 3193；运行中，令牌仅终端显示，不入 Git。已创建 practice 会话，未启动 formal。
+- 产物：qa-initial/annotator-a/session.json 与 runs 回执；无正式记录。
+- 下一步：浏览器播放验收。
+
+
+## D3 首轮定向验收及故障定位
+
+- 时间：2026-09-03T02:57:49.293Z；环境：本地 Windows CPU-only；步骤 ID：D3-tests-v01。
+- 命令：uv run pytest tests/defense_mvp/test_blind_annotation.py -o addopts='' -q（session 57300）。
+- 结果：70 passed、1 failed，57.79 秒，退出码 1。Windows 对已锁字节的 read 提前抛 PermissionError，未转换为明确 Conflict；互斥实际生效，但错误分类不符合接口。其余输入、存储、HTTP、导出测试通过。
+- 产物：tests/defense_mvp/test_blind_annotation.py 的失败堆栈；pytest-159 tiny practice 诊断。初始浏览器页面已显示 1/32、未预填、提交禁用。
+- 下一步：修复锁获取顺序并强化不确定持久化后的幂等恢复，然后复验。
+
+
+## D3 锁与提交恢复修复
+
+- 时间：2026-09-03T02:57:49.344Z；环境：本地 Windows CPU-only；步骤 ID：D3-storage-fix-v02。
+- 行动：内核锁先获取再读取 sentinel，冲突统一返回 Conflict；已提交 request_id 在重启后也可核对相同屏幕内容幂等返回；对 rename 成功但回执失败的情况重新校验不可变事实，不重复写入。
+- 结果：修复落盘并增加对应断电确认丢失测试；未改变判断协议或任何真实输入。
+- 产物：annotation_store.py、annotation_export.py、test_blind_annotation.py。
+- 下一步：定向复验锁和持久化；继续浏览器真实播放。
+
+
+## D3 首次真实浏览器播放诊断
+
+- 时间：2026-09-03T02:58:44.373Z；环境：Codex In-app Browser + 本地 practice 服务；步骤 ID：D3-browser-play-v01。
+- 行动：打开当前会话入口，检查初始 1/32、无预填/禁用提交，点击同步播放并读取 video DOM 状态与控制台。
+- 结果：未通过播放验收。source readyState=4/duration=2，A/B readyState=0；页面显示媒体播放失败且提交仍禁用，控制台无异常。尚未保存任何练习正式确认记录，formal 为 0。
+- 产物：qa-initial/annotator-a、浏览器 DOM/媒体诊断输出。
+- 下一步：检查真实 MP4 编码及服务路由，定位加载失败原因；禁止把该结果算作播放通过。
+
+
+## D3 真实 MP4 编码只读诊断
+
+- 时间：2026-09-03T02:59:35.221Z；环境：本地 Windows CPU-only，既有 imageio-ffmpeg 7.1；步骤 ID：D3-media-codec-diagnosis。
+- 命令：对首题 source/X/Y 执行 ffmpeg -hide_banner -i <原媒体> -f null -（只读解码）。
+- 结果：退出码 0，3.45 秒；三路均可解码为 16 帧/512×512/8fps/2秒/yuv420p。source 编码 H.264；两候选为 MPEG-4 Part 2 (mp4v)，当前浏览器不能播放，非 checksum 漂移。静态 HTTP 测试无法发现此兼容性问题。
+- 产物：终端 ffmpeg 诊断，既有原始媒体未变。
+- 下一步：增加独立无损浏览器展示副本及像素/时间/原始 SHA 映射证明；不改 D2、原始 MP4 或比较计划。
+
+
+## D3 定向复验 v02
+
+- 时间：2026-09-03T03:00:17.041Z；环境：本地 Windows CPU-only；步骤 ID：D3-tests-v02。
+- 行动/命令：uv run pytest tests/defense_mvp/test_blind_annotation.py -o addopts='' -q（session 92469）。
+- 结果：72 passed in 67.42s，退出码 0，锁冲突/进程退出/不确定确认恢复均通过。
+- 产物：pytest-160 tiny practice 与新增 72 项测试。
+- 下一步：冻结无损展示兼容细节。
+
+
+## D3 首次练习服务退出
+
+- 时间：2026-09-03T03:00:17.061Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-stop-initial。
+- 行动/命令：向 terminal session 3193 发送 Ctrl+C，结束 qa-initial 练习服务。
+- 结果：进程已退出（控制中断退出码 1）；0 条确认回答；原会话/失败证据保留。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-initial/。
+- 下一步：以新目录准备兼容浏览器的无损展示包。
+
+
+## D3 无损展示工程决策
+
+- 时间：2026-09-03T03:00:17.093Z；环境：本地 Windows CPU-only；步骤 ID：D3-presentation-decision。
+- 行动：在施工方案固定 lossless-vp9-yuv420p-v1；对全部参与比较的 source/candidate 同规则转换，仅新包内 presentation 目录写入；原始 SHA 仍控制自动平局，记录增加展示 SHA 和等价证明。
+- 配置：VP9 lossless、yuv420p、无 resize/补帧/裁剪，验证 RGB24 逐帧 hash、尺寸、帧数与时间；fake-native 仅隔离 practice 可用。
+- 结果：属于浏览器兼容性工程修复；不改 sealed E0/D2 或比较与判断协议。若无法证明无损/时序一致则 prepare 失败，不用有损副本替代。
+- 产物：docs/defense_mvp/D3_CONSTRUCTION_PLAN.md 补充。
+- 下一步：实现展示副本身份链并用真实浏览器再验收。
+
+
+## D3 无损展示实现与身份链
+
+- 时间：2026-09-03T03:02:33.957Z；环境：本地 Windows CPU-only；步骤 ID：D3-presentation-code。
+- 行动：新增 annotation_media，生成 VP9 lossless 私有展示媒体；验证原/展示 RGB24 帧 hash 与 8fps 时间完全一致；包、逐题记录与 verifier 同时绑定原媒体/展示媒体。四个 CLI 之一新增 practice-only fixture-native-media。
+- 结果：原始 MP4 与自动平局规则不变；正式准备不能跳过展示等价门禁。尚待真实转换和浏览器验证。
+- 产物：annotation_media.py、bundle/store/models/server/cli、annotation-v1.yaml 与对应 tiny fixture 调整。
+- 下一步：在新 qa-v02 目录执行真实无损展示准备；每个失败保留诊断。
+
+
+## D3 无损展示真实准备 v02
+
+- 时间：2026-09-03T03:04:11.844Z；环境：本地 Windows CPU-only；步骤 ID：D3-presentation-prepare-v02。
+- 命令：uv run defense prepare-annotation --selection artifacts/defense_mvp/DEFENSE-MVP-v01/selection --ingest artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json --output artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-v02/practice-bundle --mode practice。
+- 结果：退出码 0，转换/逐帧验证 44.60 秒；39 个引用视频共 624 帧 RGB24 SHA、512×512、16帧/8fps 时间完全相等。42/10/32 不变，bundle SHA f72a111869cb449c88b9b121dd1a7b12f565fcf46fde68a075887d0937fe3958。
+- 产物：qa-v02/practice-bundle/presentation/、presentation-proof.json 与完整 SHA 清单；原始视频只读，正式人答 0。
+- 下一步：启动新练习会话并验收浏览器播放、拖动和表单。
+
+
+## D3-browser-start-v02
+
+- 时间：2026-09-03T03:04:52.424Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-start-v02。
+- 行动/命令：启动 qa-v02/practice-bundle 的 annotator-a，output qa-v02/annotator-a，port 8765。
+- 结果：练习服务就绪，terminal session 71342，127.0.0.1；未启动 formal。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-v02/ 与 tests/defense_mvp/test_blind_annotation.py。
+- 下一步：真实浏览器操作。
+
+
+## D3-tests-v03
+
+- 时间：2026-09-03T03:04:52.445Z；环境：本地 Windows CPU-only；步骤 ID：D3-tests-v03。
+- 行动/命令：uv run pytest tests/defense_mvp/test_blind_annotation.py -o addopts='' -q（session 88657）。
+- 结果：72 passed in 58.67s，退出码 0；展示原始/副本身份字段纳入存储、导出与 verifier 后现有用例全部通过。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-v02/ 与 tests/defense_mvp/test_blind_annotation.py。
+- 下一步：补充展示/媒体失败专项及浏览器验收。
+
+
+## D3 真实浏览器播放与同步通过
+
+- 时间：2026-09-03T03:06:08.265Z；环境：Codex In-app Browser + qa-v02 practice，CPU-only；步骤 ID：D3-browser-play-v02。
+- 行动：UI 同步播放、从头重播、全部暂停、统一滑条 Home/ArrowRight；读取实际 video 元素状态并保存整页截图。
+- 结果：三路 readyState=4、duration=2 秒、无媒体错误；播放时 source/A/B 时间 0.253670/0.253515/0.253457 秒；暂停全部 paused=true；统一 seek 后三路均 0.01 秒。界面明确近似同步，初始表单未预填，未完整填答时提交禁用。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/output/playwright/01-playback.png；仅 practice 会话。
+- 下一步：草稿刷新恢复、注入文本安全、确认提交与错误媒体门禁浏览器验证。
+
+
+## D3 浏览器草稿恢复与表单门禁通过
+
+- 时间：2026-09-03T03:07:02.646Z；环境：本地浏览器 practice；步骤 ID：D3-browser-draft-v02。
+- 行动：仅在 qa-v02 练习中填入覆盖 A/B/tie/uncertain 的测试值、confidence=.5 和 script 字面量备注；确认草稿保存，刷新并检查 DOM。
+- 结果：五字段与备注按草稿恢复、未执行 script、无弹窗；刷新后必须重新播放才解锁提交；尚无确认记录。练习值明确非研究。
+- 产物：output/playwright/02-draft-restored.png 与 qa-v02/annotator-a/drafts；正式答案仍 0。
+- 下一步：练习确认提交、刷新只读恢复与下一题初始状态验收。
+
+
+## D3 浏览器原生确认弹窗诊断
+
+- 时间：2026-09-03T03:08:43.375Z；环境：Codex In-app Browser、本地 practice；步骤 ID：D3-browser-confirm-v01。
+- 行动：点击练习提交按钮，调用文档支持的 getJsDialog，并读取 browser-troubleshooting。
+- 结果：Input.dispatchMouseEvent / Emulation.setFocusEmulationEnabled 超时，无法控制原生 confirm；只读检查 records 为 0。没有盲目重复提交，当前不算提交流程通过。
+- 产物：qa-v02 练习草稿保留；正式人答仍 0。
+- 下一步：改用页面内二次确认并关闭旧页/服务，显式 resume 再验收。
+
+
+## D3 页面内二次确认修复
+
+- 时间：2026-09-03T03:08:43.401Z；环境：本地 Windows；步骤 ID：D3-ui-confirm-fix。
+- 行动：将原生 confirm 替换成页面内“确认保存本题/返回修改”二次操作；保留保存前冻结表单、成功后只读、失败原请求重试。
+- 结果：UI 变更已写入；不改变答案字段/身份/协议或已准备媒体。
+- 产物：src/defense_mvp/annotation_ui.html。
+- 下一步：重启练习服务，验证草稿恢复与两次确认。
+
+
+## D3 qa-v02 练习服务中断回执
+
+- 时间：2026-09-03T03:09:26.967Z；环境：本地 Windows / In-app Browser；步骤 ID：D3-browser-stop-v02。
+- 行动：尝试按浏览器文档关闭被 confirm 阻塞的标签页；向 terminal session 71342 发送 Ctrl+C。
+- 结果：服务已停止，控制中断退出码 1；浏览器 close 仍受 Emulation.setFocusEmulationEnabled 超时阻塞，尚未确认旧页关闭。草稿保留，确认记录仍 0。
+- 产物：qa-v02/annotator-a；该会话后续只能显式 resume。
+- 下一步：创建新标签页恢复验证；旧令牌随新服务作废。
+
+
+## D3 显式恢复练习服务
+
+- 时间：2026-09-03T03:09:57.762Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-resume-v03。
+- 命令：uv run defense annotate --bundle artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-v02/practice-bundle --annotator-id annotator-a --output artifacts/defense_mvp/DEFENSE-MVP-D3-v01/qa-v02/annotator-a --resume --port 8765。
+- 结果：校验既有草稿后成功启动，terminal session 57295；新令牌，浏览器新标签页创建成功；没有绕过旧页确认或改写记录。
+- 产物：qa-v02/annotator-a/runs 新回执。
+- 下一步：新页面内确认与恢复验收。
+
+
+## D3 页面确认、持久化与下一题通过
+
+- 时间：2026-09-03T03:10:51.573Z；环境：真实浏览器 practice；步骤 ID：D3-browser-confirm-v03。
+- 行动：重启 --resume 后确认草稿，播放三路；打开页面内确认、返回修改、再确认保存。
+- 结果：成功落盘后进度 1/32→2/32；下一题五字段、confidence、notes 均无预填，提交禁用。仅新增 1 条 practice 工程记录，formal 为 0。
+- 产物：qa-v02/annotator-a/records/0001.json，原草稿保留；源码为页面内确认版本。
+- 下一步：按固定工程测试值走完隔离练习双人覆盖，同时对每题检查真实展示媒体可播放；不解释测试值为偏好。
+
+
+## D3-browser-practice-a-02-09
+
+- 时间：2026-09-03T03:12:11.170Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-practice-a-02-09。
+- 行动/命令：浏览器逐题播放并提交固定非研究测试值，第 2–9 题。
+- 结果：8/8 三路 readyState=4、duration=2、无解码错误；a 已保存9条 practice；formal仍0。
+- 产物：output/playwright/a-progress.json、qa-v02/annotator-a/records。
+- 下一步：继续同一隔离流程。
+
+
+## D3-browser-practice-a-10-21
+
+- 时间：2026-09-03T03:12:53.287Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-practice-a-10-21。
+- 行动/命令：浏览器逐题播放并提交固定非研究测试值，第10–21题。
+- 结果：12/12 播放/保存成功，a累计21条practice，formal0。
+- 产物：output/playwright/a-progress.json、qa-v02/annotator-a。
+- 下一步：完成a练习并封存导出。
+
+
+## D3-browser-practice-a-complete
+
+- 时间：2026-09-03T03:14:46.709Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-practice-a-complete。
+- 行动/命令：第22–32题逐题播放/保存，刷新完成页，关闭新标签页；Ctrl+C退出session57295。
+- 结果：a为32条practice，所有三路视频通过；刷新保持完成，无重答入口。服务已中断退出码1；正式答案0。
+- 产物：output/playwright/03-a-complete.png、a-progress.json、qa-v02/annotator-a。
+- 下一步：补强同浏览器旧页的启动隔离，然后b流程复验。
+
+
+## D3-session-route-hardening
+
+- 时间：2026-09-03T03:14:46.761Z；环境：本地 Windows CPU-only；步骤 ID：D3-session-route-hardening。
+- 行动/命令：为每次启动增加随机URL前缀和cookie Path隔离，旧页即使共享浏览器新cookie也不能访问新会话；修复复用request_id跨题冲突。增加旧页、原媒体漂移、practice-only展示和真实可播放tiny无损转换测试。
+- 结果：实现与测试落盘；这是同机隔离补强，协议/真实输入不变。
+- 产物：annotation_server.py、annotation_store.py、annotation_ui.html、test_blind_annotation.py。
+- 下一步：运行D3定向测试并用b完整流程验收最终路由。
+
+
+## D3-browser-start-b
+
+- 时间：2026-09-03T03:15:17.002Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-start-b。
+- 行动/命令：a 服务退出后启动 qa-v02/annotator-b（同一 practice-bundle，127.0.0.1:8765）。
+- 结果：新身份、新会话、新cookie Path及启动前缀；terminal session82202运行。a已32条practice，b0；formal0。
+- 产物：qa-v02/annotator-b/session.json、runs。
+- 下一步：验收b未看到a答案并走完整套流程。
+
+
+## D3-browser-b-navigation-diagnostic
+
+- 时间：2026-09-03T03:16:14.419Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-navigation-diagnostic。
+- 行动/命令：打开新b会话入口，检查URL/DOM/控制台。
+- 结果：浏览器返回net::ERR_BLOCKED_BY_CLIENT，停在about:blank，服务未报错；b未作答。尚不能确定是随机入口还是/s/路径触发客户端过滤。
+- 产物：qa-v02/annotator-b，浏览器诊断输出。
+- 下一步：改用明确/review/启动路径后重新连接；保持所有身份校验。
+
+
+## D3-browser-prefix-compatibility
+
+- 时间：2026-09-03T03:16:14.445Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-prefix-compatibility。
+- 行动/命令：将启动URL路径从/s/改为/review/，随机前缀与cookie/CSRF/Origin门禁全部保留。
+- 结果：仅路由名称变更待浏览器复验；不降低访问控制。
+- 产物：annotation_server.py。
+- 下一步：重启b练习会话。
+
+
+## D3-tests-v04
+
+- 时间：2026-09-03T03:16:29.570Z；环境：本地 Windows CPU-only；步骤 ID：D3-tests-v04。
+- 行动/命令：uv run pytest tests/defense_mvp/test_blind_annotation.py -o addopts='' -q（session3747）。
+- 结果：76 passed in61.31s，退出码0；包括旧页新cookie拒绝、跨题request冲突、tiny MPEG4→VP9逐帧等价。其后仅/review/路由字面量改变，最终回归仍待跑。
+- 产物：tests/defense_mvp/test_blind_annotation.py。
+- 下一步：浏览器b复验与最终全仓回归。
+
+
+## D3-browser-b-stop
+
+- 时间：2026-09-03T03:16:29.587Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-stop。
+- 行动/命令：Ctrl+C停止session82202，关闭空白tab4。
+- 结果：练习b服务已中断退出码1，确认记录0。
+- 产物：qa-v02/annotator-b。
+- 下一步：显式resume新入口。
+
+
+## D3-browser-b-resume
+
+- 时间：2026-09-03T03:16:48.326Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-resume。
+- 行动/命令：以--resume重启qa-v02/annotator-b，port8765，使用/review/随机路径。
+- 结果：session2661运行，b确认记录0，正式会话未创建。
+- 产物：qa-v02/annotator-b/runs。
+- 下一步：打开新入口并验证表单。
+
+
+## D3-browser-b-navigation-v02
+
+- 时间：2026-09-03T03:17:22.751Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-navigation-v02。
+- 行动/命令：重新打开/review/启动路径的新入口。
+- 结果：同样ERR_BLOCKED_BY_CLIENT且页面未载入；此前路径名称假设未获支持。b仍0条，未把导航失败算通过。
+- 产物：qa-v02练习诊断；保留两次运行回执。
+- 下一步：检查本地HTTP重定向行为，避免继续猜路径。
+
+
+## D3-browser-redirect-probe
+
+- 时间：2026-09-03T03:18:00.354Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-redirect-probe。
+- 行动/命令：用本地http.client只读请求失败入口并只打印状态/Location。
+- 结果：403 session_rejected，说明入口已由浏览器消费，阻拦发生在后续重定向/页面载入阶段；未读取浏览器cookie或绕过身份校验。
+- 产物：终端诊断。
+- 下一步：输出受会话cookie保护的工作页面URL用于定位重定向兼容性。
+
+
+## D3-browser-redirect-diagnostic-link
+
+- 时间：2026-09-03T03:18:00.379Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-redirect-diagnostic-link。
+- 行动/命令：启动日志增加受cookie保护的工作页面URL；入口与页面均只含随机标识。
+- 结果：便于定位内置浏览器重定向阻断；未改权限或放宽任何路由。
+- 产物：annotation_server.py。
+- 下一步：重启练习b并检查入口后页面。
+
+
+## D3-browser-b-stop-v02
+
+- 时间：2026-09-03T03:18:10.606Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-stop-v02。
+- 行动/命令：Ctrl+C退出session2661并关闭空白tab5。
+- 结果：服务已停止（中断退出码1），b记录0，旧入口作废。
+- 产物：qa-v02/annotator-b。
+- 下一步：启动带诊断页面URL的b恢复服务。
+
+
+## D3-browser-b-resume-v03
+
+- 时间：2026-09-03T03:18:28.367Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-resume-v03。
+- 行动/命令：显式resume qa-v02/annotator-b，带随机工作页面诊断URL，port8765。
+- 结果：session43066运行；所有历史会话/草稿不变，b正式确认0。
+- 产物：qa-v02/annotator-b/runs。
+- 下一步：验证入口重定向是否为唯一阻碍。
+
+
+## D3-cookie-path-collision-diagnosis
+
+- 时间：2026-09-03T03:19:28.303Z；环境：本地 Windows CPU-only；步骤 ID：D3-cookie-path-collision-diagnosis。
+- 行动/命令：浏览器对已认证工作URL仍阻拦；在本地用两个同名、不同作用域的假cookie值复现SimpleCookie解析。
+- 结果：退出码0，解析保留最后old_root_path；代码存在旧root cookie与新窄Path cookie重名时选错令牌的风险。未读取任何浏览器cookie。
+- 产物：终端假cookie解析证据。
+- 下一步：每次启动使用独立cookie名称消除歧义，记录匿名HTTP错误码定位剩余问题。
+
+
+## D3-cookie-name-isolation-fix
+
+- 时间：2026-09-03T03:19:28.331Z；环境：本地 Windows CPU-only；步骤 ID：D3-cookie-name-isolation-fix。
+- 行动/命令：每次启动生成独立cookie名称，Path仍限定随机启动前缀；终端仅输出匿名HTTP错误码；测试覆盖与旧root cookie同时存在。
+- 结果：实现落盘，全部授权检查保留；无需删除/读取浏览器cookies。
+- 产物：annotation_server.py、test_blind_annotation.py。
+- 下一步：重启b复验并读取匿名诊断。
+
+
+## D3-browser-b-stop-v03
+
+- 时间：2026-09-03T03:19:40.339Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-stop-v03。
+- 行动/命令：Ctrl+C退出session43066，关闭tab6。
+- 结果：练习b仍0条确认记录；服务已中断退出码1。
+- 产物：qa-v02/annotator-b。
+- 下一步：以独立cookie名称恢复。
+
+
+## D3-browser-b-resume-v04
+
+- 时间：2026-09-03T03:20:00.124Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-resume-v04。
+- 行动/命令：显式resume qa-v02/annotator-b，port8765，独立cookie名称与启动路径。
+- 结果：session92546运行；b0条、formal0。
+- 产物：qa-v02/annotator-b/runs。
+- 下一步：浏览器入口与匿名服务日志核对。
+
+
+## D3-browser-b-entry-passed
+
+- 时间：2026-09-03T03:20:48.568Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-b-entry-passed。
+- 行动/命令：独立cookie名称修复后，用同一浏览器打开新的b入口。
+- 结果：成功进入1/32，首题与a不同，所有判断/信心/备注空白；未看到a记录，服务无匿名错误。此前同名cookie冲突已由实测修复。
+- 产物：qa-v02/annotator-b与浏览器DOM证据。
+- 下一步：完成b练习；冻结源码进行最终定向和全仓回归。
+
+
+## D3-browser-practice-b-01-12
+
+- 时间：2026-09-03T03:22:01.110Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-practice-b-01-12。
+- 行动/命令：浏览器逐题播放/填写固定工程值/二次确认，第1–12题。
+- 结果：12/12三路可播放且保存成功，b12条practice，formal0。
+- 产物：output/playwright/b-progress.json、qa-v02/annotator-b。
+- 下一步：继续b后20题；最终Defense和全仓pytest运行中（3473、44555）。
+
+
+## D3-browser-practice-b-13-24
+
+- 时间：2026-09-03T03:22:40.987Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-practice-b-13-24。
+- 行动/命令：浏览器逐题播放和固定工程值提交，第13–24题。
+- 结果：12/12通过，b累计24条practice，formal0。
+- 产物：output/playwright/b-progress.json、qa-v02/annotator-b。
+- 下一步：完成最后8题。
+
+
+## D3-browser-practice-b-complete
+
+- 时间：2026-09-03T03:23:22.765Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-practice-b-complete。
+- 行动/命令：第25–32题播放/固定工程值确认，刷新完成页，关闭tab并Ctrl+C退出session92546。
+- 结果：b32条practice全部可播放与保存；两人合计64条practice。服务退出码1（控制中断），formal仍0。
+- 产物：output/playwright/04-b-complete.png、b-progress.json、qa-v02/annotator-b。
+- 下一步：no-replace导出双人练习并验证coverage。
+
+
+## D3-export-practice-a
+
+- 时间：2026-09-03T03:23:36.325Z；环境：本地 Windows CPU-only；步骤 ID：D3-export-practice-a。
+- 行动/命令：调用export_annotations，对qa-v02/annotator-a输出新exports/annotator-a-v01。
+- 结果：退出码0，3.20秒；practice complete，32条回答+10项共享自动平局。原始逐题记录不变。
+- 产物：qa-v02/exports/annotator-a-v01。
+- 下一步：导出b。
+
+
+## D3-export-practice-b
+
+- 时间：2026-09-03T03:23:55.282Z；环境：本地 Windows CPU-only；步骤 ID：D3-export-practice-b。
+- 行动/命令：调用export_annotations，对qa-v02/annotator-b输出新exports/annotator-b-v01。
+- 结果：退出码0，3.11秒；practice complete，32条回答+10项共享自动平局。
+- 产物：qa-v02/exports/annotator-b-v01。
+- 下一步：运行双人verifier及formal拒绝检查。
+
+
+## D3-dual-practice-verification
+
+- 时间：2026-09-03T03:24:12.340Z；环境：本地 Windows CPU-only；步骤 ID：D3-dual-practice-verification。
+- 行动/命令：verify_annotations校验两个新导出，并不带allow_practice重试正式门禁。
+- 结果：退出码0，3.83秒；dual practice complete，64条练习+10共享自动平局，两个coverage均42；formal模式明确拒绝该包。未计算任何偏好统计。
+- 产物：qa-v02/dual-verification.json。
+- 下一步：建立不可播放媒体的独立错误fixture并验证禁用提交。
+
+
+## D3-browser-error-fixture-prepared
+
+- 时间：2026-09-03T03:24:43.189Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-error-fixture-prepared。
+- 行动/命令：prepare_annotation以practice+fixture_native_media构建独立qa-media-error包，保留浏览器不支持的原始mp4v作为错误fixture。
+- 结果：退出码0，2.29秒；仅错误播放测试，禁止作为formal；原始媒体未修改。
+- 产物：qa-media-error/practice-bundle。
+- 下一步：填完整练习字段时验证媒体故障仍禁止提交。
+
+
+## D3-browser-error-fixture-start
+
+- 时间：2026-09-03T03:25:22.398Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-error-fixture-start。
+- 行动/命令：启动qa-media-error/annotator-a练习服务，port8765。
+- 结果：session10096运行，仅错误fixture；formal包准备进程33931运行但无正式会话。
+- 产物：qa-media-error/annotator-a。
+- 下一步：真实浏览器填写完整表单并检查解码错误门禁。
+
+
+## D3-browser-media-error-gate-passed
+
+- 时间：2026-09-03T03:26:04.226Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-media-error-gate-passed。
+- 行动/命令：不可播放mp4v练习页中主动填写全部五字段和confidence，点击播放并检查按钮；关闭页面，Ctrl+C退出session10096。
+- 结果：页面明确媒体播放失败且submitEnabled=false，不能用uncertain替代失败；未保存确认回答。服务中断退出码1。
+- 产物：output/playwright/05-media-error-blocked.png、qa-media-error/annotator-a。
+- 下一步：核对正式prepared包与环境证据。
+
+
+## D3-formal-bundle-prepared
+
+- 时间：2026-09-03T03:26:18.069Z；环境：本地 Windows CPU-only；步骤 ID：D3-formal-bundle-prepared。
+- 行动/命令：prepare_annotation(formal)从D2冻结输入生成全新artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-bundle。
+- 结果：退出码0；39视频/624帧逐像素与时间等价，转换验证55.07秒；42/10/32，正式答案0。bundle SHA c03640b39ad1e7769ccdf4c2c133821a893fa26de7d4285c75f47dfb6eb00da6。未运行formal annotate。
+- 产物：formal-bundle/prepare-receipt.json、presentation-proof.json、SHA256SUMS。
+- 下一步：创建供用户练习的独立新包，最终checksum/CLI/回归。
+
+
+## D3-documentation-delivery
+
+- 时间：2026-09-03T03:29:40.735Z；环境：本地 Windows CPU-only；步骤 ID：D3-documentation-delivery。
+- 行动/命令：新增ANNOTATION_GUIDE、D3_IMPLEMENTATION_RECEIPT；更新总方案已实现CLI/真实32+10覆盖/停止点；施工方案对齐无损展示与最终会话路由。
+- 结果：文档落盘，完整操作/退出/恢复/正式a与b/导出命令和局限可审阅。最终回归/发布栏尚待实际结果补齐。
+- 产物：docs/defense_mvp/ANNOTATION_GUIDE.md、D3_IMPLEMENTATION_RECEIPT.md、D3_CONSTRUCTION_PLAN.md、docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md。
+- 下一步：记录最终回归结果，执行CLI/编译/输入前后校验和发布审计。
+
+
+## D3-final-defense-regression
+
+- 时间：2026-09-03T03:30:16.828Z；环境：本地 Windows CPU-only；步骤 ID：D3-final-defense-regression。
+- 行动/命令：uv run pytest tests/defense_mvp -o addopts='' -q（session3473，最终产品源码）。
+- 结果：115 passed in364.72s，退出码0；D2原有39项+D3新76项一次实际运行通过。运行期间未改产品源码，仅完善文档。
+- 产物：tests/defense_mvp、pytest输出回执。
+- 下一步：等待最终全仓218项并完成静态/CLI审计。
+
+
+## D3-user-practice-bundle-prepared
+
+- 时间：2026-09-03T03:30:16.848Z；环境：本地 Windows CPU-only；步骤 ID：D3-user-practice-bundle-prepared。
+- 行动/命令：prepare_annotation(practice)生成全新DEFENSE-MVP-D3-v01/practice-bundle，默认无损展示。
+- 结果：退出码0，42/10/32；SHA80cf70cbefc73815f0cd016db7741a99bf43b858f2fe9ce2b329a8cfd4ec3da9。用户练习会话目录尚不存在，formal0。
+- 产物：practice-bundle/prepare-receipt.json、presentation-proof.json、SHA256SUMS。
+- 下一步：验证正式/练习最终包与源码、冻结输入前后SHA。
+
+
+## D3-final-compileall
+
+- 时间：2026-09-03T03:30:37.650Z；环境：本地 Windows CPU-only；步骤 ID：D3-final-compileall。
+- 行动/命令：uv run python -m compileall -q src tests。
+- 结果：退出码0，1.13秒；最终源码和测试语法编译通过。
+- 产物：忽略的Python缓存，未新增tracked二进制。
+- 下一步：CLI smoke与最终包/原始身份核对。
+
+
+## D3-final-cli-smoke
+
+- 时间：2026-09-03T03:31:20.290Z；环境：本地 Windows CPU-only；步骤 ID：D3-final-cli-smoke。
+- 行动/命令：CliRunner执行version/validate-config及10个命令--help，并真实调用verify-annotations --bundle formal-bundle。
+- 结果：全部退出码0，2.89秒；正式包prepared_bundle/incomplete、exported_answers0、42/10/32，未生成会话。
+- 产物：defense CLI及正式bundle。
+- 下一步：核对所有原始/展示媒体、最终源码snapshot及正式答案为0。
+
+
+## D3-final-identity-verification
+
+- 时间：2026-09-03T03:31:47.937Z；环境：本地 Windows CPU-only；步骤 ID：D3-final-identity-verification。
+- 行动/命令：load_bundle复验正式/用户练习包及所有输入/展示SHA，比较初始qa-initial原视频inventory、四个D2冻结SHA、当前源码文件hash；扫描D3会话/确认记录。
+- 结果：退出码0，3.88秒；60原MP4前后完全一致、39展示引用有效、最终包源码snapshot匹配。formal目录不存在，正式会话0、人答0；64条确认均practice。
+- 产物：final-identity-verification.json。
+- 下一步：等待全仓结果并审计Git发布范围。
+
+
+## D3-browser-cleanup-complete
+
+- 时间：2026-09-03T03:32:45.518Z；环境：本地 Windows CPU-only；步骤 ID：D3-browser-cleanup-complete。
+- 行动/命令：使用浏览器文档支持的CUA Escape关闭早期原生确认，再关闭tab2。
+- 结果：成功清除最后一个遗留练习标签页；所有练习服务已退出，未启动formal。
+- 产物：浏览器临时页面清理，无正式数据变更。
+- 下一步：最终发布审计。
+
+
+## D3-final-repository-regression
+
+- 时间：2026-09-03T03:32:45.536Z；环境：本地 Windows CPU-only；步骤 ID：D3-final-repository-regression。
+- 行动/命令：uv run pytest -o addopts='' -q（session44555，最终产品源码状态）。
+- 结果：218 passed in613.64s，退出码0；本次为一次实际完整218项通过。原E0/E1/E2源码未改。
+- 产物：全仓tests输出；此前Defense115项另一次通过。
+- 下一步：更新最终回执，审计Git index后发布。
+
+
+## D3-final-working-tree-whitespace
+
+- 时间：2026-09-03T03:32:45.555Z；环境：本地 Windows CPU-only；步骤 ID：D3-final-working-tree-whitespace。
+- 行动/命令：git diff --check、git status --short、git diff --name-only。
+- 结果：退出码0，无whitespace错误；已有tracked变更仅DEVLOG/总方案/CLI，新文件均Defense范围；tar/sidecar未跟踪。仅Git autocrlf提示，无格式批量重写。
+- 产物：工作树与待发布allowlist。
+- 下一步：补齐最终回执并审查暂存内容。
+
+
+## D3-final-acceptance-receipt
+
+- 时间：2026-09-03T03:32:45.588Z；环境：本地 Windows CPU-only；步骤 ID：D3-final-acceptance-receipt。
+- 行动/命令：将115/218实际回归、CLI/编译/身份核对与0正式回答写入D3_IMPLEMENTATION_RECEIPT，施工方案标记D3.1–D3.5通过。
+- 结果：D3工程ready，停止于邀请真人前；源代码未变，正式人评与D4未启动。
+- 产物：D3_IMPLEMENTATION_RECEIPT.md、D3_CONSTRUCTION_PLAN.md、ANNOTATION_GUIDE.md。
+- 下一步：Git fetch核对远端，显式allowlist暂存审计并普通发布。
+
+
+## D3-publication-preflight
+
+- 时间：2026-09-03T03:33:38.232Z；环境：本地 Windows CPU-only；步骤 ID：D3-publication-preflight。
+- 行动/命令：git fetch origin；git rev-parse HEAD origin/main；git branch --show-current。
+- 结果：退出码0，3.03秒；main、HEAD与最新origin/main仍为d5ae95e5f35320ad3d749b637db63197c77a519e，无远端前进或合并冲突。仅GitHub Git操作，无学校服务器连接。
+- 产物：Git refs与既有publication授权。
+- 下一步：按16路径显式allowlist暂存并执行binary/size/path/whitespace guard。
+
+
+## D3-staged-publication-audit
+
+- 时间：2026-09-03T03:34:19.226Z；环境：本地 Windows CPU-only；步骤 ID：D3-staged-publication-audit。
+- 行动/命令：显式暂存16个Defense代码/配置/测试/文档路径；Python严格比对allowlist、git numstat binary、每个blob大小/后缀、git diff --cached --check。
+- 结果：退出码0，16/16路径；0 binary、0 media，最大403222 bytes，whitespace通过。tar/sidecar、artifacts、raw、私有映射/令牌/人答均未暂存；未改E0/E1/E2或D2实现。
+- 产物：Git index；16路径清单与staged stat。
+- 下一步：重新暂存本审计DEVLOG并创建功能审计提交，普通push main。
