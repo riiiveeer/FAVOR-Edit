@@ -320,6 +320,14 @@ def test_http_anonymity_ranges_errors_and_identity(http_session):
     s = http_session
     status, headers, body = request(s,"/")
     assert status == 200
+    import base64
+    import hashlib
+    import re
+    script = re.search(rb"<script>(.*?)</script>", body, flags=re.S).group(1)
+    digest = base64.b64encode(hashlib.sha256(script).digest()).decode("ascii")
+    assert "'sha256-" + digest + "'" in headers["Content-Security-Policy"]
+    assert "media-src 'self' blob:" in headers["Content-Security-Policy"]
+    assert b"class ReviewMediaLoader" in script and b"/* MEDIA_LOADER */" not in script
     status, _, raw = request(s,"/api/current")
     current = json.loads(raw)
     assert set(current) == {"complete","view","csrf","progress","instruction","practice","media","draft","revision"}

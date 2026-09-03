@@ -69,10 +69,11 @@ class AnnotationHTTPServer(ThreadingHTTPServer):
         self.prefix = f"/review/{secrets.token_hex(16)}/"
         self.entry_used = False
         self.html = Path(__file__).with_name("annotation_ui.html").read_bytes()
+        self.html = self.html.replace(b"/* MEDIA_LOADER */", Path(__file__).with_name("annotation_playback.js").read_bytes())
         script = re.search(rb"<script>(.*?)</script>", self.html, flags=re.S).group(1)
         digest = base64.b64encode(hashlib.sha256(script).digest()).decode("ascii")
         self.csp = (f"default-src 'none'; script-src 'sha256-{digest}'; style-src 'unsafe-inline'; "
-                    "media-src 'self'; connect-src 'self'; img-src 'self' data:; "
+                    "media-src 'self' blob:; connect-src 'self'; img-src 'self' data:; "
                     "base-uri 'none'; frame-ancestors 'none'; object-src 'none'; form-action 'none'")
         super().__init__(("127.0.0.1", port), Handler)
         self.origin = f"http://127.0.0.1:{self.server_port}"

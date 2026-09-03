@@ -90,6 +90,7 @@ def source_evidence() -> dict:
     repo = Path(__file__).resolve().parents[2]
     paths = list((repo / "src/defense_mvp").glob("*.py"))
     paths += list((repo / "src/defense_mvp").glob("*.html"))
+    paths += list((repo / "src/defense_mvp").glob("*.js"))
     paths += [repo / "pyproject.toml", repo / "uv.lock"]
     return {
         "git_head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip(),

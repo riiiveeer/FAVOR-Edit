@@ -11,7 +11,9 @@
 <p class="muted">请比较 A、B 对指令的完成效果，并结合原视频判断。独立作答，不与另一位评审讨论具体选择。</p>
 <div class="videos"><div><label for="source">原视频</label><video id="source" controls preload="auto" playsinline></video></div><div><label for="A">A</label><video id="A" controls preload="auto" playsinline></video></div><div><label for="B">B</label><video id="B" controls preload="auto" playsinline></video></div></div>
 <div class="controls"><button id="play" type="button">同步播放</button><button id="pause" type="button">全部暂停</button><button id="replay" type="button">从头重播</button><label for="seek">统一进度</label><input id="seek" type="range" min="0" max="1" value="0" step="0.01" aria-label="统一进度"><span id="time">0.00 s</span></div>
-<div id="mediaStatus" role="status">请等待三路视频加载，并播放三路后作答。</div>
+<div id="mediaStatus" role="status">正在加载本题视频…</div>
+<div id="loadProgress" class="muted" aria-live="polite"></div>
+<button id="retryMedia" type="button">重新加载视频</button><span class="muted"> 保留当前题目和草稿；加载后请重新播放。</span>
 <div class="muted">统一播放采用浏览器近似同步，偏差超过约 0.12 秒时校正，非逐帧同步。也可使用每个视频的独立控制条。播放失败时请停止，不能以“不确定”替代故障。</div></section>
 <section class="panel"><h2>独立判断</h2><p class="muted">平局：能够比较，但没有明显偏好。不确定：无法可靠判断该项。每项均需主动选择；评审依据视觉和指令判断。</p>
 <form id="form"><table><thead><tr><th>评价项</th><th>A 更好</th><th>B 更好</th><th>平局</th><th>不确定</th></tr></thead><tbody id="questions"></tbody></table>
@@ -21,28 +23,73 @@
 <div id="confirmPanel" class="panel" hidden><p>确认保存本题？成功保存后该题不能修改。</p><button id="confirmYes" type="button">确认保存本题</button> <button id="confirmNo" type="button">返回修改</button></div></form></section></div>
 <div id="done" class="panel" hidden>本次作答已保存完成。<p>请关闭此页面，在终端按 Ctrl+C 结束服务。</p></div>
 </main><script>
+/* MEDIA_LOADER */
 "use strict";
 const $=id=>document.getElementById(id);
 const fields=[['overall','总体偏好','综合指令完成与观看效果'],['faithfulness','指令忠实度','编辑是否实现指令要求'],['preservation','非目标保持','不应改变的内容是否保持'],['temporal_consistency','时序一致性','运动和编辑是否稳定，有无闪烁或跳变'],['visual_quality','视觉质量','清晰度、自然度和明显伪影']];
 for(const [name,title,help] of fields){const tr=document.createElement('tr'),td=document.createElement('td');td.textContent=title;const span=document.createElement('span');span.className='fieldHelp';span.textContent=help;td.append(span);tr.append(td);for(const value of ['A','B','tie','uncertain']){const cell=document.createElement('td'),label=document.createElement('label'),input=document.createElement('input');input.type='radio';input.name=name;input.value=value;input.required=true;input.setAttribute('aria-label',title+' '+value);label.append(input);cell.append(label);tr.append(cell)}$('questions').append(tr)}
-const videos=[$('source'),$('A'),$('B')];
+let videos=[$('source'),$('A'),$('B')];
 let current=null,revision=0,loaded=new Set(),played=new Set(),failed=false,ready=false,sync=false,pending=null,draftTimer=null,draftQueue=Promise.resolve(),saving=false;
+let loader=null,mediaGeneration=0,mediaQueue=Promise.resolve(),mediaRevision=0,lastMediaTarget=null,loadStarted=0;
 const status=t=>$('status').textContent=t;
 function collect(){const a={};for(const [f]of fields){const el=document.querySelector('input[name="'+f+'"]:checked');a[f]=el?el.value:null}a.confidence=$('confidence').value===''?null:Number($('confidence').value);a.notes=$('notes').value;return a}
 function valid(){const a=collect();return fields.every(([f])=>a[f]!==null)&&a.confidence!==null}
-function refreshButton(){$('submit').disabled=saving||(!pending&&(!ready||!valid()))}
-async function post(path,body){const r=await fetch(path.replace(/^\//,''),{method:'POST',headers:{'Content-Type':'application/json','X-Review-CSRF':current.csrf},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw new Error(d.error||'request_failed');return d}
-async function mediaState(){if(!current)return;const view=current.view;ready=false;refreshButton();try{const r=await post('/api/media-state',{view,ready:!failed&&loaded.size===3&&played.size===3});if(current.view!==view)return;ready=r.ready;$('mediaStatus').textContent=failed?'媒体播放失败。请刷新或联系操作人员，当前禁止提交。':ready?'三路视频可播放。请完成所有判断。':'请等待三路加载，并播放三路视频。';refreshButton()}catch(e){status('媒体状态校验失败，请刷新恢复。');ready=false;refreshButton()}}
-for(const v of videos){v.addEventListener('loadeddata',()=>{loaded.add(v.id);mediaState()});v.addEventListener('playing',()=>{played.add(v.id);mediaState()});v.addEventListener('error',()=>{failed=true;ready=false;videos.forEach(x=>x.pause());mediaState()});v.addEventListener('ended',()=>{if(sync){videos.forEach(x=>x.pause());sync=false}})}
+function refreshButton(){$('submit').disabled=saving||(!pending&&(!ready||!valid()));$('retryMedia').disabled=saving||!!pending||!$('confirmPanel').hidden}
+async function post(path,body,signal){const r=await fetch(path.replace(/^\//,''),{method:'POST',headers:{'Content-Type':'application/json','X-Review-CSRF':current.csrf},body:JSON.stringify(body),signal});const d=await r.json();if(!r.ok)throw new Error(d.error||'request_failed');return d}
+function renderMedia(){
+  $('play').disabled=loaded.size!==3||failed;
+  $('replay').disabled=loaded.size!==3||failed;
+  $('retryMedia').disabled=saving||!!pending;
+  $('mediaStatus').textContent=failed?'视频加载或播放失败，当前禁止提交。请查看各路提示并重新加载。':loaded.size!==3?'正在加载三路视频（'+Math.floor((performance.now()-loadStarted)/1000)+' 秒）…':ready?'三路视频可播放。请完成所有判断。':played.size===3?'正在校验播放状态…':'三路已加载，请点击“同步播放”后作答。';
+  refreshButton();
+}
+function mediaState(){
+  if(!current)return;
+  const target=!failed&&loaded.size===3&&played.size===3;
+  if(target===lastMediaTarget)return;
+  lastMediaTarget=target;
+  const view=current.view,generation=mediaGeneration,sequence=++mediaRevision;
+  ready=false;renderMedia();
+  mediaQueue=mediaQueue.then(async()=>{
+    if(generation!==mediaGeneration||view!==current.view)return;
+    try{
+      const r=await post('/api/media-state',{view,ready:target},AbortSignal.timeout(10000));
+      if(generation!==mediaGeneration||sequence!==mediaRevision)return;
+      ready=r.ready;renderMedia();
+    }catch(e){
+      if(generation!==mediaGeneration||sequence!==mediaRevision)return;
+      ready=false;lastMediaTarget=null;renderMedia();
+      $('mediaStatus').textContent='播放状态校验失败，请重新加载视频；草稿保留。';
+    }
+  });
+}
+function startMedia(){
+  stop();mediaGeneration++;lastMediaTarget=null;ready=false;loaded=new Set();played=new Set();failed=false;loadStarted=performance.now();
+  if(loader)loader.dispose();
+  // Fresh elements isolate queued events from the previous question or retry.
+  videos=videos.map(old=>{const v=old.cloneNode(false);v.removeAttribute('src');old.replaceWith(v);v.addEventListener('ended',()=>{if(sync)stop()});return v});
+  const generation=mediaGeneration;
+  loader=new ReviewMediaLoader(videos,states=>{
+    if(generation!==mediaGeneration)return;
+    loaded=new Set(videos.filter(v=>states[v.id].loaded).map(v=>v.id));
+    played=new Set(videos.filter(v=>states[v.id].played).map(v=>v.id));
+    failed=Object.values(states).some(s=>s.phase==='error');
+    $('loadProgress').textContent=videos.map(v=>{const s=states[v.id],name=v.id==='source'?'原视频':v.id;return name+'：'+(s.phase==='error'?s.message:s.loaded?'可播放':s.phase==='decoding'?'正在解码':(s.attempt?'重试 · ':'')+(s.total?Math.floor(100*s.bytes/s.total)+'%':'连接中'))}).join('　｜　');
+    if(failed)stop();mediaState();renderMedia();
+  });
+  loader.start(current.media);renderMedia();
+}
+$('retryMedia').onclick=()=>{if(!saving&&!pending)startMedia()};
+setInterval(()=>{if(loader&&!loader.disposed&&!failed&&loaded.size<3)renderMedia()},500);
 function stop(){sync=false;videos.forEach(v=>v.pause())}
-async function playAll(){if(loaded.size!==3||failed)return;sync=true;const t=$('source').currentTime;videos.forEach(v=>{v.currentTime=t});try{await Promise.all(videos.map(v=>v.play()))}catch(e){failed=true;stop();mediaState()}}
+async function playAll(){if(loaded.size!==3||failed)return;const generation=mediaGeneration;sync=true;const t=$('source').currentTime;videos.forEach(v=>{v.currentTime=t});try{await Promise.all(videos.map(v=>v.play()))}catch(e){if(generation!==mediaGeneration)return;failed=true;stop();mediaState();renderMedia()}}
 $('play').onclick=playAll;$('pause').onclick=stop;$('replay').onclick=()=>{stop();videos.forEach(v=>{v.currentTime=0});playAll()};
 $('seek').addEventListener('input',()=>{stop();const t=Number($('seek').value);videos.forEach(v=>{if(Number.isFinite(v.duration))v.currentTime=Math.min(t,v.duration)})});
 setInterval(()=>{const s=$('source');if(Number.isFinite(s.duration)){$('seek').max=String(Math.min(...videos.map(v=>v.duration||s.duration)));$('seek').value=String(s.currentTime);$('time').textContent=s.currentTime.toFixed(2)+' s';if(sync&&!s.paused)for(const v of videos.slice(1)){if(!v.seeking&&Math.abs(v.currentTime-s.currentTime)>.12)v.currentTime=s.currentTime}}},100);
 function queueDraft(){if(!current||pending)return;const view=current.view,answers=collect();draftQueue=draftQueue.then(async()=>{if(current.view!==view||pending)return;try{const r=await post('/api/draft',{view,revision,answers});revision=r.revision;status('草稿已保存；尚未正式提交。')}catch(e){status('草稿未保存：'+e.message+'。请刷新核对，避免多标签页同时作答。')}})}
 $('form').addEventListener('input',()=>{refreshButton();clearTimeout(draftTimer);draftTimer=setTimeout(queueDraft,350)});
 function lockForm(locked){document.querySelectorAll('#form input,#form select,#form textarea').forEach(el=>el.disabled=locked)}
-async function next(){stop();clearTimeout(draftTimer);ready=false;loaded=new Set();played=new Set();failed=false;pending=null;$('confirmPanel').hidden=true;lockForm(false);$('form').reset();revision=0;refreshButton();const r=await fetch('api/current');if(!r.ok)throw new Error('session_rejected');const d=await r.json();if(d.complete){$('work').hidden=true;$('done').hidden=false;return}current=d;revision=d.revision;$('progress').textContent=d.progress.position+' / '+d.progress.total;$('instruction').textContent=d.instruction;$('practice').hidden=!d.practice;if(d.draft){for(const [f]of fields){if(d.draft[f])document.querySelector('input[name="'+f+'"][value="'+d.draft[f]+'"]').checked=true}$('confidence').value=d.draft.confidence===null?'':String(d.draft.confidence);$('notes').value=d.draft.notes||'';status('已恢复本题草稿；请重新检查并播放。')}else status('尚未填写。');for(const v of videos){v.src=d.media[v.id];v.load()}$('submit').textContent='确认提交并继续';refreshButton()}
+async function next(){stop();mediaGeneration++;if(loader)loader.dispose();clearTimeout(draftTimer);ready=false;loaded=new Set();played=new Set();failed=false;pending=null;$('confirmPanel').hidden=true;lockForm(false);$('form').reset();revision=0;refreshButton();const r=await fetch('api/current');if(!r.ok)throw new Error('session_rejected');const d=await r.json();if(d.complete){$('work').hidden=true;$('done').hidden=false;return}current=d;revision=d.revision;$('progress').textContent=d.progress.position+' / '+d.progress.total;$('instruction').textContent=d.instruction;$('practice').hidden=!d.practice;if(d.draft){for(const [f]of fields){if(d.draft[f])document.querySelector('input[name="'+f+'"][value="'+d.draft[f]+'"]').checked=true}$('confidence').value=d.draft.confidence===null?'':String(d.draft.confidence);$('notes').value=d.draft.notes||'';status('已恢复本题草稿；请重新检查并播放。')}else status('尚未填写。');startMedia();$('submit').textContent='确认提交并继续';refreshButton()}
 async function commit(){if(saving)return;if(!pending){if(!ready||!valid())return;clearTimeout(draftTimer);await draftQueue;pending={view:current.view,request_id:crypto.randomUUID().replaceAll('-',''),answers:collect()};lockForm(true)}$('confirmPanel').hidden=true;saving=true;refreshButton();try{await post('/api/submit',pending);status('已保存。');await next()}catch(e){status('未确认保存：'+e.message+'。可重试同一提交；冲突请刷新核对。');$('submit').textContent='重试同一提交'}finally{saving=false;refreshButton()}}
 $('form').addEventListener('submit',event=>{event.preventDefault();if(pending){commit();return}if(!ready||!valid())return;lockForm(true);$('confirmPanel').hidden=false;$('confirmYes').focus()});
 $('confirmYes').onclick=commit;$('confirmNo').onclick=()=>{$('confirmPanel').hidden=true;lockForm(false);refreshButton()};
