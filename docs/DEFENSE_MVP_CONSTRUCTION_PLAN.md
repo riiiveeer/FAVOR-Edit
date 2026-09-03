@@ -1,11 +1,14 @@
 # Defense MVP 详细施工方案
 
 > 暂定题目：**基于约束式多目标排序的指令视频编辑候选选择与盲评系统**
-> 文档版本：v1.0-review
+> 文档版本：v1.1-d2（2026-09-03 实现对照更新）
 > 制定日期：2026-09-01
 > 目标完成日期：2026-09-08
 > 施工环境：本地 Windows、CPU-only
 > 当前状态：**用户已于 2026-09-01 确认方案并授权开工**
+
+D1 兼容接收和 D2 真实 CPU 评分/选择已落地产物；正式人评、统计报告与答辩材料尚未完成。
+实际运行、冻结身份、重建命令及 D3 接口见 [D2 实现回执](defense_mvp/D2_IMPLEMENTATION_RECEIPT.md)。
 
 ---
 
@@ -141,6 +144,7 @@ CPU 低层指标与语义成功可能不一致，不进入定量胜率主表。
 - ingest：`artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/`；
 - CPU 指标：`artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/`；
 - 设计与选择：`artifacts/defense_mvp/DEFENSE-MVP-v01/design/`；
+- 选择记录与比较计划：`artifacts/defense_mvp/DEFENSE-MVP-v01/selection/`；
 - 人工标注：`artifacts/defense_mvp/DEFENSE-MVP-v01/human/`；
 - 分析：`artifacts/defense_mvp/DEFENSE-MVP-v01/analysis/`；
 - 最终本地报告：`artifacts/defense_mvp/DEFENSE-MVP-v01/report/`。
@@ -154,9 +158,17 @@ CPU 低层指标与语义成功可能不一致，不进入定量胜率主表。
 
 ### 4.1 统一预处理
 
-每个 source/candidate 必须满足：16 帧、512×512、8 fps、RGB uint8、与 source
-按帧对齐。mask resize 使用 nearest-neighbor，二值化阈值写入配置。视频、逐帧和 mask
-checksum 必须全部通过。所有计算转换为 `float32 [0,1]`，不得静默跳过失败候选。
+每个 source/candidate 使用 E0 已提取、按帧对齐的 16 帧 512×512 RGB uint8 图像；
+8 fps 为原始视频生成配置。视频、逐帧和 mask checksum 必须全部通过。评分端不重新
+抽帧、不 resize、不修改原始媒体；不符尺寸或模式直接失败。RGB 转换为 `float32 [0,1]`。
+
+正式 mask 解码冻结为 `index-nonzero-v1`：读取 DAVIS 原始整数类别索引，0 为背景，
+非零索引并集为前景；不得将 palette 的显示颜色转灰度再阈值化。配置中的历史
+`mask_threshold: 0.5` 仅保留兼容，当前协议不使用它。逐帧前景覆盖率限制为 [0.001, 0.95]。
+
+local 任务使用的是 DAVIS 前景对象 mask，不是背包、头盔或车灯的专门分割。因此 F 只能
+衡量前景内新增目标色，P 只能衡量前景外保持；不能证明新增颜色在正确子部位，也不能
+检测前景内所有非目标区域破坏。不得把这些代理写成细粒度定位或通用语义准确率。
 
 ### 4.2 指令忠实度代理 F
 
@@ -176,7 +188,8 @@ saturation + 高 value；red/pink/blue/yellow 使用冻结的 hue、saturation�
 
 `P = 1 - mean(abs(candidate - source) outside mask)`
 
-同时保存每帧 P、总体均值、最差帧和低分位数。mask 覆盖异常小或异常大时 verifier 失败。
+保存每帧 P 和总体均值；报告阶段由已保存逐帧值派生最差帧与低分位数。mask 覆盖异常小
+或异常大时评分失败，不删帧或删候选。
 
 ### 4.4 时序一致性 T
 
@@ -184,7 +197,9 @@ saturation + 高 value；red/pink/blue/yellow 使用冻结的 hue、saturation�
 
 `T = 1 - mean(abs(R_t - R_(t-1)))`
 
-分别报告 mask 内、mask 外和全帧值。T 衡量编辑残差是否突变，不等价于光流一致性。
+分别报告相邻 mask 并集内、并集外和全帧值；总 T 使用全帧平均。逐帧数组的首项 1.0
+是无前驱帧的占位值，总体只平均其余 15 个相邻对。残差差值可能超过 1，最终分数裁剪
+到 [0,1]。T 衡量编辑残差是否突变，不等价于光流一致性，也未做运动补偿。
 
 ### 4.5 视觉质量代理 Q
 
@@ -196,14 +211,17 @@ saturation + 高 value；red/pink/blue/yellow 使用冻结的 hue、saturation�
 - 帧间亮度闪烁；
 - 异常帧计数。
 
-梯度保留与曝光/闪烁惩罚组合为 Q。所有子项单独保存，避免不可解释的黑盒总分。
+亮度使用 BT.601 系数 (0.299, 0.587, 0.114)。梯度保留取 candidate/source 比值及其
+倒数的较小者（双方近零时记 1）；曝光正常为亮度在 [0.02,0.98] 内的像素比例；亮度
+稳定性为 `clip(1 - abs(diff(mean(candidate_luma-source_luma))) / 0.10)`，首项为 1。
+Q 取三项各自逐帧均值的几何平均；各逐帧子项、异常计数单独保存。
 
 ### 4.6 标准化与冻结
 
 - 原始 F/P/T/Q 永久保留；
 - 排序使用当前候选子集内部的稳定 rank-percentile；
 - 并列按原始值和 candidate_id 固定顺序处理；
-- 指标定义、HSV、mask 阈值与随机种子在人评开始前冻结；
+- 指标定义、HSV、mask 索引解码与随机种子在人评开始前冻结；
 - 正式人评开始后不得修改指标、回填候选或删掉低分样本。
 
 ---
@@ -212,8 +230,9 @@ saturation + 高 value；red/pink/blue/yellow 使用冻结的 hue、saturation�
 
 ### 5.1 Baseline A：确定性随机选择
 
-使用 `randomization_seed=20260901` 与 trial_id 派生稳定随机数。相同配置重复执行必须
-选出同一 candidate。该方法代表不做质量选择的 N=1 基线。
+使用 `randomization_seed=20260901`、trial_id、N 与方法名的规范化 SHA-256 对子集大小
+取模，选择稳定索引。相同配置重复执行必须选出同一 candidate。三方法都覆盖 N=1/2/4；
+N=1 时它们必然选中同一候选。
 
 ### 5.2 Baseline B：等权线性加权
 
@@ -339,10 +358,18 @@ docs/defense_mvp/slides/
 
 ```powershell
 uv run defense validate-config
+uv run defense verify-delivery --delivery <path> [--compat-profile server-agent-20260902-v01]
+uv run defense extract-delivery --archive <tar> --checksum <sidecar> --output <new-dir> [--compat-profile server-agent-20260902-v01]
 uv run defense ingest --delivery <path> --output <new-dir>
 uv run defense score --ingest <manifest> --output <new-dir>
-uv run defense design --metrics <metrics.jsonl> --output <new-dir>
-uv run defense select --design <design.json> --metrics <metrics.jsonl> --output <new-file>
+uv run defense design --metrics <metrics.jsonl> --ingest <manifest> --output <new-dir>
+uv run defense select --design <design.json> --metrics <metrics.jsonl> --output <new-dir>
+```
+
+上述命令已实现；本次交接的 ingest 也必须显式传同一 `--compat-profile`。省略参数仍为
+严格模式，兼容档案只绑定唯一原始包。以下为 D3–D6 待实现命令，不可当作现成接口：
+
+```powershell
 uv run defense annotate --plan <comparisons.json> --annotator-id annotator-a --output <new-file>
 uv run defense aggregate --plan <comparisons.json> --left <a.jsonl> --right <b.jsonl> --output <new-dir>
 uv run defense analyze --aggregate <dir> --selection <file> --output <new-dir>

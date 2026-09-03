@@ -2,12 +2,16 @@
 
 import json
 from pathlib import Path
+from typing import Optional
 
 import typer
 
 from .archive import extract_delivery_archive
 from .config import load_config
+from .design import create_design
 from .ingest import ingest_delivery, verify_delivery
+from .metrics import score_ingest
+from .selection import select_design
 
 
 app = typer.Typer(no_args_is_help=True, help="CPU-only audited video-edit selection MVP")
@@ -44,8 +48,9 @@ def verify_delivery_command(
     config: Path = typer.Option(
         Path("configs/defense_mvp/pilot.yaml"), exists=True, dir_okay=False
     ),
+    compat_profile: Optional[str] = typer.Option(None),
 ) -> None:
-    _, report = verify_delivery(delivery, config)
+    _, report = verify_delivery(delivery, config, compat_profile)
     typer.echo(json.dumps(report, sort_keys=True))
 
 
@@ -56,8 +61,47 @@ def ingest_command(
     config: Path = typer.Option(
         Path("configs/defense_mvp/pilot.yaml"), exists=True, dir_okay=False
     ),
+    compat_profile: Optional[str] = typer.Option(None),
 ) -> None:
-    receipt = ingest_delivery(delivery, config, output)
+    receipt = ingest_delivery(delivery, config, output, compat_profile)
+    typer.echo(json.dumps(receipt, sort_keys=True))
+
+
+@app.command("score")
+def score_command(
+    ingest: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+    config: Path = typer.Option(
+        Path("configs/defense_mvp/pilot.yaml"), exists=True, dir_okay=False
+    ),
+) -> None:
+    receipt = score_ingest(ingest, config, output)
+    typer.echo(json.dumps(receipt, sort_keys=True))
+
+
+@app.command("design")
+def design_command(
+    metrics: Path = typer.Option(..., exists=True, dir_okay=False),
+    ingest: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+    config: Path = typer.Option(
+        Path("configs/defense_mvp/pilot.yaml"), exists=True, dir_okay=False
+    ),
+) -> None:
+    receipt = create_design(metrics, ingest, config, output)
+    typer.echo(json.dumps(receipt, sort_keys=True))
+
+
+@app.command("select")
+def select_command(
+    design: Path = typer.Option(..., exists=True, dir_okay=False),
+    metrics: Path = typer.Option(..., exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+    config: Path = typer.Option(
+        Path("configs/defense_mvp/pilot.yaml"), exists=True, dir_okay=False
+    ),
+) -> None:
+    receipt = select_design(design, metrics, config, output)
     typer.echo(json.dumps(receipt, sort_keys=True))
 
 
@@ -69,8 +113,9 @@ def extract_delivery_command(
     config: Path = typer.Option(
         Path("configs/defense_mvp/pilot.yaml"), exists=True, dir_okay=False
     ),
+    compat_profile: Optional[str] = typer.Option(None),
 ) -> None:
-    receipt = extract_delivery_archive(archive, checksum, config, output)
+    receipt = extract_delivery_archive(archive, checksum, config, output, compat_profile)
     typer.echo(json.dumps(receipt, sort_keys=True))
 
 

@@ -23,8 +23,17 @@ randomization_seed: 20260901
 bootstrap_seed: 20260901
 bootstrap_iterations: 2000
 mask_threshold: 0.5
+mask_decode: index-nonzero-v1
 min_mask_fraction: 0.001
 max_mask_fraction: 0.95
+metric_protocol: cpu-fptq-v1
+exposure_low: 0.02
+exposure_high: 0.98
+brightness_flicker_scale: 0.10
+abnormal_exposure_fraction: 0.25
+abnormal_gradient_ratio_min: 0.25
+abnormal_gradient_ratio_max: 4.0
+abnormal_brightness_delta: 0.20
 color_rules:
   bear-white:
     color_name: white

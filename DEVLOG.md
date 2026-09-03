@@ -8372,3 +8372,1606 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 1. 对当前 DEVLOG-only 变更执行 whitespace 与范围检查；
 2. 创建发布回执审计提交并普通推送；
 3. 留存最终推送回执，避免无限递归提交日志。
+
+---
+
+## Defense MVP D1 发布回执审计提交与最终推送
+
+- 完成时间：2026-09-01 22:34:35 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：GitHub `origin`；未连接学校服务器
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d1-publication-receipt-push-v01`
+
+**行动与关键配置**
+
+- 确认基线发布后的未提交范围仅有 `DEVLOG.md`；
+- 对 DEVLOG-only 变更执行 staged whitespace 与路径检查；
+- 创建提交 `git commit -m "Record Defense MVP D1 publication"`；
+- 执行普通 `git push origin main` 并用 `git ls-remote` 核对远端 SHA。
+
+**结果**
+
+- 审计提交成功：`c381cc7d1fac268c9df12976b879de1e2451314a`；
+- 推送成功：`f5d5e12..c381cc7  main -> main`；
+- 本地 HEAD 与远端 `origin/main` 均为 `c381cc7d1fac268c9df12976b879de1e2451314a`；
+- 本条最终回执按既有日志策略留在工作树，不再为记录自身递归创建提交。
+
+**产物路径**
+
+- GitHub `origin/main`；
+- commit `c381cc7d1fac268c9df12976b879de1e2451314a`；
+- `D:\\lab idea\\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 用户将服务器交接提示词第 2–11 节发送给服务器端 agent；
+2. 服务器端 agent 只读生成固定 ID 的 E0 回传包及 sidecar；
+3. 本地使用 `defense extract-delivery` 验收归档，再进入 D2 候选分析与可视化。
+
+---
+
+## Defense MVP 真实 E0 tar 只读兼容性审计
+
+- 完成时间：2026-09-02 22:23:53 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-tar-readonly-audit-v01`
+
+**行动与关键配置**
+
+- 对工作区根目录的 `DEFENSE-MVP-E0-HANDOFF-v01.tar` 与 `.tar.sha256` 执行只读检查；
+- 验证外层 SHA-256、tar 成员安全性、成员数量、内部 `PACKAGE_SHA256SUMS` 覆盖与逐文件 SHA；
+- 在系统临时目录安全解包，按本地固定 schema 临时规范化后运行完整 `verify_delivery`；
+- 临时目录限定在系统 temp 下并在验证后删除；原 tar、sidecar、仓库和正式数据目录均未修改。
+
+**结果**
+
+- 外层 tar SHA-256 与 sidecar 一致：`0aa0bd951f4609ef779013d78e424fa373201823a8e16e29cbdd070f3a66abdb`；
+- tar 包含 1265 个安全常规文件、0 个特殊成员、0 个重复路径，展开字节数 481708044；
+- payload 完整：10 sample、50 candidate、60 MP4、160 source frames、160 masks、800 candidate frames、1259 payload files；
+- 内部 SHA 清单含 1264 行、排序唯一、无 tree missing/extra；唯一不匹配文件为 `PACKAGE_VERIFICATION.json`，声明 SHA `548fa365...`、实际 SHA `2c6477c7...`；
+- 另确认三类 wire-format 偏差：root-flat tar、verification 缺 `status`、manifest 帧字段/额外 role_counts/样本顺序与本地严格 schema 不同；
+- 在临时副本中仅规范化上述控制格式后，完整本地验收通过，全部媒体、original plan/candidates/audit 身份一致；
+- 用户选择固定指纹的本地兼容接收，不重新下载 484 MB 媒体。
+
+**产物路径**
+
+- `D:\\lab idea\\DEFENSE-MVP-E0-HANDOFF-v01.tar`；
+- `D:\\lab idea\\DEFENSE-MVP-E0-HANDOFF-v01.tar.sha256`；
+- 临时审计目录已安全删除，无正式派生产物。
+
+**问题 / 失败**
+
+- 当前严格 `extract-delivery` 会正确拒绝该归档；实施前必须加入只绑定本次精确指纹的显式兼容 profile，且不得放宽默认严格模式。
+
+**下一步**
+
+1. 实现 `server-agent-20260902-v01` 固定指纹 profile；
+2. 增加 root-flat 安全提取、控制清单兼容验证与内存规范化；
+3. 完成定向测试后才允许真实 extract/ingest。
+
+---
+
+## Defense MVP D2 施工计划状态工具不可用诊断
+
+- 完成时间：2026-09-02 22:23:53 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-plan-tool-unavailable-v01`
+
+**行动与关键配置**
+
+- 尝试调用会话计划状态更新工具登记五阶段施工状态。
+
+**结果**
+
+- 工具返回 `TypeError: tools.update_plan is not a function`；
+- 不影响仓库实现或协议，改用 commentary + DEVLOG 维护施工状态。
+
+**产物路径**
+
+- `D:\\lab idea\\DEVLOG.md`。
+
+**问题 / 失败**
+
+- 当前会话未暴露计划状态工具。
+
+**下一步**
+
+1. 不再重试不可用工具；
+2. 直接进入兼容 profile 的本地实现；
+3. 每个独立步骤继续即时写入 DEVLOG。
+
+---
+
+## Defense MVP 固定指纹兼容接收实现
+
+- 完成时间：2026-09-02 22:31:14 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-pinned-compat-implementation-v01`
+
+**行动与关键配置**
+
+- 新增 `src/defense_mvp/compat.py`，定义 `server-agent-20260902-v01` 固定指纹 profile；
+- 将 profile 绑定到真实 archive、manifest、PACKAGE_SHA256SUMS、verification 的精确 SHA、成员数、展开字节数和 checksum 行数；
+- 为 archive 增加显式 profile 下的 root-flat 安全检查、no-replace 提取与 sibling compatibility receipt；
+- 为 ingest 增加唯一已知 verification checksum 漂移放行、legacy manifest 内存规范化、15 项 server check 验证及 compatibility receipt；
+- CLI 的 verify-delivery、ingest、extract-delivery 增加可选 `--compat-profile`，默认严格路径不变；
+- 新增 tiny legacy root-flat fixture 测试，覆盖严格拒绝、兼容通过、指纹漂移拒绝和媒体篡改拒绝。
+
+**结果**
+
+- 实现与定向测试代码已写入工作树，尚未运行测试；
+- 原始 tar、sidecar、正式 raw/artifacts 目录未修改或创建；
+- E0/E1/E2 代码与协议未修改。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\compat.py`；
+- `D:\\lab idea\\src\\defense_mvp\\archive.py`；
+- `D:\\lab idea\\src\\defense_mvp\\ingest.py`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_archive.py`。
+
+**问题 / 失败**
+
+- 代码尚未经编译与定向测试，不得用于真实提取。
+
+**下一步**
+
+1. 运行 compileall 与 Defense archive/ingest/config CLI 定向测试；
+2. 记录任何失败并修复；
+3. 定向测试通过后才对真实 tar 执行兼容 extract。
+
+---
+
+## Defense MVP 固定指纹兼容接收定向验证
+
+- 完成时间：2026-09-02 22:34:57 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-pinned-compat-targeted-tests-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run python -m compileall -q src/defense_mvp`；
+- 执行 `uv run pytest tests/defense_mvp/test_archive.py tests/defense_mvp/test_ingest.py tests/defense_mvp/test_config_cli.py -q`；
+- 测试覆盖严格 archive、固定 profile root-flat archive、legacy manifest 规范化、ingest、CLI、指纹与 payload 篡改拒绝。
+
+**结果**
+
+- compileall 通过；
+- 定向 pytest 退出码 0，全部用例通过；
+- 默认严格模式继续拒绝 root-flat，兼容模式必须显式传入 profile 且固定指纹匹配；
+- 尚未执行真实 extract/ingest。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp`；
+- `D:\\lab idea\\tests\\defense_mvp`；
+- pytest 临时目录由测试框架管理。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 对真实 tar 与 sidecar 记录提取前 SHA；
+2. 使用固定 `server-agent-20260902-v01` profile no-replace 提取到 raw 目录；
+3. 验证提取 receipt 后执行 no-replace ingest。
+
+---
+
+## Defense MVP 真实 E0 tar 固定兼容提取
+
+- 完成时间：2026-09-02 22:36:02 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-extract-compat-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run defense extract-delivery --archive DEFENSE-MVP-E0-HANDOFF-v01.tar --checksum DEFENSE-MVP-E0-HANDOFF-v01.tar.sha256 --output data/raw/defense_mvp/e0-delivery-v01 --compat-profile server-agent-20260902-v01`；
+- 目标和 sibling receipt 均在执行前确认不存在；
+- 提取使用安全成员检查、固定指纹、staging、完整 `verify_delivery` 与 no-replace 发布；
+- 执行前后复核 tar 与 sidecar SHA。
+
+**结果**
+
+- 提取成功，status=passed、ready_for_ingest=true；
+- archive members=1265，expanded bytes=481708044；
+- raw manifest SHA=`6c41bdd0f4d8c35445a2ce6fa26a7d9606226ea5aefb9c1888318ee5d4a4856e`；
+- raw package sums SHA=`1ce2e1b87838092e0382489d6ac983c784f6f0fc088d3c29c642c69997e48be5`；
+- tar 前后 SHA 均为 `0aa0bd951f4609ef779013d78e424fa373201823a8e16e29cbdd070f3a66abdb`；
+- sidecar 前后 SHA 均为 `5155e42e63ffde4fb079c8bef6897e9a0f834db16cd14d35b4c79687d8e034cd`；
+- 四条兼容偏差已写入独立 receipt，原始传输输入未改变。
+
+**产物路径**
+
+- `D:\\lab idea\\data\\raw\\defense_mvp\\e0-delivery-v01`；
+- `D:\\lab idea\\data\\raw\\defense_mvp\\e0-delivery-v01.compatibility-receipt.json`；
+- 原始 tar 与 sidecar 保持在工作区根目录。
+
+**问题 / 失败**
+
+- 无；该 raw 目录仍保留服务器原始 wire shape，后续验证必须继续显式使用同一 compatibility profile。
+
+**下一步**
+
+1. 对提取目录执行 no-replace ingest 到 Defense MVP artifacts；
+2. 检查 normalized manifest、compatibility receipt 与 INGEST_SHA256SUMS；
+3. 再次确认 raw control hashes 未变化。
+
+---
+
+## Defense MVP 真实 E0 规范化 ingest
+
+- 完成时间：2026-09-02 22:37:02 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；未使用 GPU
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-ingest-compat-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run defense ingest --delivery data/raw/defense_mvp/e0-delivery-v01 --output artifacts/defense_mvp/DEFENSE-MVP-v01/ingest --compat-profile server-agent-20260902-v01`；
+- 使用 staging、内存规范化与 no-replace 发布；
+- 输出 normalized manifest、ingest receipt、compatibility receipt 与 INGEST_SHA256SUMS；
+- 执行前后复核 raw manifest、sums、verification 三个控制文件 SHA。
+
+**结果**
+
+- ingest 成功，status=passed、ready_for_scoring=true；
+- 规范化计数：10 sample、50 candidate、60 MP4、160 source frames、160 masks、800 candidate frames；
+- 生成 4 个 ingest 文件；
+- raw manifest 前后 SHA 均为 `6c41bdd0f4d8c35445a2ce6fa26a7d9606226ea5aefb9c1888318ee5d4a4856e`；
+- raw sums 前后 SHA 均为 `1ce2e1b87838092e0382489d6ac983c784f6f0fc088d3c29c642c69997e48be5`；
+- raw verification 前后 SHA 均为 `2c6477c7ae1f66f8af17f8cd81ad1dfc11b0e25d90d6a56bfed79cf1f18bafcc`；
+- external_inputs_unchanged=true，兼容偏差已显式保留。
+
+**产物路径**
+
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\ingest\\normalized-manifest.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\ingest\\ingest-receipt.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\ingest\\compatibility-receipt.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\ingest\\INGEST_SHA256SUMS`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 实现 CPU 指标 schema、图像加载与 F/P/T/Q 计算；
+2. 添加方向性、维度、mask 边界和 no-replace 测试；
+3. 定向测试通过后对 35 个真实定量候选运行评分。
+
+---
+
+## Defense MVP CPU F/P/T/Q 评分实现
+
+- 完成时间：2026-09-02 22:42:57 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-cpu-metrics-implementation-v01`
+
+**行动与关键配置**
+
+- 在冻结配置中加入 `cpu-fptq-v1`、曝光阈值、亮度闪烁尺度和异常帧阈值；
+- 新增 `metrics.py`，实现 512×512 RGB/16 帧严格加载、mask 二值化与覆盖率门禁；
+- 实现 F=mask 内编辑强度与 HSV 目标色支持度几何平均，local 任务使用新增目标色证据；
+- 实现 P=mask 外保持度、T=相邻编辑残差稳定度、Q=梯度保留/曝光/亮度稳定几何平均；
+- 定量记录确定性 `metrics.jsonl`，将 CPU 计时独立写入 runtime/receipt，避免污染核心结果 checksum；
+- 15 个对象转换候选仅写 `qualitative_only`，不生成伪 F/P/T/Q；
+- CLI 新增 `defense score`；新增目标色、背景破坏、闪烁、曝光/模糊、mask/no-replace 方向性测试。
+
+**结果**
+
+- 评分代码、冻结配置与测试已写入工作树，尚未运行测试；
+- 真实 ingest 已就绪但尚未运行 score；
+- 所有正式输出仍使用 staging + no-replace。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\metrics.py`；
+- `D:\\lab idea\\configs\\defense_mvp\\pilot.yaml`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_metrics.py`。
+
+**问题 / 失败**
+
+- 代码尚未编译或执行方向性测试，真实评分仍被门禁阻止。
+
+**下一步**
+
+1. 运行 metrics/config/CLI 定向测试与 compileall；
+2. 修复任何数值、schema 或图像接口失败；
+3. 通过后对真实 normalized manifest 执行 score。
+
+---
+
+## Defense MVP CPU metrics 首轮定向测试
+
+- 完成时间：2026-09-02 22:43:40 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-cpu-metrics-targeted-tests-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run python -m compileall -q src/defense_mvp`；
+- 执行 `uv run pytest tests/defense_mvp/test_metrics.py tests/defense_mvp/test_config_cli.py -q`。
+
+**结果**
+
+- compileall 通过；
+- 8 个定向测试全部通过；
+- 方向性断言确认目标色提高 F、背景破坏降低 P、闪烁降低 T、过曝平坦帧降低 Q；
+- 捕获 32 条相同 Pillow DeprecationWarning：`Image.fromarray(..., mode="RGB")` 的 mode 参数将在 Pillow 13 移除。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\metrics.py`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_metrics.py`。
+
+**问题 / 失败**
+
+- 数值测试无失败，但弃用警告影响未来兼容性；真实评分前应移除显式 mode 参数并复跑。
+
+**下一步**
+
+1. 将 `Image.fromarray(uint8, mode="RGB")` 改为由数组形状自动推断 RGB；
+2. 复跑 metrics 定向测试并要求无 warning；
+3. 通过后执行真实 score。
+
+---
+
+## Defense MVP Pillow 13 兼容性修复
+
+- 完成时间：2026-09-02 22:44:14 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-pillow-mode-deprecation-fix-v01`
+
+**行动与关键配置**
+
+- 移除 `Image.fromarray` 已弃用的显式 `mode="RGB"` 参数；
+- 保留 uint8 H×W×3 输入，由 Pillow 按数组形状推断 RGB。
+
+**结果**
+
+- 单行兼容性修复已写入；
+- 指标公式和输出 schema 未改变；
+- 尚待复跑测试确认警告消失。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\metrics.py`。
+
+**问题 / 失败**
+
+- 无新增问题。
+
+**下一步**
+
+1. 复跑 metrics 定向测试；
+2. 确认 8/8 通过且不再出现 Pillow warning；
+3. 执行真实 CPU 评分。
+
+---
+
+## Defense MVP CPU metrics 无警告复验
+
+- 完成时间：2026-09-02 22:45:14 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-cpu-metrics-targeted-tests-v02`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/defense_mvp/test_metrics.py tests/defense_mvp/test_config_cli.py -q`；
+- 观察 pytest 完整输出与退出码。
+
+**结果**
+
+- 8/8 定向测试通过；
+- 退出码 0；
+- Pillow DeprecationWarning 已消失，无 warning summary。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\metrics.py`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_metrics.py`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 对真实 50 候选执行 CPU score；
+2. 验证 35 scored、15 qualitative_only、无 NaN/Inf；
+3. 记录 metrics/config/runtime/checksum 产物并复跑确定性检查。
+
+---
+
+## Defense MVP 真实 CPU 评分首轮失败：mask 覆盖率门禁
+
+- 完成时间：2026-09-02 22:46:03 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-score-attempt-01`
+
+**行动与关键配置**
+
+- 执行 `uv run defense score --ingest artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json --output artifacts/defense_mvp/DEFENSE-MVP-v01/metrics`；
+- 使用冻结 `cpu-fptq-v1` 与 mask fraction `[0.001, 0.95]` 门禁；
+- 输出采用 staging + no-replace。
+
+**结果**
+
+- 评分失败并 fail-closed，未发布正式 `metrics/`；
+- 错误：`ValueError: mask fraction falls outside the frozen protocol`；
+- 失败发生于真实定量候选处理期间；
+- 失败 staging 已保留，包含 `SCORING_FAILED.json`。
+
+**产物路径**
+
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\.metrics.score-184d1a77906a4cd1b1f9cf32c3b79e9e.failed`；
+- 正式 `metrics/` 不存在。
+
+**问题 / 失败**
+
+- 当前逐帧 mask 门禁可能把真实 DAVIS 中目标暂时离开画面的空帧判为整组失败；尚不能在未审计覆盖率分布前放宽协议。
+
+**下一步**
+
+1. 只读统计 10 个样本、160 张 mask 的逐帧和样本总体覆盖率；
+2. 定位所有越界帧及其 sample；
+3. 根据真实分布决定保持逐帧门禁或改为“总体门禁 + 空帧显式记录”。
+
+---
+
+## Defense MVP 真实 mask 覆盖率诊断
+
+- 完成时间：2026-09-02 22:46:47 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only 只读分析
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-mask-fraction-diagnostic-v01`
+
+**行动与关键配置**
+
+- 从 normalized manifest 读取 10×16 个 mask 相对路径；
+- 逐个校验已提取 mask 后使用 Pillow `convert("L") / 255 >= 0.5` 计算前景比例；
+- 汇总每个 sample 的 min/mean/max、空帧数和越界帧数。
+
+**结果**
+
+- 10 个 sample 的 160 张 mask 在当前转换方式下全部得到 fraction=0；
+- 每个 sample 均为 empty=16、out=16；
+- 这不是少数目标离场帧，而是 mask 解码语义错误的强信号；
+- 原始 mask checksum 与 ingest 均已通过，因此不得请求重传或修改 mask，需检查 PNG mode、原始像素索引和 palette。
+
+**产物路径**
+
+- 只读输入：`D:\\lab idea\\data\\raw\\defense_mvp\\e0-delivery-v01\\media\\sources\\*\\masks\\*.png`；
+- 未生成新的正式产物。
+
+**问题 / 失败**
+
+- 对 palette/indexed DAVIS mask 使用灰度亮度和 0.5 阈值可能把类别索引 1 转成接近 0，错误抹去前景。
+
+**下一步**
+
+1. 只读检查各 sample 第一张 mask 的 mode、原始像素 unique values、灰度 unique values 和 palette；
+2. 确认 DAVIS mask 应按非零索引还是亮度二值化；
+3. 冻结正确解码协议、增加回归测试后再评分。
+
+---
+
+## Defense MVP DAVIS palette mask 语义确认
+
+- 完成时间：2026-09-02 22:47:27 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only 只读分析
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-mask-palette-semantics-v01`
+
+**行动与关键配置**
+
+- 读取 10 个 sample 第一张真实 mask 的 Pillow mode、size、原始数组 shape/unique/max、灰度转换 unique/max 与 palette 前 4 色；
+- 不修改 mask 或 manifest。
+
+**结果**
+
+- 10/10 mask 均为 512×512 `P` palette/indexed PNG；
+- 原始像素为类别索引：背景 0，前景对象为 1，部分多对象样本包含 2/3/4/5；
+- palette 索引 1 的 RGB 为 `(128,0,0)`，灰度亮度仅 38/255，低于 0.5；
+- 因此 `convert("L")/255 >= 0.5` 与 DAVIS 索引 mask 语义不兼容；正确协议是对 `P`/`L` 单通道原始索引执行 `raw > 0`，覆盖所有前景对象。
+
+**产物路径**
+
+- 只读输入：`D:\\lab idea\\data\\raw\\defense_mvp\\e0-delivery-v01\\media\\sources\\*\\masks\\00000.png`；
+- 未生成新的正式产物。
+
+**问题 / 失败**
+
+- 冻结配置中的通用 `mask_threshold=0.5` 不能直接解释 palette 类别索引；需增加显式 `mask_decode=index-nonzero`，保留阈值仅作为 RGB/灰度 fallback 的防御路径。
+
+**下一步**
+
+1. 将 mask 协议冻结为 `index-nonzero-v1`；
+2. loader 对 `P`/整数单通道执行原始索引非零，对其他模式 fail-closed；
+3. 新增 palette mask 回归测试并复跑后再次执行真实 score。
+
+---
+
+## Defense MVP DAVIS 索引 mask 解码修复
+
+- 完成时间：2026-09-02 22:48:39 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-mask-index-decode-fix-v01`
+
+**行动与关键配置**
+
+- 冻结配置新增 `mask_decode: index-nonzero-v1`；
+- mask loader 只接受 512×512 的 `1/L/P/I/I;16` 单通道整数图像，按原始类别索引 `raw != 0` 二值化；
+- RGB 或非整数二维 mask fail-closed；
+- metrics protocol lock 增加 mask decode 身份；
+- 新增真实 DAVIS palette 形态回归 fixture：索引 1 即使 palette 亮度低于 0.5，也必须得到 25% 前景。
+
+**结果**
+
+- 解码实现与测试已写入工作树；
+- 原 `mask_threshold` 保留在配置以维持既有 schema/审计信息，但正式 `cpu-fptq-v1` 使用显式 index-nonzero 解码；
+- 尚未复跑测试或真实评分。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\metrics.py`；
+- `D:\\lab idea\\configs\\defense_mvp\\pilot.yaml`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_metrics.py`。
+
+**问题 / 失败**
+
+- 需复验全部方向性测试及真实 mask 覆盖率。
+
+**下一步**
+
+1. 运行 metrics/config 定向测试；
+2. 只读复核新解码后的 160 帧 mask fraction；
+3. 通过后重跑真实 score 到同一尚不存在的正式输出目录。
+
+---
+
+## Defense MVP 索引 mask 解码定向复验
+
+- 完成时间：2026-09-02 22:49:22 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-mask-index-decode-tests-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/defense_mvp/test_metrics.py tests/defense_mvp/test_config_cli.py -q`；
+- 包含新增 palette/index 1 回归用例和原 8 个配置/方向性用例。
+
+**结果**
+
+- 9/9 测试通过，退出码 0；
+- palette 索引 mask 被正确解码；
+- 无 warning 输出。
+
+**产物路径**
+
+- `D:\\lab idea\\tests\\defense_mvp\\test_metrics.py`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 使用新解码对真实 160 张 mask 做覆盖率复核；
+2. 确认所有逐帧值处于冻结范围；
+3. 重跑真实 CPU score。
+
+---
+
+## Defense MVP 真实 mask 覆盖率复验
+
+- 完成时间：2026-09-02 22:50:02 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only 只读分析
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-mask-fraction-index-v01`
+
+**行动与关键配置**
+
+- 使用冻结 `index-nonzero-v1` 对 10×16 张真实 palette mask 的原始索引执行 `raw != 0`；
+- 汇总逐 sample min/mean/max 和全体 outlier 数；
+- 门禁仍为每帧 `[0.001, 0.95]`。
+
+**结果**
+
+- 全部 160 帧通过覆盖率门禁，outliers=0；
+- 全局 mask fraction：min=0.01052094、mean=0.23733137、max=0.77602768；
+- 各 sample 均有非空、非全屏前景；
+- 证实失败根因仅为旧解码方式，不需要重传或改动 mask 文件。
+
+**产物路径**
+
+- 只读输入：`D:\\lab idea\\data\\raw\\defense_mvp\\e0-delivery-v01\\media\\sources\\*\\masks\\*.png`；
+- 未生成新的正式产物。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 重新执行真实 CPU score；
+2. 验证 35 scored、15 qualitative_only 与数值有限性；
+3. 记录运行耗时、核心 metrics SHA 和 score range。
+
+---
+
+## Defense MVP 真实 CPU F/P/T/Q 评分
+
+- 完成时间：2026-09-02 22:51:09 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-score-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run defense score --ingest artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json --output artifacts/defense_mvp/DEFENSE-MVP-v01/metrics`；
+- 使用 `cpu-fptq-v1`、`index-nonzero-v1`、冻结 HSV 与质量阈值；
+- 对正式输出使用 staging + no-replace。
+
+**结果**
+
+- status=passed、ready_for_design=true；
+- records=50、scored=35、qualitative_only=15；
+- CPU 总耗时 27.6706619 秒；
+- deterministic metrics SHA=`c9828aaec312187fafa2e7f5d6a6c77170cb2ff7caf23d9ada8218d440515dac`；
+- config SHA=`19f827d1ce84604eb68336fe549b7530a67d6b4074ad92b05b4cc8d63663feae`；
+- ingest manifest SHA=`b0eee7ab41aff575220957fae4dd67afd0fbaac85e4f756d023a9e42929f0b46`。
+
+**产物路径**
+
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics\\metrics.jsonl`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics\\metrics-summary.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics\\metrics-config-lock.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics\\scoring-runtime.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics\\score-receipt.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics\\METRICS_SHA256SUMS`。
+
+**问题 / 失败**
+
+- 无；第一次失败 staging 按审计策略保留，未混入正式 metrics。
+
+**下一步**
+
+1. 对 metrics.jsonl 做独立数量、状态、NaN/Inf、per-frame 长度与范围审计；
+2. 记录各维度真实 range 和异常帧统计；
+3. 完成确定性复跑比较后冻结评分结果。
+
+---
+
+## Defense MVP 真实 metrics 独立完整性审计
+
+- 完成时间：2026-09-02 22:52:04 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only 分析
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-metrics-audit-v01`
+
+**行动与关键配置**
+
+- 独立解析正式 `metrics.jsonl`；
+- 检查记录数、candidate_id 唯一性、measurement_status、四维有限性与 `[0,1]` 范围；
+- 检查 scored 记录所有 per-frame 数组长度=16且数值有限；
+- 检查 qualitative-only 的 scores/components/per_frame 均为 null；
+- 重新计算 `METRICS_SHA256SUMS` 的 5 个输出文件 SHA。
+
+**结果**
+
+- 50 条记录、50 个唯一 candidate；35 scored、15 qualitative_only；
+- metric issues=0、checksum issues=0；
+- F：min=0.24500902、mean=0.37941274、max=0.51488656；
+- P：min=0.63243108、mean=0.85778881、max=0.92709654；
+- T：min=0.83419970、mean=0.88285783、max=0.92250283；
+- Q：min=0.73411954、mean=0.88467864、max=0.97139819；
+- 35 个 scored 候选共标记 14 个异常帧，保留为质量代理解释信息，不删除候选。
+
+**产物路径**
+
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 输出到唯一 `metrics-replay-v01` 目录执行第二次真实评分；
+2. 比较 metrics.jsonl、metrics-summary.json、metrics-config-lock.json SHA；
+3. 核心确定性产物一致后进入 design/selection 实现。
+
+---
+
+## Defense MVP 真实 CPU metrics 确定性复跑
+
+- 完成时间：2026-09-02 22:53:16 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-score-replay-v01`
+
+**行动与关键配置**
+
+- 使用相同 normalized ingest 与冻结配置，no-replace 输出到 `metrics-replay-v01`；
+- 比较 primary/replay 的 `metrics.jsonl`、`metrics-summary.json`、`metrics-config-lock.json` SHA；
+- runtime/receipt 按设计不纳入确定性相等要求。
+
+**结果**
+
+- replay status=passed、35 scored、15 qualitative_only；
+- replay CPU 总耗时 28.5469304 秒；
+- `metrics.jsonl` SHA 两次均为 `c9828aaec312187fafa2e7f5d6a6c77170cb2ff7caf23d9ada8218d440515dac`；
+- `metrics-summary.json` SHA 两次均为 `7f5f6f3e008dfdccf29e21e31f17ba933dd9416eb053c5c0458491742cedd9a8`；
+- `metrics-config-lock.json` SHA 两次均为 `65b3ec0124e32703ca6e1046c9c460d0e1af383d19690c9693e75754cf1e74f7`；
+- 三项 deterministic artifacts 全部 MATCH=True。
+
+**产物路径**
+
+- primary：`D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics`；
+- replay：`D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\metrics-replay-v01`。
+
+**问题 / 失败**
+
+- 无；CPU runtime 的小幅差异按协议只作为成本测量保留。
+
+**下一步**
+
+1. 冻结 primary metrics SHA 与 config lock；
+2. 实现五次 cyclic N=1/2/4 design、random/linear/constrained Pareto；
+3. 生成 42 个正式 blind comparison 计划并验证 determinism。
+
+---
+
+## Defense MVP N=1/2/4 设计与三方法选择实现
+
+- 完成时间：2026-09-02 22:58:20 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-design-selection-implementation-v01`
+
+**行动与关键配置**
+
+- 新增 `design.py`：验证 50 条 metrics 与 ingest identity，为 7 个定量 sample 建立 5 次 cyclic trial 和 N=1/2/4 嵌套前缀；
+- design 同时携带 source/instruction/candidate media 相对路径，仅供后续盲评呈现；
+- 新增 `selection.py`：子集内稳定 rank-percentile、确定性 random、等权 linear、F/P 门禁的 constrained Pareto + max-min/geomean/fallback；
+- 生成 315 条 selection 和固定 42 条 comparison：28 条 Proposed N=4 vs N=1，14 条 Proposed vs Linear N=4；
+- comparison 保留 candidate 角色和 checksum，不提前指定 annotator A/B 方向；
+- CLI 新增 `defense design` 与 `defense select`；
+- 新增 cyclic 覆盖/嵌套、稳定并列 rank、Pareto 支配/max-min、显式 fallback 和错误 cardinality 测试。
+
+**结果**
+
+- 设计、选择、CLI 与测试代码已写入工作树，尚未编译或运行；
+- 正式 metrics 保持冻结且未修改；
+- 未启动人工标注。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\design.py`；
+- `D:\\lab idea\\src\\defense_mvp\\selection.py`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_design_selection.py`。
+
+**问题 / 失败**
+
+- 代码尚未通过定向测试；42 条真实比较尚未生成。
+
+**下一步**
+
+1. 运行 compileall 与 design/selection/config CLI 定向测试；
+2. 修复任何算法或 schema 失败；
+3. 通过后对冻结真实 metrics 创建 no-replace design 与 selection。
+
+---
+
+## Defense MVP design/selection 定向验证
+
+- 完成时间：2026-09-02 22:58:58 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-design-selection-targeted-tests-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run python -m compileall -q src/defense_mvp`；
+- 执行 `uv run pytest tests/defense_mvp/test_design_selection.py tests/defense_mvp/test_config_cli.py -q`。
+
+**结果**
+
+- compileall 通过；
+- 8/8 定向测试通过，退出码 0；
+- cyclic balance/nesting、rank tie-break、Pareto/max-min 与 fallback 均满足冻结协议；
+- 无 warning。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\design.py`；
+- `D:\\lab idea\\src\\defense_mvp\\selection.py`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_design_selection.py`。
+
+**问题 / 失败**
+
+- 无；真实 design/selection 尚未运行。
+
+**下一步**
+
+1. 使用正式 metrics 与 normalized ingest 创建真实 design；
+2. 运行真实 selection 并生成 42 comparison；
+3. 审计 315 selection、42 comparison、自动 tie 与 fallback 统计。
+
+---
+
+## Defense MVP 真实 N=1/2/4 cyclic design
+
+- 完成时间：2026-09-02 22:59:41 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-design-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run defense design --metrics artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/metrics.jsonl --ingest artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json --output artifacts/defense_mvp/DEFENSE-MVP-v01/design`；
+- 使用 7 个定量 sample、5 次 cyclic replicate、N=1/2/4 前缀；
+- 输出采用 staging + no-replace，并锁定 config/metrics/ingest SHA。
+
+**结果**
+
+- status=passed、ready_for_selection=true；
+- samples=7、trials=35、subsets=105；
+- design SHA=`891ee8b0d75acf5c825fd01d529d545f12a7fb1b72a4310364a805d8d6cd1ff5`。
+
+**产物路径**
+
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\design\\design.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\design\\design-lock.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\design\\design-receipt.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\design\\DESIGN_SHA256SUMS`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 对真实 design 运行三方法 selection；
+2. 生成 42 个 blind comparison；
+3. 独立验证 family 数量、媒体身份、automatic tie 与 fallback。
+
+---
+
+## Defense MVP 真实三方法 selection 与比较计划
+
+- 完成时间：2026-09-02 23:00:18 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-selection-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run defense select --design artifacts/defense_mvp/DEFENSE-MVP-v01/design/design.json --metrics artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/metrics.jsonl --output artifacts/defense_mvp/DEFENSE-MVP-v01/selection`；
+- 每个 trial/N 同时运行 random、equal-linear、constrained-pareto；
+- 输出 42 个盲评 comparison，尚未随机化到 annotator A/B 方向；
+- 使用 staging + no-replace。
+
+**结果**
+
+- status=passed、ready_for_annotation=true；
+- selection records=315；
+- comparisons=42，其中 N4 vs N1=28、Pareto vs Linear N4=14；
+- automatic ties=10；
+- constrained Pareto fallbacks=26（跨全部 N/trial 记录统计，包含容易退化的 N=2 子集）；
+- selections SHA=`aae1410de8d9d90c1266c43cadf17f1fce8666bdc163b709d82504689b38afaf`；
+- comparisons SHA=`486dad879372b6f687a380ebe4e102d61b6df89392426c7cc3aea7e9aeffb9cb`。
+
+**产物路径**
+
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection\\selections.jsonl`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection\\comparisons.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection\\selection-summary.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection\\selection-lock.json`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection\\SELECTION_SHA256SUMS`。
+
+**问题 / 失败**
+
+- 自动 ties 和 fallback 数量较高但属于协议允许结果；不得为制造方法差异而调阈值，需独立审计其分布与主比较影响。
+
+**下一步**
+
+1. 独立审计 315 selection 与 42 comparison 的唯一性、family/replicate 覆盖、checksum join；
+2. 分解 fallback 和 automatic tie 的 N/sample 分布；
+3. 确认盲评有效人工工作量后执行确定性 replay。
+
+---
+
+## Defense MVP 真实 selection/comparison 独立审计
+
+- 完成时间：2026-09-02 23:01:19 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only 分析
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-selection-audit-v01`
+
+**行动与关键配置**
+
+- 独立解析 selections.jsonl、comparisons.json 与 normalized ingest；
+- 检查 selection key/comparison ID 唯一性、method/N/family/replicate 覆盖；
+- 将所有 selection/comparison candidate SHA 与 ingest 重新 join；
+- 重新计算 automatic ties、fallback 分布与 SELECTION_SHA256SUMS。
+
+**结果**
+
+- 315/315 唯一 selection keys；每个 method 各 105 条，每个 N 各 105 条；
+- 42/42 唯一 comparison IDs；N4-vs-N1 各 replicate 1–4 每个 7 条，Pareto-vs-Linear replicate 1–2 每个 7 条；
+- identity issues=0、checksum issues=0；
+- 26 次 fallback 全部发生于 N=2：bear 3、bus 4、car-headlights 5、classic-car 3、elephant 4、hiker 3、rider 4；N=1/N=4 无 fallback；
+- 10 个 automatic ties 复算一致：N4-vs-N1 6，Pareto-vs-Linear 4；
+- 需要人工观看的 comparison 为 32 个，10 个 automatic tie 仍保留在统计分母。
+
+**产物路径**
+
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection`；
+- `D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\ingest\\normalized-manifest.json`。
+
+**问题 / 失败**
+
+- N=2 的离散 rank 门槛在 F/P 排名相反时高频进入已定义 fallback；主比较只使用 N=1/N=4，因此不影响 42 条主协议，但应在报告中解释。
+
+**下一步**
+
+1. no-replace 生成 `selection-replay-v01`；
+2. 比较 selections、comparisons、summary、lock 的 SHA；
+3. 确定性通过后运行全 Defense 与全仓库回归。
+
+---
+
+## Defense MVP 真实 selection 确定性复跑
+
+- 完成时间：2026-09-02 23:02:06 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-real-selection-replay-v01`
+
+**行动与关键配置**
+
+- 使用相同 design/metrics no-replace 生成 `selection-replay-v01`；
+- 比较 primary/replay 的 selections、comparisons、summary、lock 四个核心文件 SHA。
+
+**结果**
+
+- replay status=passed，315 selection、42 comparison、10 automatic ties、26 fallbacks；
+- `selections.jsonl` SHA 均为 `aae1410de8d9d90c1266c43cadf17f1fce8666bdc163b709d82504689b38afaf`；
+- `comparisons.json` SHA 均为 `486dad879372b6f687a380ebe4e102d61b6df89392426c7cc3aea7e9aeffb9cb`；
+- `selection-summary.json` SHA 均为 `2cf97da4f8bf704bbd7d2d9e62f1e8237873db89a805aefc168266133b115f3f`；
+- `selection-lock.json` SHA 均为 `99ce0522397707649aa34d82cfde3c3df4a5d898acbc702d6e53282f07741fb2`；
+- 四项 MATCH=True。
+
+**产物路径**
+
+- primary：`D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection`；
+- replay：`D:\\lab idea\\artifacts\\defense_mvp\\DEFENSE-MVP-v01\\selection-replay-v01`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行全 Defense 测试；
+2. 运行全仓库 pytest 回归；
+3. 执行 CLI smoke、文档/whitespace/path/hygiene 审计并准备提交。
+
+---
+
+## Defense MVP D2 全套测试
+
+- 完成时间：2026-09-02 23:05:46 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-full-defense-tests-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/defense_mvp -q`；
+- 覆盖 config/CLI、严格与兼容 archive、ingest、CPU metrics、cyclic design、三方法 selection。
+
+**结果**
+
+- Defense MVP 全套测试全部通过，退出码 0；
+- 无失败或 warning summary；
+- 真实 artifacts 未被测试覆盖或修改，测试使用 pytest 临时目录。
+
+**产物路径**
+
+- `D:\\lab idea\\tests\\defense_mvp`；
+- pytest 临时产物由测试框架管理。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行全仓库 pytest；
+2. 若旧 E0/E1/E2 测试通过，再运行 CLI smoke 与静态审计；
+3. 准备精确 staged allowlist。
+
+---
+
+## Defense MVP D2 全仓库回归首轮收集失败
+
+- 完成时间：2026-09-02 23:06:23 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-full-regression-attempt-01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest -q`。
+
+**结果**
+
+- pytest 在 collection 阶段退出码 1，未进入测试执行；
+- 错误为 import file mismatch：新增 `tests/defense_mvp/test_metrics.py` 与既有 `tests/e1/test_metrics.py` 均被作为顶层模块 `test_metrics` 导入；
+- 这是测试文件 basename 冲突，不是指标或旧协议测试失败。
+
+**产物路径**
+
+- 冲突文件：`D:\\lab idea\\tests\\defense_mvp\\test_metrics.py`；
+- 既有文件：`D:\\lab idea\\tests\\e1\\test_metrics.py`。
+
+**问题 / 失败**
+
+- Defense 测试 basename 不唯一，破坏全仓库 pytest 收集。
+
+**下一步**
+
+1. 将 Defense 测试文件改名为 `test_cpu_metrics.py`，不改测试内容；
+2. 先运行两个同类测试文件确认可共同收集；
+3. 再重跑全仓库 pytest。
+
+---
+
+## Defense MVP 测试文件首次 rename patch 失败
+
+- 完成时间：2026-09-02 23:06:57 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-test-file-rename-attempt-01`
+
+**行动与关键配置**
+
+- 尝试使用 `apply_patch` 的 Move 语法将 `test_metrics.py` 改名为 `test_cpu_metrics.py`；
+- patch 未包含内容 hunk。
+
+**结果**
+
+- apply_patch 拒绝空 hunk：`Update file hunk ... is empty`；
+- 文件未移动、内容未改变。
+
+**产物路径**
+
+- `D:\\lab idea\\tests\\defense_mvp\\test_metrics.py` 仍在原位。
+
+**问题 / 失败**
+
+- Move patch 必须包含至少一个有效内容 hunk。
+
+**下一步**
+
+1. 在 Move patch 中同时加入模块 docstring，形成有效 hunk；
+2. 核对旧路径消失、新路径存在；
+3. 运行双文件收集验证。
+
+---
+
+## Defense MVP CPU metrics 测试文件唯一化
+
+- 完成时间：2026-09-02 23:07:30 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-test-file-rename-v01`
+
+**行动与关键配置**
+
+- 使用带有效 hunk 的 apply_patch Move 将 `tests/defense_mvp/test_metrics.py` 改名为 `test_cpu_metrics.py`；
+- 增加说明性模块 docstring；
+- 核对旧路径与新路径存在性。
+
+**结果**
+
+- 旧路径存在=False，新路径存在=True；
+- 测试逻辑未改变；
+- basename 已与 `tests/e1/test_metrics.py` 区分。
+
+**产物路径**
+
+- `D:\\lab idea\\tests\\defense_mvp\\test_cpu_metrics.py`。
+
+**问题 / 失败**
+
+- 尚未验证 pytest 双文件共同收集。
+
+**下一步**
+
+1. 同时运行 Defense CPU metrics 与 E1 metrics 测试；
+2. 收集成功后重跑全仓库 pytest；
+3. 记录回归结果。
+
+---
+
+## Defense/E1 metrics 双文件收集复验
+
+- 完成时间：2026-09-02 23:08:27 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-metrics-test-module-collision-retest-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/defense_mvp/test_cpu_metrics.py tests/e1/test_metrics.py -q`。
+
+**结果**
+
+- 11/11 测试通过，退出码 0；
+- 两个 metrics 测试模块共同收集成功，import file mismatch 已消除；
+- 无 warning。
+
+**产物路径**
+
+- `D:\\lab idea\\tests\\defense_mvp\\test_cpu_metrics.py`；
+- `D:\\lab idea\\tests\\e1\\test_metrics.py`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 重跑全仓库 pytest；
+2. 若通过，执行 CLI help/smoke 与 compileall；
+3. 完成 git hygiene/staged allowlist 审计。
+
+---
+
+## Defense MVP D2 全仓库回归复验
+
+- 完成时间：2026-09-02 23:21:27 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-full-regression-v02`
+
+**行动与关键配置**
+
+- 修复测试模块 basename 冲突后重新执行 `uv run pytest -q`；
+- 等待完整 suite 自然结束，未中断或缩减旧 E0/E1/E2 测试。
+
+**结果**
+
+- 全仓库 pytest 达到 100%，退出码 0；
+- 新 Defense MVP 与既有 W1/E0/E1/E2 测试全部通过；
+- 无失败堆栈或 warning summary。
+
+**产物路径**
+
+- `D:\\lab idea\\tests`；
+- pytest cache（非研究产物）。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行 defense CLI help/version/config 与新增命令 help smoke；
+2. 运行 compileall、git diff --check、绝对路径/大文件/ignored artifact 审计；
+3. 审阅 staged allowlist 并准备审计提交。
+
+---
+
+## Defense MVP D2 CLI 与编译 smoke
+
+- 完成时间：2026-09-02 23:22:13 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-cli-compile-smoke-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run python -m compileall -q src/defense_mvp`；
+- 执行 defense version、validate-config、根 help；
+- 分别检查 extract-delivery、score、design、select help 的必需参数与 compat option。
+
+**结果**
+
+- compileall 通过；
+- defense version=`0.1.0`；
+- validate-config 返回 valid=true、10 sample、50 candidate、35 quantitative、15 qualitative、42 comparisons；
+- 根 CLI 正确注册 score/design/select/extract-delivery；
+- extract 暴露 `--compat-profile`，score/design/select 的 metrics/ingest/design/output 参数正确显示。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\cli.py`；
+- `D:\\lab idea\\configs\\defense_mvp\\pilot.yaml`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. 运行 git diff whitespace、status、tracked/untracked scope 审计；
+2. 确认 tar/sidecar/raw/artifacts 均未进入 staged 范围；
+3. 修复任何 hygiene 问题后提交。
+
+---
+
+## Defense MVP D2 工作树与大文件 hygiene 审计
+
+- 完成时间：2026-09-02 23:23:14 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；仅本地 Git 审计
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-worktree-hygiene-audit-v01`
+
+**行动与关键配置**
+
+- 执行 `git diff --check`、`git status --short`、`git diff --stat`；
+- 列出全部未跟踪文件及字节数；
+- 检查 tracked files 中大于 10 MiB 的文件；
+- 搜索 Defense src/tests/config 中 Windows、DATA4 与 server absolute path；
+- 使用 `git check-ignore -v` 检查 raw/artifacts/tar 状态。
+
+**结果**
+
+- `git diff --check` 通过；
+- tracked large files >10 MiB 数量=0；
+- raw 与 artifacts 分别由 `.gitignore` 的 `data/raw/` 和 `artifacts/` 规则排除；
+- 484 MB tar 与 97-byte sidecar 保持可见未跟踪状态，尚未且不得暂存；
+- 其余 6 个未跟踪文件均为预期 Defense 源码/测试；
+- absolute path 搜索的 7 条命中全部来自既有 tiny fixture 的虚构 `/server/...` provenance 字段，不是本地/真实 DATA4 泄漏；
+- 当前 tracked 修改严格集中于 DEVLOG、Defense config/src/tests。
+
+**产物路径**
+
+- 工作树 `D:\\lab idea`；
+- `.gitignore` 既有规则；
+- 原始 tar/sidecar 未暂存。
+
+**问题 / 失败**
+
+- tar 根目录文件未被 `.gitignore` 隐藏，必须继续使用显式 staged allowlist，禁止 `git add .`。
+
+**下一步**
+
+1. 审阅代码差异与静态潜在问题；
+2. 精确暂存 DEVLOG、Defense config/src/tests，排除 tar/sidecar；
+3. staged path/whitespace/binary guard 通过后提交并普通推送。
+
+---
+
+## Defense MVP 定性候选媒体解码门禁加固
+
+- 完成时间：2026-09-02 23:24:52 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-qualitative-media-validation-hardening-v01`
+
+**行动与关键配置**
+
+- 静态审阅评分路径后，将 15 个 qualitative-only 候选从“仅 checksum”加固为“checksum + 16 帧 512×512 RGB 解码”；
+- 三个定性 sample 的 source frames 和 indexed masks 也执行完整 mode/尺寸/解码验证；
+- score 入口新增候选 sample/seed 固定矩阵顺序检查；
+- 新增灰度候选帧必须被 RGB loader 拒绝的回归测试。
+
+**结果**
+
+- 加固代码与测试已写入工作树；
+- qualitative-only 仍保持 scores/components/per_frame=null，不改变研究边界；
+- 尚未测试或对真实数据复跑。
+
+**产物路径**
+
+- `D:\\lab idea\\src\\defense_mvp\\metrics.py`；
+- `D:\\lab idea\\tests\\defense_mvp\\test_cpu_metrics.py`。
+
+**问题 / 失败**
+
+- 需确认真实 15 个对象候选全部可按 RGB 解码，且核心 35 候选 metrics SHA 不变。
+
+**下一步**
+
+1. 运行 CPU metrics 定向测试；
+2. 使用新唯一 replay 目录对真实 50 候选复跑；
+3. 比较核心 metrics/summary/lock SHA 后再做最终回归。
+
+---
+
+## Defense MVP 定性媒体解码门禁定向测试
+
+- 完成时间：2026-09-02 23:25:44 +08:00
+- 执行位置：本地 Windows 工作区 `D:\\lab idea`
+- 远程环境：未连接学校服务器；CPU-only
+
+**步骤 ID**
+
+- `DEFENSE-MVP-d2-qualitative-media-validation-tests-v01`
+
+**行动与关键配置**
+
+- 执行 `uv run pytest tests/defense_mvp/test_cpu_metrics.py -q`；
+- 覆盖新增非 RGB 帧拒绝、palette mask、F/P/T/Q 方向性和 no-replace。
+
+**结果**
+
+- 7/7 测试通过，退出码 0；
+- 无 warning。
+
+**产物路径**
+
+- `D:\\lab idea\\tests\\defense_mvp\\test_cpu_metrics.py`。
+
+**问题 / 失败**
+
+- 无。
+
+**下一步**
+
+1. no-replace 生成 `metrics-replay-v02`；
+2. 验证 50 个候选全部通过解码，35/15 边界不变；
+3. 比较三项确定性核心 SHA。
+
+---
+
+## Defense MVP 中断恢复：补录最终媒体验证复跑
+
+- 复跑产物时间：2026-09-02 23:27:06 +08:00（score-receipt.json LastWriteTime）
+- 核对与补录时间：2026-09-03 09:36:06 +08:00
+- 环境：本地 Windows `D:\lab idea`，CPU-only；未连接学校服务器。
+- 步骤 ID：`DEFENSE-MVP-d2-qualitative-media-replay-v02-reconciled`
+- 行动：恢复昨晚中断现场，读取已存在的 `metrics-replay-v02/score-receipt.json`、runtime 和三项核心文件 SHA；未重新评分或覆盖目录。首次读取误用了 `scoring-receipt.json`，文件枚举确认实际文件名为 `score-receipt.json`，无产物缺失。
+- 原运行关键配置：`defense score --ingest artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json --output artifacts/defense_mvp/DEFENSE-MVP-v01/metrics-replay-v02`；最终代码包含所有定性帧的 RGB 解码门禁；配置 SHA `19f827d1ce84604eb68336fe549b7530a67d6b4074ad92b05b4cc8d63663feae`。
+- 结果：回执 passed，50 条记录、35 scored、15 qualitative_only，CPU 时间 52.3457099 秒。三项确定性输出与首次成功评分一致：metrics `c9828aaec312187fafa2e7f5d6a6c77170cb2ff7caf23d9ada8218d440515dac`；summary `7f5f6f3e008dfdccf29e21e31f17ba933dd9416eb053c5c0458491742cedd9a8`；lock `65b3ec0124e32703ca6e1046c9c460d0e1af383d19690c9693e75754cf1e74f7`。
+- 产物：`artifacts/defense_mvp/DEFENSE-MVP-v01/metrics-replay-v02/`，保留原目录和历史失败诊断。
+- 剩余任务：审阅最终代码与施工文档；最终全仓回归、输入/输出身份复核；显式暂存审计、提交并普通推送 main。D3 界面与正式双人盲评尚未开始。
+
+## Defense MVP 恢复后最终实现核对
+
+- 时间：2026-09-03 09:38:00 +08:00；环境：本地 Windows，CPU-only。
+- 步骤 ID：`DEFENSE-MVP-d2-resume-code-review-v01`。
+- 行动：逐一读取 archive/compat/ingest/models/metrics/design/selection/CLI、配置与现有测试，对照批准的 D2 计划；读取真实 ingest receipt。
+- 结果：固定兼容指纹、原始文件保留、35/15 隔离、三方法和 42 比较均已有实现。真实交接 warnings 和 missing_optional_artifacts 均为空；四类兼容偏差已单列。最终复跑没有改变指标公式或核心 SHA。运行计时用 perf_counter，字段虽名为 cpu_seconds，语义是 CPU-only 流水线经过时间，不是进程 CPU 核时。
+- 验收补强：现有方向性测试将曝光和梯度退化合在一个案例；补充独立模糊、local 已有目标色排除、真正 Pareto 支配、全三方法确定性和兼容控制/身份篡改测试。只增加测试，不改变冻结算法或真实结果。
+- 产物：`src/defense_mvp/`、`tests/defense_mvp/`、`configs/defense_mvp/pilot.yaml`；原始数据不变。
+- 下一步：补足验收测试和 D2 文档；已经启动的最终全仓回归结束后立即记录，新增测试另做完整 Defense 定向回归。
+
+## Defense MVP D2 验收覆盖补强
+
+- 时间：2026-09-03 09:40 +08:00；环境：本地 Windows，CPU-only。
+- 步骤 ID：`DEFENSE-MVP-d2-resume-acceptance-tests-v01`。
+- 行动：新增 local 已有颜色排除、独立模糊质量退化、可行集内支配消除、完整 synthetic 三方法流水线确定性/no-replace/checksum，以及七类兼容包篡改和未知 profile 拒绝测试。
+- 配置：仍使用冻结 `configs/defense_mvp/pilot.yaml`；未改源码、算法或真实数据；synthetic 分数仅用于临时测试目录。
+- 结果：测试代码已写入，尚待执行验证。新增覆盖不追求改变真实选择或减少 fallback。
+- 产物：`tests/defense_mvp/test_cpu_metrics.py`、`test_design_selection.py`、`test_archive.py`。
+- 下一步：执行 Defense 全套定向测试，完成 D2 运行文档与最终回归记录。
+
+## Defense MVP D2 实现文档与交接接口
+
+- 时间：2026-09-03 09:42 +08:00；环境：本地 Windows，CPU-only。
+- 步骤 ID：`DEFENSE-MVP-d2-implementation-docs-v01`。
+- 行动：更新施工方案至 v1.1-d2；新增 D2_IMPLEMENTATION_RECEIPT，记录真实计数、冻结 SHA、算法精确定义、复跑命令与 D3 输入边界。
+- 关键说明：DAVIS 非零索引 mask、local 前景而非子部位 mask、无运动补偿、MP4 checksum 与浏览器播放验证的区别、perf_counter 计时语义；明确 10 automatic ties、32 实际观看项、26 个 N=2 fallback。
+- 结果：文档与现有实现/真实回执对齐；原始施工题目、7+3、42×2、人评及冻结协议未变。将未实现的 D3–D6 CLI 与现有命令分开标注。
+- 产物：`docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md`、`docs/defense_mvp/D2_IMPLEMENTATION_RECEIPT.md`。
+- 下一步：等待回归结果；复核输入和产物 checksum；执行发布审计。
+
+## Defense MVP 文档完成后的 whitespace 检查
+
+- 时间：2026-09-03 09:43:09 +08:00；环境：本地 Windows。
+- 步骤 ID：`DEFENSE-MVP-d2-resume-whitespace-v01`。
+- 行动/命令：`git diff --check`。
+- 结果：退出码 0，无 whitespace 错误；仅现有 Git autocrlf 的 LF/CRLF 提示，未运行格式重写。
+- 产物：当前 Defense 代码/配置/测试/文档工作树；未暂存媒体。
+- 下一步：只读验证 raw package、外层 tar/sidecar 与全部 D2 输出清单。
+
+## Defense MVP 外层传输与 D2 产物最终 checksum 审计
+
+- 时间：2026-09-03 09:44:06 +08:00；环境：本地 Windows，CPU-only。
+- 步骤 ID：`DEFENSE-MVP-d2-final-artifact-checksums-v01`。
+- 行动：PowerShell Get-FileHash 与固定 tar/sidecar SHA 比对；逐行验证 ingest、metrics、metrics-replay-v01/v02、design、selection、selection-replay-v01 的 SHA256SUMS，同时核对清单覆盖全部目录文件。
+- 结果：tar `0aa0bd951f4609ef779013d78e424fa373201823a8e16e29cbdd070f3a66abdb`、sidecar `5155e42e63ffde4fb079c8bef6897e9a0f834db16cd14d35b4c79687d8e034cd` 均不变；7 个目录共 29 个产物文件全部通过，无额外/缺失文件。
+- 产物：既有原始传输文件、`artifacts/defense_mvp/DEFENSE-MVP-v01/`；只读检查，没有覆盖产物。
+- 下一步：记录 raw package verify-delivery 与测试结果，执行 CLI/compile 与 staged 发布审计。
+
+## Defense MVP 真实 raw 包最终只读复验
+
+- 时间：2026-09-03 09:44 +08:00；环境：本地 Windows，CPU-only。
+- 步骤 ID：`DEFENSE-MVP-d2-final-raw-verification-v01`。
+- 命令：`uv run defense verify-delivery --delivery data/raw/defense_mvp/e0-delivery-v01 --compat-profile server-agent-20260902-v01`。
+- 结果：退出码 0，status=passed；1264 SHA 行，唯一偏差仍为已固定的 verification 控制文件，全部媒体、原始记录和 manifest 身份通过。10/50/60/160/160/800 数量无漂移；warnings=[]，missing_optional_artifacts=[]。
+- 产物：只读核对 `data/raw/defense_mvp/e0-delivery-v01/`；未改 tar、sidecar、raw 或任何已生成输出。
+- 下一步：全仓回归已输出 130 passed，等待进程清理退出；Defense 新增验收测试仍在运行，随后记录最终退出状态。
+
+## Defense MVP 最终 Defense 定向回归
+
+- 时间：2026-09-03 09:45:03 +08:00；环境：本地 Windows，CPU-only。
+- 步骤 ID：`DEFENSE-MVP-d2-final-defense-tests-v01`。
+- 命令：`uv run pytest tests/defense_mvp -o addopts='' -q`。
+- 结果：39 passed in 281.32s，最终退出码 0；包括恢复后新增的 12 项验收覆盖。无失败或 warning；没有运行真实 GPU/model。
+- 产物：`tests/defense_mvp/`；临时 synthetic 测试数据未进入真实实验目录。
+- 下一步：等待全仓回归清理退出；完成 CLI smoke 与发布审计。
+
+## Defense MVP 最终 compileall
+
+- 时间：2026-09-03 09:45:03 +08:00；环境：本地 Windows。
+- 步骤 ID：`DEFENSE-MVP-d2-final-compileall-v01`。
+- 命令：`uv run python -m compileall -q src tests`。
+- 结果：退出码 0，源码和最终测试全部通过语法编译。
+- 产物：src/tests 的本地忽略缓存；无 tracked 编译产物。
+- 下一步：CLI smoke、Git remote 状态与 staged allowlist 审计。
+
+## Defense MVP 最终全仓回归
+
+- 完成确认时间：2026-09-03 09:45:57 +08:00；环境：本地 Windows，CPU-only。
+- 步骤 ID：`DEFENSE-MVP-d2-final-repository-tests-v01`。
+- 命令：`uv run pytest -o addopts='' -q`（session 43247）。
+- 结果：130 passed in 437.91s，清理结束后进程退出码 0，无失败。该运行启动时收集的是 130 项；其间仅新增 12 项测试与文档，未改产品源码。最终 Defense 全套 39 项另行全部通过，因此旧全仓覆盖与新增验收均已验证，不将两次数目简单相加为独立用例数。
+- 产物：全仓 tests；未修改 E0/E1/E2 实现与协议。
+- 下一步：确认最终 collection 数与 Git 发布范围。
+
+## Defense MVP 最终 CLI smoke
+
+- 时间：2026-09-03 09:45:44 +08:00；环境：本地 Windows。
+- 步骤 ID：`DEFENSE-MVP-d2-final-cli-smoke-v01`。
+- 命令：`uv run defense version`、`validate-config`，以及 verify-delivery/extract-delivery/ingest/score/design/select 六个命令的 `--help`。
+- 结果：全部退出码 0；版本 0.1.0，配置 valid=true，10 samples、50 candidates、35/15、42 comparisons。
+- 产物：现有 `defense` CLI；未执行新评分或生成覆盖目录。
+- 下一步：发布前 staged path/whitespace 检查。
+
+## Defense MVP Git 远端与作用域预检
+
+- 时间：2026-09-03 09:46 +08:00；环境：本地 Windows 与 GitHub origin，仅 Git 操作。
+- 步骤 ID：`DEFENSE-MVP-d2-publication-preflight-v01`。
+- 行动：检查 remote、branch、最近提交、diff/ignore 规则；执行 `git fetch origin`。
+- 结果：origin 为既有 FAVOR-Edit 仓库，当前 main/HEAD 为 c381cc7；fetch 退出码 0。raw/artifacts 仍忽略；tar/sidecar 保持未跟踪，必须显式排除。仓库无 .gitattributes，可选读取使该只读检查组合命令返回 1；不是测试失败，未创建或改动该文件。
+- 产物：本地 Git refs；所有开发改动仍未提交，历史 D1 最终推送 DEVLOG 回执已保留。
+- 下一步：确认 main 与最新 origin/main 一致，精确暂存 Defense allowlist 并审计后提交。
+
+## Defense MVP 最终 collection 与发布基线
+
+- 时间：2026-09-03 09:46:39 +08:00；环境：本地 Windows。
+- 步骤 ID：`DEFENSE-MVP-d2-final-collection-baseline-v01`。
+- 命令：`git rev-parse HEAD origin/main`；`uv run pytest --collect-only -o addopts='' -q`。
+- 结果：最终 142 tests collected in 1.05s，退出码 0；HEAD 与 fetch 后 origin/main 均为 `c381cc7d1fac268c9df12976b879de1e2451314a`。已通过的全仓 130 项与最终 Defense 39 项联合覆盖这 142 项。
+- 产物：最终测试集合与 Git 基线，无新实验输出。
+- 下一步：精确暂存 16 个 Defense 代码/配置/测试/文档文件（含 DEVLOG），执行 staged guard。
+
+## Defense MVP D2 staged 发布审计
+
+- 时间：2026-09-03 09:47:20 +08:00；环境：本地 Windows。
+- 步骤 ID：`DEFENSE-MVP-d2-staged-audit-v01`。
+- 行动：使用显式 16 路径 allowlist 执行 git add；将 staged 路径集合与 allowlist 精确比对；检查禁止数据路径/媒体后缀、10 MiB 上限、二进制 numstat 和 `git diff --cached --check`。
+- 结果：16/16 路径匹配、0 binary、0 media、无超大文件，staged whitespace 通过。范围只含 DEVLOG、Defense 配置、8 个 Defense 模块、4 个 Defense 测试文件、2 个 Defense 文档。tar 与 sidecar 仍未跟踪未暂存；E0/E1/E2 无修改。
+- 产物：Git index；保留所有真实实验、复跑及失败诊断目录。
+- 下一步：将本审计记录重新暂存，创建 D2 审计提交，然后普通 push origin main。

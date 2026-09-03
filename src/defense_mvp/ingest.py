@@ -12,6 +12,10 @@ from typing import Dict, Iterable, List, Tuple
 
 from w1_pipeline.hashing import canonical_sha256, combined_file_sha256, sha256_file
 
+from .compat import (
+    CompatibilityInput, normalize_legacy_manifest, resolve_compatibility_profile,
+    validate_legacy_verification,
+)
 from .config import load_config
 from .io import rename_noreplace, write_json
 from .models import (
@@ -48,7 +52,10 @@ def _package_file(root: Path, relative_path: str) -> Path:
     return path
 
 
-def verify_package_sums(root: Path) -> int:
+def verify_package_sums(
+    root: Path, compatibility_profile: CompatibilityInput = None
+) -> Tuple[int, List[dict]]:
+    profile = resolve_compatibility_profile(compatibility_profile)
     sums = root / SUMS_NAME
     if not sums.is_file() or sums.is_symlink():
         raise ValueError(f"missing regular {SUMS_NAME}")
@@ -70,10 +77,25 @@ def verify_package_sums(root: Path) -> int:
         missing = sorted(set(expected) - set(paths))
         extra = sorted(set(paths) - set(expected))
         raise ValueError(f"{SUMS_NAME} tree mismatch; missing={missing}; extra={extra}")
+    mismatches = []
     for relative, digest in rows:
-        if sha256_file(_package_file(root, relative)) != digest:
-            raise ValueError(f"package checksum mismatch: {relative}")
-    return len(rows)
+        actual = sha256_file(_package_file(root, relative))
+        if actual != digest:
+            mismatches.append({
+                "relative_path": relative, "declared_sha256": digest,
+                "actual_sha256": actual,
+            })
+    if mismatches:
+        allowed = [] if profile is None else [{
+            "relative_path": VERIFICATION_NAME,
+            "declared_sha256": profile.verification_declared_sha256,
+            "actual_sha256": profile.verification_actual_sha256,
+        }]
+        if mismatches != allowed:
+            raise ValueError(f"package checksum mismatch: {mismatches[0]['relative_path']}")
+    if profile is not None and len(rows) != profile.checksum_rows:
+        raise ValueError("compatibility package checksum row count drifted")
+    return len(rows), mismatches
 
 
 def _verify_frame_set(root: Path, frames: FrameSetV1, label: str) -> None:
@@ -193,14 +215,38 @@ def _verify_original_records(root: Path, manifest: PackageManifestV1) -> None:
         raise ValueError("audit.csv must cover exactly the 50 package candidates")
 
 
-def verify_delivery(delivery: Path, config_path: Path) -> Tuple[PackageManifestV1, dict]:
+def verify_delivery(
+    delivery: Path, config_path: Path, compatibility_profile: CompatibilityInput = None
+) -> Tuple[PackageManifestV1, dict]:
     root = Path(delivery)
     if not root.is_dir() or root.is_symlink():
         raise ValueError("delivery must be an extracted regular directory")
-    checksum_rows = verify_package_sums(root)
+    profile = resolve_compatibility_profile(compatibility_profile)
     manifest_path = _package_file(root, MANIFEST_NAME)
-    manifest = PackageManifestV1.model_validate_json(manifest_path.read_text(encoding="utf-8"))
+    verification_path = _package_file(root, VERIFICATION_NAME)
+    sums_path = _package_file(root, SUMS_NAME)
+    if profile is not None:
+        pinned = {
+            MANIFEST_NAME: (sha256_file(manifest_path), profile.manifest_sha256),
+            SUMS_NAME: (sha256_file(sums_path), profile.package_sums_sha256),
+            VERIFICATION_NAME: (
+                sha256_file(verification_path), profile.verification_actual_sha256,
+            ),
+        }
+        drifted = [name for name, (actual, expected) in pinned.items() if actual != expected]
+        if drifted:
+            raise ValueError(f"compatibility control fingerprint drifted: {drifted[0]}")
+    checksum_rows, sum_mismatches = verify_package_sums(root, profile)
     cfg: DefenseConfigV1 = load_config(config_path)
+    raw_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    compatibility_deviations: List[str] = []
+    if profile is not None:
+        normalized_manifest, compatibility_deviations = normalize_legacy_manifest(
+            raw_manifest, cfg
+        )
+        manifest = PackageManifestV1.model_validate(normalized_manifest)
+    else:
+        manifest = PackageManifestV1.model_validate(raw_manifest)
     if [item.sample_id for item in manifest.samples] != cfg.sample_ids:
         raise ValueError("package sample identity does not match Defense config")
     _verify_manifest_files(root, manifest)
@@ -226,7 +272,9 @@ def verify_delivery(delivery: Path, config_path: Path) -> Tuple[PackageManifestV
         raise ValueError("one or more media references are absent from package file inventory")
     _verify_original_records(root, manifest)
     verification = _load_json(root, VERIFICATION_NAME)
-    if verification.get("status") != "passed" or verification.get("ready_for_transfer") is not True:
+    if profile is not None:
+        validate_legacy_verification(verification)
+    elif verification.get("status") != "passed" or verification.get("ready_for_transfer") is not True:
         raise ValueError("server package verification is not passed/ready_for_transfer")
     report = {
         "status": "passed",
@@ -239,6 +287,18 @@ def verify_delivery(delivery: Path, config_path: Path) -> Tuple[PackageManifestV
         "warnings": manifest.warnings,
         "missing_optional_artifacts": manifest.missing_optional_artifacts,
     }
+    if profile is not None:
+        report["compatibility"] = {
+            "profile_id": profile.profile_id,
+            "deviations": compatibility_deviations,
+            "raw_manifest_sha256": sha256_file(manifest_path),
+            "raw_package_sums_sha256": sha256_file(sums_path),
+            "raw_verification_sha256": sha256_file(verification_path),
+            "package_sum_mismatches": sum_mismatches,
+            "normalized_manifest_sha256": canonical_sha256(
+                manifest.model_dump(mode="json")
+            ),
+        }
     return manifest, report
 
 
@@ -248,15 +308,19 @@ def _write_ingest_sums(root: Path) -> None:
     (root / "INGEST_SHA256SUMS").write_text("\n".join(rows) + "\n", encoding="utf-8", newline="\n")
 
 
-def ingest_delivery(delivery: Path, config_path: Path, output: Path) -> dict:
+def ingest_delivery(
+    delivery: Path, config_path: Path, output: Path,
+    compatibility_profile: CompatibilityInput = None,
+) -> dict:
     delivery, output = Path(delivery).resolve(), Path(output).resolve()
     if os.path.lexists(output):
         raise FileExistsError(f"ingest output already exists: {output}")
     source_before = {
         MANIFEST_NAME: sha256_file(delivery / MANIFEST_NAME),
         SUMS_NAME: sha256_file(delivery / SUMS_NAME),
+        VERIFICATION_NAME: sha256_file(delivery / VERIFICATION_NAME),
     }
-    manifest, report = verify_delivery(delivery, config_path)
+    manifest, report = verify_delivery(delivery, config_path, compatibility_profile)
     output.parent.mkdir(parents=True, exist_ok=True)
     staging = output.parent / f".{output.name}.ingest-{uuid.uuid4().hex}.staging"
     if os.path.lexists(staging):
@@ -274,6 +338,8 @@ def ingest_delivery(delivery: Path, config_path: Path, output: Path) -> dict:
         "samples": [item.model_dump(mode="json") for item in manifest.samples],
         "candidates": [item.model_dump(mode="json") for item in manifest.candidates],
     }
+    if "compatibility" in report:
+        normalized["compatibility"] = report["compatibility"]
     write_json(staging / "normalized-manifest.json", normalized)
     receipt = {
         "schema_version": "1",
@@ -288,11 +354,22 @@ def ingest_delivery(delivery: Path, config_path: Path, output: Path) -> dict:
         "missing_optional_artifacts": report["missing_optional_artifacts"],
         "external_inputs_unchanged": True,
     }
+    if "compatibility" in report:
+        receipt["compatibility_profile"] = report["compatibility"]["profile_id"]
+        receipt["compatibility_warnings"] = report["compatibility"]["deviations"]
+        write_json(staging / "compatibility-receipt.json", {
+            "schema_version": "1",
+            "status": "accepted-with-pinned-compatibility",
+            "package_id": manifest.package_id,
+            "external_inputs_unchanged": True,
+            **report["compatibility"],
+        })
     write_json(staging / "ingest-receipt.json", receipt)
     _write_ingest_sums(staging)
     source_after = {
         MANIFEST_NAME: sha256_file(delivery / MANIFEST_NAME),
         SUMS_NAME: sha256_file(delivery / SUMS_NAME),
+        VERIFICATION_NAME: sha256_file(delivery / VERIFICATION_NAME),
     }
     if source_after != source_before:
         raise RuntimeError("delivery identity changed during read-only ingest")

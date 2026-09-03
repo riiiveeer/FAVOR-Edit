@@ -19,6 +19,8 @@ def test_frozen_config_counts() -> None:
     assert cfg.quantitative_candidate_count == 35
     assert cfg.qualitative_candidate_count == 15
     assert cfg.comparisons_per_annotator == 42
+    assert cfg.metric_protocol == "cpu-fptq-v1"
+    assert cfg.mask_decode == "index-nonzero-v1"
 
 
 def test_config_rejects_protocol_drift(tmp_path: Path) -> None:

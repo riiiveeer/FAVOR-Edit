@@ -65,8 +65,17 @@ class DefenseConfigV1(StrictModel):
     bootstrap_seed: Literal[20260901]
     bootstrap_iterations: Literal[2000]
     mask_threshold: float = Field(gt=0.0, lt=1.0)
+    mask_decode: Literal["index-nonzero-v1"]
     min_mask_fraction: float = Field(gt=0.0, lt=1.0)
     max_mask_fraction: float = Field(gt=0.0, le=1.0)
+    metric_protocol: Literal["cpu-fptq-v1"]
+    exposure_low: Literal[0.02]
+    exposure_high: Literal[0.98]
+    brightness_flicker_scale: Literal[0.10]
+    abnormal_exposure_fraction: Literal[0.25]
+    abnormal_gradient_ratio_min: Literal[0.25]
+    abnormal_gradient_ratio_max: Literal[4.0]
+    abnormal_brightness_delta: Literal[0.20]
     color_rules: Dict[str, ColorRuleV1]
 
     @model_validator(mode="after")
