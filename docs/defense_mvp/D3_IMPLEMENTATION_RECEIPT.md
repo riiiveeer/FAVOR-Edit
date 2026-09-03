@@ -94,3 +94,10 @@ Range、旧页、practice/formal、双人coverage、伪造导出，以及可播�
 本地文件管理员仍能主动破坏/伪造文件，此系统提供可验证身份链而非防管理员攻击或真人认证。
 
 用户按指南先熟悉按钮，再先后启动 formal annotator-a/b；本轮不代替其启动或作答。
+
+## 审计发布
+
+功能提交 `f38517f9238f16a15b606a52fc81251dfe47a14d` 已普通推送 origin/main，
+从 `d5ae95e` 正常前进，无 force-push。暂存严格16路径、0二进制/媒体、最大约404KB，
+whitespace guard通过；tar、sidecar、raw、artifacts及私有记录全部排除。
+本回执与DEVLOG发布记录另以文档提交封存；最终push回执允许留作唯一未提交tracked修改。

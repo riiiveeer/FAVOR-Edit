@@ -10656,3 +10656,30 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：退出码0，16/16路径；0 binary、0 media，最大403222 bytes，whitespace通过。tar/sidecar、artifacts、raw、私有映射/令牌/人答均未暂存；未改E0/E1/E2或D2实现。
 - 产物：Git index；16路径清单与staged stat。
 - 下一步：重新暂存本审计DEVLOG并创建功能审计提交，普通push main。
+
+
+## D3-code-audited-commit
+
+- 时间：2026-09-03T03:34:30.453Z；环境：本地 Windows CPU-only；步骤 ID：D3-code-audited-commit。
+- 行动/命令：git add -- DEVLOG.md；git diff --cached --check；git commit -m 'Add audited Defense MVP D3 blind annotation system'。
+- 结果：退出码0，功能审计提交f38517f9238f16a15b606a52fc81251dfe47a14d，16文件。无媒体/私有产物；原先交接文档和DEVLOG回执一并保留。
+- 产物：本地main commit f38517f。
+- 下一步：普通push origin main，然后记录发布回执。
+
+
+## D3-code-normal-push
+
+- 时间：2026-09-03T03:35:08.164Z；环境：本地 Windows CPU-only；步骤 ID：D3-code-normal-push。
+- 行动/命令：git push origin main；git rev-parse HEAD origin/main。
+- 结果：退出码0，5.27秒；d5ae95e→f38517f普通推送成功，HEAD与origin/main均f38517f9238f16a15b606a52fc81251dfe47a14d。无force-push，无学校服务器操作。
+- 产物：GitHub origin/main上的D3功能审计提交。
+- 下一步：提交发布回执文档与DEVLOG，再普通推送；最终回执允许只留DEVLOG未提交。
+
+
+## D3-publication-receipt-document
+
+- 时间：2026-09-03T03:35:08.212Z；环境：本地 Windows CPU-only；步骤 ID：D3-publication-receipt-document。
+- 行动/命令：在实现回执中写入已发布功能提交f38517f及16路径审计结果。
+- 结果：仅文档变更，产品源码与已验证包snapshot不变。
+- 产物：D3_IMPLEMENTATION_RECEIPT.md、DEVLOG.md。
+- 下一步：显式暂存两文件、检查后提交发布回执。
