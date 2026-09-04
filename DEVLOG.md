@@ -11178,3 +11178,39 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：暂存集合和文本/大小已进入守卫；入口检查错误地禁止任何字面量'/entry/'，命中施工方案中既有的通用路由说明而失败，commit未执行。应只禁止带20+字符令牌的实际入口。暂存状态保留，先记录失败再修正精确正则。
 - 产物：Git暂存区4文档
 - 下一步：重新暂存本条DEVLOG，使用/entry/<20+ token>精确模式复核后提交。
+
+
+## D3-B-CLOSE-12
+
+- 时间：2026-09-04T02:24:07.092Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-12。
+- 行动/命令：重新暂存DEVLOG；精确禁止/entry/<20+ token>并检查screen/canonical payload、NUL、<1MiB、4路径集合及cached whitespace；创建审计提交。
+- 结果：守卫通过；提交6aeeeecf76cc49addd54cb12771bc4fb052a5169（docs(defense): record complete D3 annotations），仅4个文本文档，无artifacts/正式答案/媒体/tar。
+- 产物：Git commit 6aeeeec
+- 下一步：按Defense既有授权普通push origin main；不force。
+
+
+## D3-B-CLOSE-13
+
+- 时间：2026-09-04T02:24:23.730Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-13。
+- 行动/命令：git push origin main；核对HEAD、origin/main、工作树和D3监听。
+- 结果：普通push成功1aa12e4→6aeeeecf76cc49addd54cb12771bc4fb052a5169，无force；HEAD=origin/main。无8765/8766/8767监听。唯一tracked未提交为本push DEVLOG回执；tar/sidecar保持未跟踪。
+- 产物：origin/main；docs/defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md
+- 下一步：对照总施工方案指出下一阶段；D3不再运行任务，push回执保留为唯一未提交tracked增量。
+
+
+## D3-B-CLOSE-14
+
+- 时间：2026-09-04T02:24:57.316Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-14。
+- 行动/命令：对照总施工方案发现顶部和9月4/5日仍写正式人评未启动；更新总计划v1.3-d3-complete及ANNOTATION_GUIDE历史快照说明。
+- 结果：消除当前状态冲突：总计划明确D3 formal/dual/complete、64+10、各42/42，D3退出条件已满足；D4首步改为接收冻结D3导出。指南明确施工practice记录和后续真人正式记录是两类事实。
+- 产物：docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md；docs/defense_mvp/ANNOTATION_GUIDE.md
+- 下一步：运行文档diff/sensitive guard并审计发布这两项状态修复和DEVLOG。
+
+
+## D3-B-CLOSE-15
+
+- 时间：2026-09-04T02:25:18.693Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-15。
+- 行动/命令：fetch origin/main；检查HEAD基线、文档diff whitespace和entry token/screen/canonical答案载荷模式。
+- 结果：通过：HEAD=origin/main=6aeeeec；3个待发布文档无whitespace错误或敏感载荷。仅更正D3当前状态，不改代码/协议/封存artifact。
+- 产物：DEVLOG.md；docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md；docs/defense_mvp/ANNOTATION_GUIDE.md
+- 下一步：显式暂存3路径并守卫后提交/普通push。

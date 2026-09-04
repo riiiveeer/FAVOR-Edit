@@ -1,14 +1,15 @@
 # Defense MVP 详细施工方案
 
 > 暂定题目：**基于约束式多目标排序的指令视频编辑候选选择与盲评系统**
-> 文档版本：v1.2-d3（2026-09-03 实现对照更新）
+> 文档版本：v1.3-d3-complete（2026-09-04 正式标注收口）
 > 制定日期：2026-09-01
 > 目标完成日期：2026-09-08
 > 施工环境：本地 Windows、CPU-only
-> 当前状态：**用户已于 2026-09-01 确认方案并授权开工**
+> 当前状态：**D3 正式双人标注已完成并验证；D4 尚未启动**
 
-D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评工程已落地；正式人评尚未启动。
-统计报告与答辩材料尚未完成。D3 详细方案、操作命令和验收证据见
+D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评工程和正式标注已完成；
+最终为 `formal/dual/complete`，64 条真人确认记录 + 10 条共享自动平局，A/B 各42/42。
+统计报告与答辩材料尚未完成。D3 详细证据见 [正式标注完成回执](defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md)、
 [D3 实现回执](defense_mvp/D3_IMPLEMENTATION_RECEIPT.md) 与 [标注指南](defense_mvp/ANNOTATION_GUIDE.md)。
 实际运行、冻结身份、重建命令及 D3 接口见 [D2 实现回执](defense_mvp/D2_IMPLEMENTATION_RECEIPT.md)。
 
@@ -438,14 +439,14 @@ qualitative-only；正式人评前配置已冻结。
 - 复用已冻结的 D2 42 comparison 计划，生成独立 no-replace 盲评包；
 - 实现本地 range-video 标注页面与两个 annotator 身份；
 - 验证 A/B 方向平衡；
-- 工程验收完成后由用户邀请第二位同学，独立启动正式标注；D3施工期间正式回答为0。
+- 工程验收后两位评审已先后独立完成正式标注；A/B各32条确认记录。
 
 **退出条件**：页面不泄漏方法、N、seed 和分数；annotator-a/b 输出路径分离；媒体
-checksum 与冻结选择一致。
+checksum 与冻结选择一致；最终双人验证 `formal/dual/complete`、各42/42、缺题0。**已满足。**
 
 ### 9 月 5 日：D4 aggregate + analysis
 
-- 完成两份标注并验证 42/42 coverage；
+- 冻结并接收已验证的A/B正式导出，不改写D3事实源；
 - 聚合一致、tie、uncertain；
 - 计算 kappa、Bradley–Terry、win rate、bootstrap 和成本；
 - 生成第一版主表与失败案例。
