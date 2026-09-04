@@ -12,6 +12,7 @@ D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评工程和�
 统计报告与答辩材料尚未完成。D3 详细证据见 [正式标注完成回执](defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md)、
 [D3 实现回执](defense_mvp/D3_IMPLEMENTATION_RECEIPT.md) 与 [标注指南](defense_mvp/ANNOTATION_GUIDE.md)。
 实际运行、冻结身份、重建命令及 D3 接口见 [D2 实现回执](defense_mvp/D2_IMPLEMENTATION_RECEIPT.md)。
+D4 尚未执行；新对话施工入口见 [D4 施工提示词](defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md)。
 
 ---
 

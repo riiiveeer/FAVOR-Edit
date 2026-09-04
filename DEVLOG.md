@@ -11214,3 +11214,120 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：通过：HEAD=origin/main=6aeeeec；3个待发布文档无whitespace错误或敏感载荷。仅更正D3当前状态，不改代码/协议/封存artifact。
 - 产物：DEVLOG.md；docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md；docs/defense_mvp/ANNOTATION_GUIDE.md
 - 下一步：显式暂存3路径并守卫后提交/普通push。
+
+
+## D3-B-CLOSE-16
+
+- 时间：2026-09-04T02:25:27.776Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-16。
+- 行动/命令：显式暂存DEVLOG、总计划、标注指南；3路径/NUL/大小/敏感载荷/whitespace守卫后提交。
+- 结果：守卫通过；提交28be57b2098263549c28901af27bd9aa37b6f03a（docs(defense): mark D3 formally complete），仅状态文档，无代码/artifacts/答案。
+- 产物：Git commit 28be57b
+- 下一步：普通push origin main并核对最终工作树/无监听。
+
+
+## D3-B-CLOSE-17
+
+- 时间：2026-09-04T02:25:44.841Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-17。
+- 行动/命令：git push origin main；核对HEAD=origin/main、工作树与D3监听。
+- 结果：普通push成功6aeeeec→28be57b2098263549c28901af27bd9aa37b6f03a，无force；HEAD=origin/main。D3监听0。唯一tracked未提交为本push DEVLOG回执；tar/sidecar仍未跟踪。D3正式收口完成，不自动启动D4。
+- 产物：origin/main；D3_FORMAL_ANNOTATION_RECEIPT.md；dual-verification-v01.json
+- 下一步：等待用户明确接续D4；本条push回执作为唯一未提交tracked增量保留，避免递归提交。
+
+
+## D4-PROMPT-01
+
+- 时间：2026-09-04T02:32:31.955Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-01。
+- 行动/命令：对照D3施工提示词、D3正式完成回执、总施工方案与当前正式输入锁，创建可在全新对话直接执行的D4施工提示词。
+- 结果：已写入D4_IMPLEMENTATION_AGENT_PROMPT.md，覆盖输入冻结、双人聚合、协议固定、统计产物、测试、DEVLOG、审计发布与D4停止边界；未读取或抄录正式人工答案值，未启动D4统计。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：复核实现中的方法角色命名和全部统计口径，修正后执行文档静态校验。
+
+
+## D4-PROMPT-02
+
+- 时间：2026-09-04T02:32:56.645Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-02。
+- 行动/命令：复核selection.py与annotation_bundle.py中的正式comparison family和candidate role定义，修正D4提示词的Bradley–Terry节点命名。
+- 结果：确认N=1对照角色是constrained-pareto-n1，不是random-n1；提示词现固定三个真实节点constrained-pareto-n4、constrained-pareto-n1、equal-linear-n4，并保留先核验角色集合的硬门禁。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md; src/defense_mvp/selection.py; src/defense_mvp/annotation_bundle.py
+- 下一步：执行结构、事实、敏感信息和Git差异静态校验。
+
+
+## D4-PROMPT-03
+
+- 时间：2026-09-04T02:33:29.916Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-03。
+- 行动/命令：运行D4提示词结构/必备条款/敏感信息静态校验、四个正式封存文件SHA核验及git diff检查。
+- 结果：封存文件四个SHA全部匹配，git diff --check通过，HEAD与origin/main仍为28be57b；结构校验器因heading正则仅匹配一级/二级标题而以“too few headings”失败，属于校验脚本缺陷，未发现文档缺段，需修正正则后重跑。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md; artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-exports/dual-verification-v01.json
+- 下一步：将heading正则改为匹配一至三级标题并重跑全部静态校验。
+
+
+## D4-PROMPT-04
+
+- 时间：2026-09-04T02:33:48.220Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-04。
+- 行动/命令：修正heading校验正则后重跑D4提示词结构、必备协议项、角色命名和入口token样式检查。
+- 结果：通过：文档300行/20983字节、16个一至三级标题、19项关键条款齐全；未发现entry token样式或过期random-n1角色。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：在总施工方案中增加D4新对话施工入口，并复核只读D3/D4状态表述。
+
+
+## D4-PROMPT-05
+
+- 时间：2026-09-04T02:34:04.515Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-05。
+- 行动/命令：在Defense MVP总施工方案的当前状态区增加D4新对话施工提示词入口。
+- 结果：总方案继续明确D4尚未执行，并链接D4_IMPLEMENTATION_AGENT_PROMPT.md；未改变D1-D3验收事实或D4统计协议。
+- 产物：docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md
+- 下一步：执行最终文档差异审阅、链接/事实/敏感信息和Git发布前检查。
+
+
+## D4-PROMPT-06
+
+- 时间：2026-09-04T02:34:25.883Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-06。
+- 行动/命令：消除D4提示词发布后HEAD前移造成的自相矛盾交接表述。
+- 结果：28be57b现明确标为提示词编制前的D3状态同步基线；新文档提交被说明为预期前移，同时要求承接者重新核对真实工作树和origin/main。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：执行最终静态校验和审计发布前检查。
+
+
+## D4-PROMPT-07
+
+- 时间：2026-09-04T02:34:56.832Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-07。
+- 行动/命令：将D4两个正式comparison family的源码键写入统计协议，减少新对话实现时的身份猜测。
+- 结果：提示词现明确proposed-n4-vs-n1为28项/6自动平局，proposed-vs-linear-n4为14项/4自动平局；仍要求从冻结role解析方法方向。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：重跑最终静态校验，随后执行fetch与审计暂存发布。
+
+
+## D4-PROMPT-08
+
+- 时间：2026-09-04T02:35:15.379Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-08。
+- 行动/命令：对D4提示词最终版本运行结构、18项协议事实、角色/family键、敏感载荷模式和git diff静态校验。
+- 结果：通过：302行/21195字节、16个标题，SHA256=47b95468317d79211e80396e3d7ef08b63bb3274ec280e3ee5fd15c8885d7e13；必备条款齐全，未发现entry token、原始notes/canonical载荷或过期random-n1，git diff --check通过。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：fetch origin/main并核对基线，执行显式暂存和发布守卫。
+
+
+## D4-PROMPT-09
+
+- 时间：2026-09-04T02:35:27.900Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-09。
+- 行动/命令：执行git fetch origin main并核对D4提示词发布基线和工作树。
+- 结果：fetch成功；HEAD=origin/main=28be57b2098263549c28901af27bd9aa37b6f03a。待发布tracked仅DEVLOG与总计划，新提示词未跟踪；根tar及sidecar仍未跟踪并将排除。
+- 产物：Git main; DEVLOG.md; docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md; docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：仅显式暂存三个授权文档路径，运行staged路径/大小/NUL/敏感载荷/whitespace守卫。
+
+
+## D4-PROMPT-10
+
+- 时间：2026-09-04T02:35:47.365Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-10。
+- 行动/命令：显式暂存DEVLOG、总计划和D4提示词后运行staged路径/大小/NUL/敏感载荷/whitespace守卫。
+- 结果：路径、大小与NUL检查已执行；敏感守卫因提示词的安全禁令正文包含短语private mapping而误报失败。该短语是禁止提交的规则，不是映射载荷；暂存保持，需收紧为JSON/path载荷模式后重跑。
+- 产物：Git index; docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：重新暂存新增DEVLOG记录，并用载荷形态的private mapping正则重跑全部staged守卫。
+
+
+## D4-PROMPT-11
+
+- 时间：2026-09-04T02:36:04.746Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-11。
+- 行动/命令：收紧敏感守卫为entry token与JSON载荷形态，重新暂存DEVLOG并重跑三个显式路径的发布检查。
+- 结果：通过：暂存路径严格为DEVLOG.md、总计划、D4提示词；大小分别452586/23933/21195字节，均无NUL；无敏感载荷模式，cached diff whitespace通过。根tar/sidecar未暂存。
+- 产物：Git index; DEVLOG.md; docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md; docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：重新暂存本回执并执行最终cached diff守卫后创建审计提交。
