@@ -1,0 +1,82 @@
+schema_version: "1"
+protocol: defense-analysis-v1
+experiment_id: DEFENSE-MVP-v01
+fields:
+  - overall
+  - faithfulness
+  - preservation
+  - temporal_consistency
+  - visual_quality
+categories:
+  - X
+  - Y
+  - tie
+  - uncertain
+input_pins:
+  bundle: c03640b39ad1e7769ccdf4c2c133821a893fa26de7d4285c75f47dfb6eb00da6
+  annotator_a_inventory: ad796e6aca1991b72f9820d2eee807c4fec89a9c80e9574ee1aae8ed3ffcae85
+  annotator_b_inventory: 91e6a169b81ef825e29e808a8777c264be55b5f88d5eed8ab9f82d5afc936a3a
+  dual_verification: 280b099845be84936021e3bffa9e4f69ab24749a7833f03ea3909f18737bd357
+  pilot: 19f827d1ce84604eb68336fe549b7530a67d6b4074ad92b05b4cc8d63663feae
+  comparisons: 486dad879372b6f687a380ebe4e102d61b6df89392426c7cc3aea7e9aeffb9cb
+  selection_lock: 99ce0522397707649aa34d82cfde3c3df4a5d898acbc702d6e53282f07741fb2
+families:
+  proposed-n4-vs-n1:
+    total: 28
+    automatic_ties: 6
+    proposed_role: constrained-pareto-n4
+    comparator_role: constrained-pareto-n1
+  proposed-vs-linear-n4:
+    total: 14
+    automatic_ties: 4
+    proposed_role: constrained-pareto-n4
+    comparator_role: equal-linear-n4
+aggregation:
+  rule: conservative-pair-v1
+  manual_comparisons: 32
+  automatic_comparisons: 10
+  total_comparisons: 42
+agreement:
+  scope: manual-only
+  expected_comparisons: 32
+primary_scope: all-42
+diagnostic_scope: manual-only
+bradley_terry:
+  field: overall
+  nodes:
+    - constrained-pareto-n4
+    - constrained-pareto-n1
+    - equal-linear-n4
+  algorithm: centered-newton-no-penalty-v1
+  tolerance: 1.0e-10
+  max_iterations: 100
+  max_step_halvings: 60
+bootstrap:
+  cluster: sample_id
+  expected_clusters: 7
+  rng: numpy.Generator(PCG64)
+  seed: 20260901
+  iterations: 2000
+  confidence_level: 0.95
+  quantiles:
+    - 0.025
+    - 0.975
+  quantile_method: linear
+  fields:
+    - overall
+    - faithfulness
+    - preservation
+    - temporal_consistency
+    - visual_quality
+failure_cases:
+  field: overall
+  proposed_outcomes:
+    - loss
+    - uncertain
+  sort:
+    - family
+    - sample_id
+    - comparison_id
+timing:
+  annotation_semantics: current-view-server-elapsed-not-active-labor
+  analysis_clock: perf_counter-elapsed-seconds

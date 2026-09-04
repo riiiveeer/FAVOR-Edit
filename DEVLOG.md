@@ -11331,3 +11331,273 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：通过：暂存路径严格为DEVLOG.md、总计划、D4提示词；大小分别452586/23933/21195字节，均无NUL；无敏感载荷模式，cached diff whitespace通过。根tar/sidecar未暂存。
 - 产物：Git index; DEVLOG.md; docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md; docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
 - 下一步：重新暂存本回执并执行最终cached diff守卫后创建审计提交。
+
+
+## D4-PROMPT-12
+
+- 时间：2026-09-04T02:36:23.252Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-12。
+- 行动/命令：重新暂存最终DEVLOG回执，复跑三路径大小/NUL/敏感载荷/whitespace守卫并创建D4提示词审计提交。
+- 结果：守卫通过；提交9d6baa1306fe0e60bcc7876333ed0aa5af8c4885（docs(defense): add D4 implementation handoff），新增D4提示词并更新总计划与DEVLOG，未包含tar、artifacts或正式答案。
+- 产物：Git commit 9d6baa1; docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：普通push origin main，随后核对HEAD/origin/main和剩余工作树。
+
+
+## D4-PROMPT-13
+
+- 时间：2026-09-04T02:36:36.443Z；环境：本地 Windows CPU-only；步骤 ID：D4-PROMPT-13。
+- 行动/命令：普通push D4施工提示词审计提交到origin/main并核对最终工作树。
+- 结果：push成功28be57b→9d6baa1306fe0e60bcc7876333ed0aa5af8c4885，无force；HEAD=origin/main。仅本push DEVLOG回执为tracked未提交，根tar/sidecar仍未跟踪；D4统计未启动、正式答案值未读取。
+- 产物：origin/main; Git commit 9d6baa1; docs/defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md
+- 下一步：用户可在新对话粘贴启动语并按提示词从D4.0现场核对开始。
+
+
+## D4-PLAN-01
+
+- 时间：2026-09-04T11:37:52.8846761+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-PLAN-01。
+- 行动/命令：按D4_IMPLEMENTATION_AGENT_PROMPT重新核对AGENTS、main/HEAD/origin、D3/D2回执、DEVLOG尾部、正式封存结构与锁定SHA后，新建D4_CONSTRUCTION_PLAN.md；预解封阶段仅检查schema/inventory/coverage/角色与摘要，未读取两份answers.jsonl具体答案值。
+- 结果：施工方案v1.0-pre-unseal已固定D4范围、两阶段解封门禁、输入pins、五字段4x4聚合、agreement/kappa、28/14 family rates、三节点BT状态机、7-cluster/seed 20260901/2000次bootstrap、成本语义、CLI、输出契约、测试矩阵、异常处理和两次审计发布点。D3仍formal/dual/complete；四个D3摘要、pilot/comparisons/selection-lock摘要匹配；无协议冲突。
+- 产物：docs/defense_mvp/D4_CONSTRUCTION_PLAN.md；只读核对对象为artifacts/defense_mvp/DEFENSE-MVP-D3-v01与DEFENSE-MVP-v01关联锁。
+- 下一步：新增analysis-v1严格配置和D4统计模型，以synthetic/tiny fixture实现协议；真实答案仍保持未解封。
+
+
+## D4-FREEZE-01
+
+- 时间：2026-09-04T11:39:04.1111303+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-01。
+- 行动/命令：新增版本化analysis-v1.yaml与analysis_models.py严格Pydantic模型；将全部结果敏感参数、输入pins、family角色/分母、聚合与agreement范围、BT数值设置、bootstrap RNG/seed/2000/quantile/五字段、失败案例和elapsed语义写入可验证配置。
+- 结果：配置协议固定为defense-analysis-v1；未知字段、非有限数值、字段/类别/节点/角色/分母/参数漂移将被拒绝。该步骤未读取两份正式answers.jsonl具体答案值。
+- 产物：configs/defense_mvp/analysis-v1.yaml；src/defense_mvp/analysis_models.py。
+- 下一步：实现聚合输入门禁、按comparison_id连接、方向/角色核验、16组合规则和no-replace聚合产物，然后用纯fixture测试。
+
+
+## D4-FREEZE-02
+
+- 时间：2026-09-04T11:41:21.9036400+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-02。
+- 行动/命令：实现aggregation.py及AggregateRecord/HumanObservation严格模型；聚合入口先验证固定D3/D2 pins、完整内部清单、bundle关联路径、formal/dual/complete回执和A/B身份，再按comparison_id连接、验证canonical/screen方向、解析冻结角色并应用对称4x4规则。
+- 结果：聚合层规定32 human_pair+10 automatic_tie、family 28/14与自动6/4、7 sample硬不变量；自动平局只生成系统事实；输出使用staging+no-replace、失败诊断保留、input manifest/receipt/SHA256SUMS，且不输出notes、timestamp或screen载荷。该步骤未调用正式聚合，正式answers.jsonl具体值仍未读取。
+- 产物：src/defense_mvp/aggregation.py；src/defense_mvp/analysis_models.py。
+- 下一步：实现agreement/rates/BT/bootstrap/confidence/elapsed/cost与机器主表、失败案例和no-replace分析产物。
+
+
+## D4-FREEZE-03
+
+- 时间：2026-09-04T11:45:00.5289286+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-03。
+- 行动/命令：实现analysis.py与聚合载入复验：manual-only五字段4类confusion/observed agreement/nominal kappa/exact vector，all-42与manual-only的28/14五字段计数和win rates，无惩罚中心化Newton Bradley–Terry及connectivity/separation状态，PCG64 sample-cluster bootstrap，confidence/elapsed描述、来源绑定成本、主表/失败案例/回执/checksum输出。
+- 结果：tie与uncertain只在tie-aware中各记0.5且原始计数分列；BT只用overall decisive并拒绝无边/family无边/不连通/分离/不收敛/非有限；bootstrap固定7 clusters、seed 20260901、2000次、linear 2.5/97.5百分位并保存每次draw；失败案例规则预固定为overall loss/uncertain。输出采用staging+no-replace，错误保留独立failed目录。未运行正式数据。
+- 产物：src/defense_mvp/analysis.py；src/defense_mvp/aggregation.py。
+- 下一步：实现独立analysis verifier与三个CLI，再建立覆盖门禁和所有统计退化状态的synthetic测试。
+
+
+## D4-FREEZE-04
+
+- 时间：2026-09-04T11:48:04.2739862+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-04。
+- 行动/命令：抽取validate_formal_sources共享正式门禁，实现analysis_verification.py独立重算器，并在CLI注册aggregate/analyze/verify-analysis三个命令；verifier从D3正式源重新构建期望聚合，复算全部统计、2000 bootstrap draws、CSV、成本来源、清单和不变量后才发布no-replace verification JSON。
+- 结果：D4验证不信任receipt自报数字；会拒绝正式源/aggregate/analysis tamper、未知文件、输入漂移、统计或表格不一致。CLI要求完整bundle、A/B export、dual receipt及D2关联目录，不接受裸answers.jsonl。未运行正式数据。
+- 产物：src/defense_mvp/analysis_verification.py；src/defense_mvp/aggregation.py；src/defense_mvp/analysis.py；src/defense_mvp/cli.py。
+- 下一步：新增synthetic D4测试并运行定向测试；失败诊断即时记录，正式答案继续封存。
+
+
+## D4-FREEZE-05
+
+- 时间：2026-09-04T11:50:26.2999550+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-05。
+- 行动/命令：新增test_d4_analysis.py纯synthetic测试，构造7 sample、42 comparison、32 human_pair+10 automatic的非研究fixture；覆盖严格配置、五字段16组合与对称性、ID连接/角色翻转、集合异常、agreement/kappa退化、rates守恒、BT各状态、2000次cluster bootstrap复现、confidence/elapsed语义及aggregate tamper/未知文件。
+- 结果：测试代码不导入或读取D3正式answers.jsonl，不包含真实逐题值；测试矩阵已写入但尚未运行。
+- 产物：tests/defense_mvp/test_d4_analysis.py。
+- 下一步：运行D4定向测试，记录首轮全部通过或失败诊断并修复机械实现问题。
+
+
+## D4-FREEZE-TEST-01
+
+- 时间：2026-09-04T11:50:49.1100775+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TEST-01。
+- 行动/命令：`uv run pytest tests/defense_mvp/test_d4_analysis.py -o addopts='' -q`。
+- 结果：退出码1，23 passed、2 failed。失败1为测试删去末6行仍保留7个sample，未实际触发cluster cardinality；失败2为测试用`json.dumps(sort_keys=True)`改变canonical/aggregate字典键顺序，而严格模型错误地将JSON对象键顺序当协议身份。二者均为synthetic首轮诊断，未读取正式答案；需要修正fixture删除整cluster，并将模型验证改为字段集合完整、序列化时显式恢复冻结顺序。
+- 产物：pytest失败输出；tests/defense_mvp/test_d4_analysis.py；src/defense_mvp/analysis_models.py。
+- 下一步：修复上述两个与结果无关的测试/机械schema问题，补充稳定JSONL字段顺序处理后重跑定向测试。
+
+
+## D4-FREEZE-FIX-01
+
+- 时间：2026-09-04T11:51:15.3032188+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-FIX-01。
+- 行动/命令：修正AggregateRecord/HumanObservation对JSON对象键顺序的错误依赖：验证固定字段集合后按FIELDS重建确定顺序；修正bootstrap负例为删除整个sample-6 cluster，而非仅删排序末6行。
+- 结果：机械schema现在接受语义等价的JSON对象键顺序，同时输出仍确定；cluster负例确实从7降为6。修复完全由synthetic失败复现驱动，不涉及真实答案或统计口径变化。
+- 产物：src/defense_mvp/analysis_models.py；tests/defense_mvp/test_d4_analysis.py。
+- 下一步：重跑D4定向测试。
+
+
+## D4-FREEZE-TEST-02
+
+- 时间：2026-09-04T11:52:03.1565234+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TEST-02。
+- 行动/命令：`uv run pytest tests/defense_mvp/test_d4_analysis.py -o addopts='' -q`。
+- 结果：退出码0，25 passed in 0.47s。严格配置、16组合、ID/角色、集合异常、agreement/kappa、rates、BT状态、7-cluster/2000 bootstrap、描述性时间和聚合tamper测试全部通过；全部输入为synthetic。
+- 产物：tests/defense_mvp/test_d4_analysis.py测试回执。
+- 下一步：补足端到端synthetic analyze/verifier/no-replace、正式门禁mock异常、CLI smoke测试，再运行D4与Defense定向回归。
+
+
+## D4-FREEZE-TESTDEV-01
+
+- 时间：2026-09-04T11:53:41.0860353+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TESTDEV-01。
+- 行动/命令：扩展D4 synthetic测试：用tiny handoff生成本地D1/D2 fixture及42条合成聚合，端到端运行analyze、2000-draw输出、独立verifier、no-replace和重算清单后的summary tamper；mock正式信任边界覆盖SHA漂移、practice、bundle混用、single scope、同身份；增加三个CLI help smoke。
+- 结果：新增测试仍不读取D3正式answers；输出验证器现有全部机器产物和no-replace路径进入可执行覆盖。测试尚未运行。
+- 产物：tests/defense_mvp/test_d4_analysis.py。
+- 下一步：运行扩展后的D4定向测试，按首轮诊断修复任何机械缺陷。
+
+
+## D4-FREEZE-TEST-03
+
+- 时间：2026-09-04T11:54:35.4103348+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TEST-03。
+- 行动/命令：`uv run pytest tests/defense_mvp/test_d4_analysis.py -o addopts='' -q`。
+- 结果：退出码0，30 passed in 27.49s。新增tiny端到端analyze/verifier、2000 bootstrap输出、no-replace、tamper、正式门禁异常和三个CLI help均通过；全部为synthetic/tiny非研究输入。
+- 产物：tests/defense_mvp/test_d4_analysis.py测试回执。
+- 下一步：静态审阅实现和测试覆盖，修补发现的边界后运行Defense定向回归、compileall与diff检查。
+
+
+## D4-FREEZE-HARDEN-01
+
+- 时间：2026-09-04T11:55:54.1729894+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-HARDEN-01。
+- 行动/命令：静态审阅D4 provenance后补强：aggregate loader与analysis verifier核对当前code_files/dependencies/python/platform；分析输入manifest增加selection/metrics/design/ingest四个checksum inventory；两位annotation elapsed成本绑定aggregate.jsonl路径与SHA；同步更新synthetic fixture。
+- 结果：输入和源码漂移现在硬失败，目录清单不只在运行时校验也进入可追溯manifest，elapsed来源不再无绑定。统计字段、聚合规则、分母、BT和bootstrap协议未改变；未读取正式答案。
+- 产物：src/defense_mvp/{aggregation,analysis,analysis_verification}.py；tests/defense_mvp/test_d4_analysis.py。
+- 下一步：重跑D4定向测试验证provenance加固，再运行Defense全测试。
+
+
+## D4-FREEZE-TEST-04
+
+- 时间：2026-09-04T11:56:43.3560060+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TEST-04。
+- 行动/命令：`uv run pytest tests/defense_mvp/test_d4_analysis.py -o addopts='' -q`。
+- 结果：退出码0，30 passed in 30.01s；provenance/inventory/source-environment加固后的全部D4 synthetic测试通过。
+- 产物：tests/defense_mvp/test_d4_analysis.py测试回执。
+- 下一步：运行Defense MVP全部测试，确认D1–D3无回归。
+
+
+## D4-FREEZE-TEST-05
+
+- 时间：2026-09-04T12:05:42.7602646+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TEST-05。
+- 行动/命令：`uv run pytest tests/defense_mvp -o addopts='' -q`。
+- 结果：退出码0，146 passed in 514.12s（8m34s）。D4新增30项与既有D1–D3 Defense测试全部通过，无回归；未运行真实答案分析。
+- 产物：tests/defense_mvp完整本地回归回执。
+- 下一步：运行compileall、CLI smoke、git diff/check与敏感内容审计，并更新施工方案CLI实参后准备真实分析前冻结提交。
+
+
+## D4-FREEZE-DOC-01
+
+- 时间：2026-09-04T12:06:05.7774712+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-DOC-01。
+- 行动/命令：将D4_CONSTRUCTION_PLAN中的aggregate与verify-analysis示例补充实现所需的`--dual-verification`参数。
+- 结果：施工方案与真实CLI一致，正式门禁显式绑定固定dual-verification-v01.json及其SHA；统计协议无变化。
+- 产物：docs/defense_mvp/D4_CONSTRUCTION_PLAN.md。
+- 下一步：运行compileall与CLI smoke，然后检查diff/敏感载荷和冻结提交路径集合。
+
+
+## D4-FREEZE-STATIC-01
+
+- 时间：2026-09-04T12:06:20.4003320+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-STATIC-01。
+- 行动/命令：`uv run python -m compileall -q src tests`。
+- 结果：退出码0，1.7秒，无语法编译错误。
+- 产物：src与tests静态编译回执。
+- 下一步：运行D4三个CLI help、version与analysis配置加载smoke。
+
+
+## D4-FREEZE-CLI-01
+
+- 时间：2026-09-04T12:06:42.2443045+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-CLI-01。
+- 行动/命令：并行运行`uv run defense version`、`aggregate --help`、`analyze --help`、`verify-analysis --help`及Python加载analysis-v1配置smoke。
+- 结果：5项退出码均为0；版本0.1.0，三个D4命令可发现且必填完整目录/dual参数，配置加载为defense-analysis-v1/2000次/5字段。
+- 产物：D4 CLI与配置smoke回执。
+- 下一步：运行git diff --check、路径/大小/NUL/敏感载荷静态审计并检查是否存在意外artifacts修改。
+
+
+## D4-FREEZE-GIT-01
+
+- 时间：2026-09-04T12:07:02.9862185+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-GIT-01。
+- 行动/命令：`git diff --check`。
+- 结果：退出码0，无whitespace错误；仅提示Windows工作副本DEVLOG.md和cli.py未来Git写入时LF转CRLF，不影响内容验证。
+- 产物：当前D4未暂存差异。
+- 下一步：显式核对工作树路径集合、文件大小/NUL、未跟踪tar排除和敏感正式载荷边界。
+
+
+## D4-FREEZE-GIT-02
+
+- 时间：2026-09-04T12:07:32.4582490+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-GIT-02。
+- 行动/命令：显式allowlist核对tracked/untracked路径；检查9个拟发布文件大小、NUL和`/entry/<20+ token>`模式；单独允许但排除根tar/sidecar。
+- 结果：通过。tracked仅DEVLOG/cli；D4新增仅7个预期文件；其余未跟踪仅根tar与sidecar；拟发布文件均小于1MiB、无NUL、无实际entry token。未发现artifacts/data/media/formal export路径进入变更集合。
+- 产物：D4真实分析前冻结候选路径集合。
+- 下一步：补充输入门禁关于缺/重/多题与方向验证的显式测试断言，运行最终D4/Defense回归后fetch并创建冻结提交。
+
+
+## D4-FREEZE-TESTDEV-02
+
+- 时间：2026-09-04T12:08:16.5433699+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TESTDEV-02。
+- 行动/命令：补充D4预解封测试：screen A/B反转恢复同一canonical结论；manual缺/重/多ID均拒绝；bootstrap无family的10次undefined原因守恒；两条不同输出路径复跑八个稳定事实文件逐字节一致；成本缺计时明确unavailable。
+- 结果：测试矩阵显式覆盖提示词要求的方向还原、集合异常、undefined replicate、跨路径确定性和缺失成本语义；尚未运行，未接触正式答案。
+- 产物：tests/defense_mvp/test_d4_analysis.py。
+- 下一步：运行最终D4定向测试；通过后再运行Defense全回归以形成冻结提交证据。
+
+
+## D4-FREEZE-TEST-06
+
+- 时间：2026-09-04T12:09:10.7290641+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TEST-06。
+- 行动/命令：`uv run pytest tests/defense_mvp/test_d4_analysis.py -o addopts='' -q`。
+- 结果：退出码0，31 passed in 33.98s；新增方向/集合/undefined/bootstrap/复跑/成本断言全部通过。
+- 产物：tests/defense_mvp/test_d4_analysis.py最终预解封定向测试回执。
+- 下一步：运行最终Defense全回归（预计147项），随后刷新compileall/diff并准备冻结提交。
+
+
+## D4-FREEZE-TEST-07
+
+- 时间：2026-09-04T12:16:42.7998181+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-TEST-07。
+- 行动/命令：`uv run pytest tests/defense_mvp -o addopts='' -q`。
+- 结果：退出码0，147 passed in 432.47s（7m12s）；最终预解封源码下D4 31项及全部既有Defense测试通过，无D1–D3回归。
+- 产物：tests/defense_mvp最终预解封Defense回归回执。
+- 下一步：刷新compileall、git diff/check与工作树安全守卫；fetch origin/main并创建真实分析前冻结审计提交。
+
+
+## D4-FREEZE-STATIC-02
+
+- 时间：2026-09-04T12:17:03.6087052+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-STATIC-02。
+- 行动/命令：最终预解封源码执行`uv run python -m compileall -q src tests`。
+- 结果：退出码0，1.1秒；源码与测试均可编译。
+- 产物：src/tests最终预解封静态编译回执。
+- 下一步：执行最终未暂存diff/路径/大小/NUL/敏感载荷守卫并fetch远端。
+
+
+## D4-FREEZE-GIT-03
+
+- 时间：2026-09-04T12:17:25.5876783+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-GIT-03。
+- 行动/命令：最终预解封`git diff --check`及显式9路径allowlist、<1MiB、NUL、entry-token守卫；检查branch/HEAD和全部未跟踪文件。
+- 结果：退出码0；main/HEAD 9d6baa1；无whitespace错误、意外路径、超限、NUL或entry token。根tar/sidecar仅未跟踪且明确排除；未出现artifacts/data/formal答案/媒体改动。
+- 产物：真实分析前冻结候选diff安全回执。
+- 下一步：fetch origin/main核对无远端前移，再显式暂存9个授权路径并执行cached守卫。
+
+
+## D4-FREEZE-PUBLISH-01
+
+- 时间：2026-09-04T12:17:50.5941788+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-PUBLISH-01。
+- 行动/命令：`git fetch origin main`后核对`git rev-parse HEAD`、`origin/main`和工作树。
+- 结果：fetch退出码0；HEAD=origin/main=`9d6baa1306fe0e60bcc7876333ed0aa5af8c4885`，远端未前移。待发布仅9个D4授权路径；根tar/sidecar保持未跟踪并排除。
+- 产物：Git main/origin main冻结发布基线。
+- 下一步：显式暂存9路径，复核cached路径/文本/大小/NUL/敏感载荷/whitespace后创建预解封审计提交。
+
+
+## D4-FREEZE-PUBLISH-02
+
+- 时间：2026-09-04T12:18:20.6550394+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-PUBLISH-02。
+- 行动/命令：显式暂存9个冻结路径并运行cached路径/二进制/大小/NUL/entry-token/whitespace守卫。
+- 结果：守卫退出码1，未提交。路径集合暂存正确，但`git diff --cached --check`发现analysis-v1.yaml末尾多一个空白行，以及D4_CONSTRUCTION_PLAN三行Markdown硬换行尾随空格。属于格式错误；后续二进制/大小检查未作为完整成功证据，需修正文档并重跑全部守卫。
+- 产物：Git index保留9个暂存路径；configs/defense_mvp/analysis-v1.yaml；docs/defense_mvp/D4_CONSTRUCTION_PLAN.md。
+- 下一步：删除配置末尾额外空行并将计划元数据改为普通逐行文本，重新暂存DEVLOG和两文档后重跑完整cached守卫。
+
+
+## D4-FREEZE-FIX-02
+
+- 时间：2026-09-04T12:18:40.6074849+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-FIX-02。
+- 行动/命令：删除analysis-v1.yaml末尾额外空白行；将D4_CONSTRUCTION_PLAN三行Markdown硬换行尾随空格改为段落间空行。
+- 结果：修正仅涉及whitespace格式，不改变配置解析值、实现或统计协议。
+- 产物：configs/defense_mvp/analysis-v1.yaml；docs/defense_mvp/D4_CONSTRUCTION_PLAN.md。
+- 下一步：重新显式暂存全部9路径并完整重跑cached发布守卫。
+
+
+## D4-FREEZE-PUBLISH-03
+
+- 时间：2026-09-04T12:19:05.4901322+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-PUBLISH-03。
+- 行动/命令：重新显式暂存9路径并运行cached路径精确集合、`git diff --cached --check`、numstat二进制、<1MiB、NUL和entry-token守卫。
+- 结果：全部通过；暂存恰9个授权源码/测试/配置/文档，0二进制、0异常大小/NUL、0实际entry token，最大文件DEVLOG 474215字节。tar/sidecar、artifacts、formal exports、媒体均未暂存。
+- 产物：Git index中的D4真实分析前冻结候选。
+- 下一步：重新暂存本条DEVLOG，执行最终cached集合/whitespace守卫并创建预解封审计提交。

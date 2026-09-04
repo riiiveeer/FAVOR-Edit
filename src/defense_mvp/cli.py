@@ -167,5 +167,63 @@ def verify_annotations_command(
     typer.echo(json.dumps(verify_annotations(bundle, exports, allow_practice), sort_keys=True))
 
 
+@app.command("aggregate")
+def aggregate_command(
+    bundle: Path = typer.Option(..., exists=True, file_okay=False),
+    left: Path = typer.Option(..., exists=True, file_okay=False, help="Frozen annotator-a export directory"),
+    right: Path = typer.Option(..., exists=True, file_okay=False, help="Frozen annotator-b export directory"),
+    dual_verification: Path = typer.Option(..., exists=True, dir_okay=False),
+    selection: Path = typer.Option(..., exists=True, file_okay=False),
+    metrics: Path = typer.Option(..., exists=True, file_okay=False),
+    design: Path = typer.Option(..., exists=True, file_okay=False),
+    ingest: Path = typer.Option(..., exists=True, dir_okay=False),
+    config: Path = typer.Option(Path("configs/defense_mvp/analysis-v1.yaml"), exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+) -> None:
+    from .aggregation import aggregate_annotations
+    receipt = aggregate_annotations(
+        bundle, left, right, dual_verification, selection, metrics, design, ingest, config, output
+    )
+    typer.echo(json.dumps(receipt, sort_keys=True))
+
+
+@app.command("analyze")
+def analyze_command(
+    aggregate: Path = typer.Option(..., exists=True, file_okay=False),
+    selection: Path = typer.Option(..., exists=True, file_okay=False),
+    metrics: Path = typer.Option(..., exists=True, file_okay=False),
+    design: Path = typer.Option(..., exists=True, file_okay=False),
+    ingest: Path = typer.Option(..., exists=True, dir_okay=False),
+    config: Path = typer.Option(Path("configs/defense_mvp/analysis-v1.yaml"), exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+) -> None:
+    from .analysis import analyze_aggregate
+    receipt = analyze_aggregate(aggregate, selection, metrics, design, ingest, config, output)
+    typer.echo(json.dumps(receipt, sort_keys=True))
+
+
+@app.command("verify-analysis")
+def verify_analysis_command(
+    bundle: Path = typer.Option(..., exists=True, file_okay=False),
+    left: Path = typer.Option(..., exists=True, file_okay=False),
+    right: Path = typer.Option(..., exists=True, file_okay=False),
+    dual_verification: Path = typer.Option(..., exists=True, dir_okay=False),
+    aggregate: Path = typer.Option(..., exists=True, file_okay=False),
+    analysis: Path = typer.Option(..., exists=True, file_okay=False),
+    selection: Path = typer.Option(..., exists=True, file_okay=False),
+    metrics: Path = typer.Option(..., exists=True, file_okay=False),
+    design: Path = typer.Option(..., exists=True, file_okay=False),
+    ingest: Path = typer.Option(..., exists=True, dir_okay=False),
+    config: Path = typer.Option(Path("configs/defense_mvp/analysis-v1.yaml"), exists=True, dir_okay=False),
+    output: Path = typer.Option(...),
+) -> None:
+    from .analysis_verification import verify_analysis_artifacts
+    result = verify_analysis_artifacts(
+        bundle, left, right, dual_verification, aggregate, analysis, selection, metrics,
+        design, ingest, config, output,
+    )
+    typer.echo(json.dumps(result, sort_keys=True))
+
+
 if __name__ == "__main__":
     app()
