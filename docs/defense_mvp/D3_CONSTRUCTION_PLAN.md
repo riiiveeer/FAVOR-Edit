@@ -152,3 +152,11 @@ CLI smoke、compileall、diff check。隔离 practice 演练完整双人导出�
    HTTP回归验证身份与CSP。真实隔离practice验证首帧、播放/拖动/重播、恢复和故障门禁。
 5. 按D3既有最终回归/输入SHA/发布检查完成审计，并恢复用户原练习会话。
    用户会话不写测试答案；正式会话不启动，D4不运行。
+
+## D3 正式执行收口（2026-09-04）
+
+A、B 已先后独立完成，各保存 32 条正式确认记录。两个服务均已退出；结果分别导出到
+`formal-exports/annotator-a-v01` 和 `annotator-b-v01`，单人及双人 verifier 均通过。
+最终状态为 `formal/dual/complete`，64 条真人记录 + 10 条共享自动平局，A/B 各42/42、
+缺题0。详细身份链见 `D3_FORMAL_ANNOTATION_RECEIPT.md`。D3 至此结束，不在本阶段
+读取偏好或计算统计；下一步如继续，应以独立D4施工计划冻结这两个导出作为输入。

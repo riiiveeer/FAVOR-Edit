@@ -10944,3 +10944,237 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：最终工程验收通过；当前用户练习已恢复、可播放；真实输入和协议不变。记录全仓实际689.45秒，没有借用历史通过数。
 - 产物：docs/defense_mvp/D3_VIDEO_LOADING_FIX_RECEIPT.md
 - 下一步：最终暂存守卫后创建修复提交，再普通push。
+
+
+## D3-LOAD-28
+
+- 时间：2026-09-03T04:35:03.817Z；环境：本地 Windows CPU-only；步骤 ID：D3-LOAD-28。
+- 行动/命令：最终restage DEVLOG/修复回执；12路径/二进制/大小/whitespace与已验收源码SHA守卫后创建commit。
+- 结果：审计提交1aa12e4e1c6f4890512076302f31815e8e8186d2（fix(defense): make D3 video loading recoverable）；12文件，源代码与实际验收snapshot逐项SHA相同，未纳入媒体/记录/tar。
+- 产物：Git commit 1aa12e4
+- 下一步：按Defense既有授权普通push origin main，不force。
+
+
+## D3-LOAD-29
+
+- 时间：2026-09-03T04:35:17.227Z；环境：本地 Windows CPU-only；步骤 ID：D3-LOAD-29。
+- 行动/命令：git push origin main；核对HEAD=origin/main与工作树。
+- 结果：普通push成功：77f0a25→1aa12e4e1c6f4890512076302f31815e8e8186d2；无force。唯一tracked未提交为本发布DEVLOG回执；原tar/sidecar保持未跟踪。用户8765 practice已恢复并继续运行，QA服务关闭；未正式作答/未启动正式会话/未D4。
+- 产物：origin/main；docs/defense_mvp/D3_VIDEO_LOADING_FIX_RECEIPT.md；qa-loading-v01证据
+- 下一步：用户可在原标签页继续试用新版。最终发布回执按既有约定保留为未提交DEVLOG增量，不递归创建回执提交。
+
+
+## D3-FORMAL-RESTART-01
+
+- 时间：2026-09-03T11:39:24.453Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-RESTART-01。
+- 行动/命令：用户本轮明确要求关闭旧后台并重启正式界面；核对AGENTS、DEVLOG、监听端口、相关进程、正式会话元数据与目录计数。
+- 结果：8765/8766/8767均无监听，旧标注进程已退出，无需再终止。用户此前已创建formal annotator-a（created_at 2026-09-03T11:22:27.451388+00:00），records0/drafts0/runs1；session SHA 88a99fd01a4a21268c415d5bb69fb0eef9db3300d98eb32dfcbe080fc78843b7。按现有身份和包显式恢复，不创建另一人会话。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal/annotator-a
+- 下一步：启动formal annotator-a --resume，只打开/验证界面，不代填、提交人答或做D4。
+
+
+## D3-FORMAL-RESTART-02
+
+- 时间：2026-09-03T11:39:47.177Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-RESTART-02。
+- 行动/命令：在本地终端启动 uv run defense annotate --bundle .../formal-bundle --annotator-id annotator-a --output .../formal/annotator-a --resume。
+- 结果：恢复成功，服务打印一次入口与工作页；输入/既有会话通过启动校验，写锁获得。使用终端会话39433；未写任何回答。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal/annotator-a/runs
+- 下一步：打开正式页并核对正式模式和三路加载；向用户说明运行服务与退出方式。
+
+
+## D3-FORMAL-RESTART-03
+
+- 时间：2026-09-03T11:40:16.390Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-RESTART-03。
+- 行动/命令：尝试在原错误标签页导航至本次正式入口，并请求在Codex显示服务终端。
+- 结果：服务终端显示请求已排队；原浏览器标签停留在内置data错误页，浏览器工具URL策略拒绝了该旧错误页上下文，未据此认定服务启动失败。改用同一浏览器的新正常标签访问已授权HTTP入口；不访问被拒绝的data页。
+- 产物：本地正式服务终端39433；浏览器旧错误标签页
+- 下一步：打开新正常标签核验正式界面。
+
+
+## D3-FORMAL-RESTART-04
+
+- 时间：2026-09-03T11:40:48.742Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-RESTART-04。
+- 行动/命令：新正常浏览器标签打开正式入口，只读检查模式/进度/媒体状态；关闭旧连接失败标签；核对监听与会话SHA/文件计数。
+- 结果：正式annotator-a第1/32，practice标识隐藏，三路readyState4、duration2，未触发播放/作答/提交。当前唯一标注服务监听127.0.0.1:8765，PID32876；session SHA恢复前后相同，records0/drafts0/runs由1增至2。已打开正式工作页面并保留服务运行。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal/annotator-a/runs；本地服务终端39433（PID32876）
+- 下一步：由真人在正式界面自行播放判断；不再重复启动同一会话，不自动进入D4。
+
+
+## D3-FORMAL-RESTART-05
+
+- 时间：2026-09-03T11:41:00.999Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-RESTART-05。
+- 行动/命令：补记上一步浏览器清理诊断。
+- 结果：正式页只读检查成功，三路可播放；尝试关闭旧12号错误页时工具返回该标签已不属于当前浏览器会话，因此更正上一步“关闭旧错误标签”为“尝试关闭，但未确认关闭”。不影响正式服务和已打开页面；未改人答。
+- 产物：浏览器标签状态；DEVLOG更正
+- 下一步：交付已恢复的正式工作页及当前服务身份。
+
+
+## D3-FORMAL-AUTH-01
+
+- 时间：2026-09-03T12:25:48.318Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-AUTH-01。
+- 行动/命令：查看用户当前14号标签DOM，核对8765进程、正式会话计数与服务端入口/认证逻辑。
+- 结果：当前页面确为session_rejected；PID32876服务仍活跃，正式records0/drafts0/session SHA未变。上次一次性entry已被自动化验证使用，向用户交付的是依赖既有Cookie的review地址；当前用户标签没有有效会话。交付方式不当，不能以自动化标签可用代替用户侧登录成功。
+- 产物：src/defense_mvp/annotation_server.py；formal/annotator-a；当前用户浏览器错误页
+- 下一步：重启同一正式会话生成新一次性entry，保留给用户直接点击，不预先自动消费。
+
+
+## D3-FORMAL-AUTH-02
+
+- 时间：2026-09-03T12:25:58.392Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-AUTH-02。
+- 行动/命令：向已确认正式服务终端39433发送Ctrl+C，准备重发一次性入口。
+- 结果：旧服务退出（Windows控制中断exit1），末尾日志含5条匿名403；未删除目录或锁，未填写或改写人答。
+- 产物：本地正式会话formal/annotator-a
+- 下一步：同目录--resume重启，新的入口不在自动化浏览器中打开。
+
+
+## D3-FORMAL-AUTH-03
+
+- 时间：2026-09-03T12:26:31.996Z；环境：本地 Windows CPU-only；步骤 ID：D3-FORMAL-AUTH-03。
+- 行动/命令：原formal annotator-a以--resume恢复；只检查端口和磁盘身份，不访问新entry/review或读取浏览器Cookie。
+- 结果：启动成功并监听8765；新终端会话12123。正式session SHA仍88a99fd01a4a21268c415d5bb69fb0eef9db3300d98eb32dfcbe080fc78843b7，records0/drafts0。新一次性登录入口未由代理消费，直接交给用户在其浏览器上下文打开。
+- 产物：formal/annotator-a/runs；本地正式服务终端12123
+- 下一步：用户点击本次新entry一次，之后留在重定向后的工作页作答/刷新；不复用旧review链接、不代答、不D4。
+
+
+## D3-A-TO-B-01
+
+- 时间：2026-09-03T13:28:00.073Z；环境：本地 Windows CPU-only；步骤 ID：D3-A-TO-B-01。
+- 行动/命令：按用户要求核对A完成状态、8765监听及全部D3 annotate进程；检查正式会话/导出目录，准备移交B。
+- 结果：没有8765监听或存活D3标注进程，A后台已退出，无进程需再终止。A存在32条确认文件、32条草稿、pending0；仅凭数量还未判定有效完整。B目录不存在；未见已有formal-exports。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal/annotator-a
+- 下一步：用现有D3导出和verifier校验完整性与身份链，保留原记录后启动B。
+
+
+## D3-A-TO-B-02
+
+- 时间：2026-09-03T13:28:38.582Z；环境：本地 Windows CPU-only；步骤 ID：D3-A-TO-B-02。
+- 行动/命令：调用现有export_annotations将A正式会话导出到全新formal-exports/annotator-a-v01；比较导出前后全部源JSON SHA。
+- 结果：导出成功：formal、annotator-a、complete，32条确认回答与10项独立自动平局。源会话68个JSON（包括records/drafts/runs/session）SHA前后完全不变；导出未修改或生成新人工判断。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-exports/annotator-a-v01
+- 下一步：独立验证导出checksum、逐题身份链和覆盖，再启动B。
+
+
+## D3-A-TO-B-03
+
+- 时间：2026-09-03T13:28:40.805Z；环境：本地 Windows CPU-only；步骤 ID：D3-A-TO-B-03。
+- 行动/命令：调用现有verify_annotations对正式包与A封存导出进行独立完整校验，保存D3单人验证回执。
+- 结果：通过：formal/single/complete；A确认回答32，共享自动平局10，覆盖42/42、缺题0；导出checksum、逐题记录身份/方向/来源/清单链有效。这里只确认A单人完成，不声称双人已完成，不计算胜率/kappa/BT/统计。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-exports/verification-annotator-a-v01.json
+- 下一步：启动B全新正式会话；新登录入口留给B用户直接使用。
+
+
+## D3-A-TO-B-04
+
+- 时间：2026-09-03T13:29:24.131Z；环境：本地 Windows CPU-only；步骤 ID：D3-A-TO-B-04。
+- 行动/命令：按用户明确授权首次启动B正式界面：uv run defense annotate --bundle .../formal-bundle --annotator-id annotator-b --output .../formal/annotator-b。
+- 结果：新正式B会话成功启动，终端会话68839；启动完成冻结输入/协议验证并创建独立会话和运行回执。A服务未重启、A结果不展示给B；新一次性entry未由自动化消费，供用户直接打开。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal/annotator-b
+- 下一步：只读核对唯一监听和B空白状态，交付入口。
+
+
+## D3-A-TO-B-05
+
+- 时间：2026-09-03T13:29:26.916Z；环境：本地 Windows CPU-only；步骤 ID：D3-A-TO-B-05。
+- 行动/命令：只读核对8765监听进程确为annotator-b及正式B元数据、A/B确认记录计数。
+- 结果：B正式服务监听正常；A确认32保持，B确认0/草稿0。未访问或消耗B登录入口，未读写浏览器Cookie，未代填任何正式答案。A校验与封存已完成，后续由B真人独立作答。
+- 产物：formal/annotator-b；formal-exports/annotator-a-v01；DEVLOG
+- 下一步：用户点击新B entry一次进入浏览器；之后在工作页刷新或继续，不复用A旧页，不提前D4。
+
+
+## D3-B-CLOSE-01
+
+- 时间：2026-09-04T02:21:11.430Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-01。
+- 行动/命令：按用户要求核对B组完成后的8765/8766/8767监听、全部D3 annotate进程、A/B正式目录计数及现有导出；读取D3边界和操作指南。
+- 结果：当前无相关监听或D3 annotate进程，B服务已退出，无活跃进程需强制终止。A/B各有32条确认记录与32条草稿，pending均0；A已有完整单人导出，B尚未导出。数量只作初筛，尚未将B或双人状态声明为complete。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal/{annotator-a,annotator-b}
+- 下一步：以no-replace新目录导出B并校验源会话JSON不变，再运行正式双人verifier。
+
+
+## D3-B-CLOSE-02
+
+- 时间：2026-09-04T02:21:29.520Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-02。
+- 行动/命令：调用现有export_annotations将B正式会话导出到全新formal-exports/annotator-b-v01；比较导出前后全部源JSON SHA。
+- 结果：导出成功：formal、annotator-b、complete，32条确认回答与10项共享自动平局。源会话66个JSON SHA前后完全不变；不修改已确认回答，不生成新人工判断。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-exports/annotator-b-v01
+- 下一步：先单独验证B封存，再联合A/B执行dual verifier。
+
+
+## D3-B-CLOSE-03
+
+- 时间：2026-09-04T02:21:44.695Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-03。
+- 行动/命令：对B正式封存运行single verify_annotations，保存验证回执。
+- 结果：通过：B formal/single/complete，确认32，覆盖42/42、缺题0；checksum、逐题身份/方向/来源链有效。未计算或读取偏好统计。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-exports/verification-annotator-b-v01.json
+- 下一步：用A/B两个已封存导出运行dual verifier。
+
+
+## D3-B-CLOSE-04
+
+- 时间：2026-09-04T02:22:19.131Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-04。
+- 行动/命令：对formal bundle及A/B两个不可覆盖导出运行dual verify_annotations；比较验证前后全部导出文件SHA。
+- 结果：通过：formal/dual/complete，64条真人确认回答、10条共享自动平局；A/B各42/42、缺题合计0，双人身份集合正确；两个导出目录文件SHA不变。不计算偏好、分歧或统计。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-exports/dual-verification-v01.json
+- 下一步：写入D3正式标注完成回执，明确D3无剩余工程/人评任务，下一阶段仅可经明确接续进入D4。
+
+
+## D3-B-CLOSE-05
+
+- 时间：2026-09-04T02:22:32.938Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-05。
+- 行动/命令：新增D3_FORMAL_ANNOTATION_RECEIPT，并在实现回执和施工方案显著链接/追加正式执行收口状态。
+- 结果：记录服务退出、A/B各32、dual complete 64+10、各42/42、缺题0及D3/D4边界；将原实现回执的正式0明确标为2026-09-03历史工程快照，消除当前状态冲突。
+- 产物：docs/defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md；D3_IMPLEMENTATION_RECEIPT.md；D3_CONSTRUCTION_PLAN.md
+- 下一步：计算封存目录清单SHA并写入回执，执行最终只读复核和审计发布。
+
+
+## D3-B-CLOSE-06
+
+- 时间：2026-09-04T02:22:46.126Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-06。
+- 行动/命令：计算正式bundle、A/B导出SHA256SUMS文件和dual验证回执SHA；再次确认8765/8766/8767无监听，执行git diff --check。
+- 结果：封存身份计算成功；无D3服务监听；whitespace通过。formal bundle c03640b3…；A inventory ad796e6a…；B inventory 91e6a169…；dual verification 280b0998…。
+- 产物：formal-bundle/bundle.json；formal-exports/{annotator-a-v01,annotator-b-v01,dual-verification-v01.json}
+- 下一步：将完整SHA写入D3完成回执，随后用现有verifier作最终复核并发布仅文档/DEVLOG。
+
+
+## D3-B-CLOSE-07
+
+- 时间：2026-09-04T02:23:03.620Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-07。
+- 行动/命令：将正式bundle、A/B导出清单和双人验证报告的完整SHA256写入D3正式完成回执。
+- 结果：D4未来输入可以按明确摘要冻结；Git文档只含计数、身份标签和摘要，不含private mapping、会话令牌或具体人工答案。
+- 产物：docs/defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md
+- 下一步：运行最终dual CLI验证并核对封存摘要/无监听/工作树，然后审计发布。
+
+
+## D3-B-CLOSE-08
+
+- 时间：2026-09-04T02:23:15.521Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-08。
+- 行动/命令：最终CLI verify-annotations读取formal bundle及A/B两个封存导出；另逐项复核回执声明的4个SHA。
+- 结果：退出0：formal/dual/complete；64真人确认、10共享自动平局；A/B各42/42、missing0；4个冻结摘要全部匹配。没有输出具体答案或统计偏好。
+- 产物：formal-exports/dual-verification-v01.json；docs/defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md
+- 下一步：fetch远端，显式4路径暂存并执行binary/size/token/whitespace守卫后审计提交与普通push。
+
+
+## D3-B-CLOSE-09
+
+- 时间：2026-09-04T02:23:31.451Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-09。
+- 行动/命令：fetch origin/main并核对HEAD；预发布diff/敏感内容守卫。
+- 结果：fetch及HEAD核对通过，main与origin/main均1aa12e4；diff check通过。命令中误留PowerShell不存在的test命令，产生非终止CommandNotFound诊断；虽然随后敏感内容条件执行且未触发，不能把该组合命令作为干净预检，需修正后重跑。
+- 产物：Git工作树/预发布诊断
+- 下一步：去掉误命令，重新执行完整预发布守卫，再暂存。
+
+
+## D3-B-CLOSE-10
+
+- 时间：2026-09-04T02:23:44.541Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-10。
+- 行动/命令：修正预检命令并重跑：精确远端基线、git diff --check、tracked diff与新回执中的entry token/answer payload模式。
+- 结果：干净通过：HEAD=origin/main=1aa12e4；无whitespace错误；未发现一次性入口令牌或screen/canonical答案载荷。只发布计数、摘要和边界。
+- 产物：Git main/origin/main；4个待发布文档路径
+- 下一步：显式暂存4路径，验证集合/文本/大小后commit。
+
+
+## D3-B-CLOSE-11
+
+- 时间：2026-09-04T02:23:58.486Z；环境：本地 Windows CPU-only；步骤 ID：D3-B-CLOSE-11。
+- 行动/命令：显式暂存4文档并运行集合/文本/大小/入口守卫后拟提交。
+- 结果：暂存集合和文本/大小已进入守卫；入口检查错误地禁止任何字面量'/entry/'，命中施工方案中既有的通用路由说明而失败，commit未执行。应只禁止带20+字符令牌的实际入口。暂存状态保留，先记录失败再修正精确正则。
+- 产物：Git暂存区4文档
+- 下一步：重新暂存本条DEVLOG，使用/entry/<20+ token>精确模式复核后提交。
