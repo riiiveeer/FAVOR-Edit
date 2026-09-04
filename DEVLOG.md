@@ -11601,3 +11601,230 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：全部通过；暂存恰9个授权源码/测试/配置/文档，0二进制、0异常大小/NUL、0实际entry token，最大文件DEVLOG 474215字节。tar/sidecar、artifacts、formal exports、媒体均未暂存。
 - 产物：Git index中的D4真实分析前冻结候选。
 - 下一步：重新暂存本条DEVLOG，执行最终cached集合/whitespace守卫并创建预解封审计提交。
+
+
+## D4-FREEZE-PUBLISH-04
+
+- 时间：2026-09-04T12:19:26.4196607+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-PUBLISH-04。
+- 行动/命令：重新暂存最终DEVLOG；复核9路径集合与cached whitespace后执行`git commit -m "feat(defense): freeze D4 analysis protocol"`。
+- 结果：提交成功`79976982a3a438ffe13b596ea4389d3645d8847a`，9个文件、2829行新增；包含冻结配置、施工方案、聚合/分析/验证实现、CLI和31项synthetic测试，不含artifacts、正式答案、notes、private mapping、媒体或tar。
+- 产物：Git commit 7997698；configs/defense_mvp/analysis-v1.yaml；src/defense_mvp D4模块；tests/defense_mvp/test_d4_analysis.py。
+- 下一步：按Defense授权普通push origin main并核对HEAD/origin；push成功后记录解封计划和全部正式输入checksum，再运行现有dual verifier。
+
+
+## D4-FREEZE-PUBLISH-05
+
+- 时间：2026-09-04T15:59:05.0273116+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-FREEZE-PUBLISH-05。
+- 行动/命令：`git push origin main`，随后核对HEAD、origin/main和工作树。
+- 结果：普通push成功`9d6baa1→79976982a3a438ffe13b596ea4389d3645d8847a`，无force；HEAD=origin/main=7997698。仅本提交/push回执为tracked未提交DEVLOG增量；根tar/sidecar保持未跟踪。真实分析前冻结发布点完成。
+- 产物：origin/main；Git commit 7997698。
+- 下一步：在DEVLOG写入D4-REAL-v01解封运行计划、提交/config/输入SHA/命令/输出根/不变量；先运行现有formal dual verifier并核对输入前后checksum，随后才执行aggregate。
+
+
+## D4-REAL-v01-PLAN
+
+- 时间：2026-09-04T15:59:05.0273116+08:00；环境：本地 Windows CPU-only；步骤/实验 ID：D4-REAL-v01。
+- 行动/命令：在首次读取正式answers具体值前登记一次性no-replace真实运行。冻结源码提交/已推送main：`79976982a3a438ffe13b596ea4389d3645d8847a`；analysis-v1.yaml SHA256=`9b29f1fad47b35ff7ae75b928e1811b98347aec8c7e2fe175cf09a7f1a283fa0`。先运行`uv run defense verify-annotations --bundle artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-bundle --export .../annotator-a-v01 --export .../annotator-b-v01`；再运行`uv run defense aggregate`绑定同一bundle/A/B、dual-verification-v01.json及DEFENSE-MVP-v01的selection/metrics/design/ingest，输出`artifacts/defense_mvp/DEFENSE-MVP-D4-v01/aggregate`；随后`defense analyze`输出同根`analysis`，最后`verify-analysis`输出同根`verification.json`。
+- 关键配置/输入：bundle=`c03640b39ad1e7769ccdf4c2c133821a893fa26de7d4285c75f47dfb6eb00da6`；A inventory=`ad796e6aca1991b72f9820d2eee807c4fec89a9c80e9574ee1aae8ed3ffcae85`；B inventory=`91e6a169b81ef825e29e808a8777c264be55b5f88d5eed8ab9f82d5afc936a3a`；dual receipt=`280b099845be84936021e3bffa9e4f69ab24749a7833f03ea3909f18737bd357`；pilot=`19f827d1ce84604eb68336fe549b7530a67d6b4074ad92b05b4cc8d63663feae`；comparisons=`486dad879372b6f687a380ebe4e102d61b6df89392426c7cc3aea7e9aeffb9cb`；selection-lock=`99ce0522397707649aa34d82cfde3c3df4a5d898acbc702d6e53282f07741fb2`。
+- 预期结果/资源：输出根及aggregate/analysis/verification当前均不存在；预计本地CPU少于5分钟、内存低于1GiB、无GPU/模型/网络/服务器。硬不变量：formal/dual/complete 64人答+10共享自动、A/B各42/42；聚合42=32 human_pair+10 automatic，family 28/14且自动6/4，7 sample；agreement n=32；每family/field计数守恒；每预声明field/family bootstrap恰2000；BT边数/状态一致；所有非有限/缺失有显式状态。负面、宽CI、低kappa或BT不可识别照实保留，不改规则重跑。
+- 产物：本DEVLOG解封计划；拟建artifacts/defense_mvp/DEFENSE-MVP-D4-v01（Git忽略、no-replace）。
+- 下一步：计算D3正式bundle/A/B/dual全文件SHA快照并运行现有dual verifier；核对前后不变且门禁通过后，首次调用aggregate读取具体canonical答案。
+
+
+## D4-REAL-v01-GATE
+
+- 时间：2026-09-04T16:00:17.7251239+08:00；环境：本地 Windows CPU-only；步骤/实验 ID：D4-REAL-v01-GATE。
+- 行动/命令：对formal-bundle及A/B两个正式export共59个文件计算逐文件SHA快照；运行`uv run defense verify-annotations --bundle <formal-bundle> --export <annotator-a-v01> --export <annotator-b-v01>`；运行后重算同一快照并比较。
+- 结果：退出码0，2.8003秒；`formal/dual/complete`，64条真人确认、10条共享自动平局，A/B各42/42、missing 0；前后59/59文件SHA完全相同。bundle/A/B inventory分别仍为c03640b3…/ad796e6a…/91e6a169…；未修改D3事实源。预解封配置/实现/测试commit已推送，正式读取门禁通过。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D3-v01/formal-bundle；formal-exports/{annotator-a-v01,annotator-b-v01}（只读未变）。
+- 下一步：按冻结命令首次运行D4 aggregate到不存在的DEFENSE-MVP-D4-v01/aggregate；任何失败目录保留且不改统计规则。
+
+
+## D4-REAL-v01-AGGREGATE
+
+- 时间：2026-09-04T16:00:49.4002838+08:00；环境：本地 Windows CPU-only；步骤/实验 ID：D4-REAL-v01-AGGREGATE。
+- 行动/命令：在冻结提交7997698下首次运行`uv run defense aggregate`，绑定formal bundle、A/B完整export、dual verification及D2 selection/metrics/design/ingest，配置analysis-v1 SHA 9b29f1fa…，no-replace输出`artifacts/defense_mvp/DEFENSE-MVP-D4-v01/aggregate`。
+- 结果：退出码0，命令约4.1秒；聚合passed，42唯一记录=32 human_pair+10 automatic_tie，canonical aggregate SHA=`bfb1f245bef0bae9772c90fe2421bbc3c5556f3799c0509ac0676b6fe088edee`；源码快照git_head=7997698。未修改D3/D2输入，未调整任何规则或参数。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D4-v01/aggregate/{aggregate.jsonl,agreement-input.json,aggregation-receipt.json,input-manifest.json,SHA256SUMS}。
+- 下一步：按冻结配置首次运行analyze到同一根不存在的analysis目录；保留全部真实统计，无论方向或可识别状态。
+
+
+## D4-REAL-v01-ANALYZE
+
+- 时间：2026-09-04T16:01:14.3218169+08:00；环境：本地 Windows CPU-only；步骤/实验 ID：D4-REAL-v01-ANALYZE。
+- 行动/命令：运行`uv run defense analyze`，输入D4-v01/aggregate及冻结D2 selection/metrics/design/ingest、analysis-v1配置，no-replace输出`artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis`。
+- 结果：退出码0，命令约2.3秒；分析passed，42 records、7 sample clusters、bootstrap 2000，内部analysis elapsed 0.49894秒，summary canonical SHA=`ec30643e0a78587f7eafaf3749f7904bfe7090f898427205ddf92a0227d3cfd0`；源码git_head=7997698。首次真实结果完整保留，未改配置/代码/聚合口径。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/{summary.json,main-table.csv,agreement.csv,confusion-matrices.json,bootstrap.jsonl,bt.json,costs.json,failure-cases.json,analysis-receipt.json,input-manifest.json,SHA256SUMS}。
+- 下一步：运行独立verify-analysis从D3正式源重建聚合并复算全部统计；只有验证通过后才摘录主指标和局限。
+
+
+## D4-REAL-v01-VERIFY
+
+- 时间：2026-09-04T16:01:50.1138082+08:00；环境：本地 Windows CPU-only；步骤/实验 ID：D4-REAL-v01-VERIFY。
+- 行动/命令：运行`uv run defense verify-analysis`，绑定完整D3正式源、D4 aggregate/analysis、全部D2关联输入和冻结配置，no-replace输出D4-v01/verification.json。
+- 结果：退出码0，命令约4.0秒，status=passed。verifier从正式源重建并逐项复算：42=32 human_pair+10 automatic，family 28/14，7 clusters，agreement n=32，bootstrap 2000，BT status=ok；aggregate inventory SHA=`17cd49237c975669c45e3cad6591db013333d6ba279f33660b6d2b3839e663d7`，analysis inventory SHA=`5954d64759e1b1310b7e752d96b223140a1b7a8a873cf70e375b42ce6d25d37b`，summary file SHA=`a329396cddbbe0eaca66430c7df0743c6e16c885f181f4fd90c49ab7e7326e17`。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D4-v01/verification.json。
+- 下一步：只读提取summary/main-table/agreement/BT/cost/failure-case机器结果，核对每字段计数和bootstrap不变量并写DEVLOG；不读取notes或粘贴原始逐题答案。
+
+
+## D4-REAL-v01-SUMMARY-01
+
+- 时间：2026-09-04T16:02:45.7174499+08:00；环境：本地 Windows CPU-only；步骤/实验 ID：D4-REAL-v01-SUMMARY-01。
+- 行动/命令：只读解析D4-v01 analysis的summary.json、costs.json和failure-cases.json，提取两family overall主指标、五字段agreement/kappa、exact agreement、BT、confidence/elapsed及成本状态；不读取notes或原始answers载荷。
+- 结果：N4-vs-N1 overall为5胜/2负/17平/4不确定（n=28），tie-aware 0.553571，decisive 0.714286，7-cluster bootstrap 95% CI [0.482143,0.642857]、2000/2000有效；Proposed-vs-Linear为2/2/9/1（n=14），tie-aware/decisive均0.5，CI [0.357143,0.642857]、2000/2000有效。overall agreement 14/32=0.4375，kappa 0.164006；五字段exact 7/32=0.21875。BT status=ok、11 decisive edges、4次迭代，ability：N4=0.305430、Linear N4=0.305430、N1=-0.610860。预冻结失败案例9项。A/B confidence median均0.75；current-view elapsed sum分别2018.096s/3138.452s，仅服务器经过时间。
+- 成本结果：审计E0历史50候选runtime合计12413.711s、peak VRAM max 22476MB；冻结D2 metrics scoring elapsed 27.6707s、按50 validated candidate为0.5534s/候选；选择计时因无可信timer明确unavailable；N1/N2/N4 candidate-exposures为35/70/140；D4 compute 0.4301s。所有值绑定来源/语义，未用mtime或估算。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/{summary.json,costs.json,failure-cases.json}。
+- 下一步：程序化核对五字段×两family计数守恒、全部bootstrap次数/有限状态、BT中心化、输出inventory及正式输入运行后checksum，再写正式回执。
+
+
+## D4-REAL-v01-INVARIANTS
+
+- 时间：2026-09-04T16:03:39.1950764+08:00；环境：本地 Windows CPU-only；步骤/实验 ID：D4-REAL-v01-INVARIANTS。
+- 行动/命令：PowerShell只读程序化遍历summary的2 family×5 field，检查W+L+T+U固定分母、bootstrap valid+invalid=2000；检查五个4x4 confusion矩阵均n=32、exact denominator、BT ability中心化/edge、bootstrap.jsonl行数、aggregate/analysis精确文件集合、额外D4根及四个D3固定SHA。
+- 结果：0失败。所有10个主表单元计数守恒为28/14；bootstrap每单元2000次且overall两family均2000有效/0无效；五字段agreement矩阵均32，exact 7/32；BT edge=11、ability和=-5.55e-17；bootstrap.jsonl恰2000行；aggregate 5文件、analysis 11文件且无未知文件；不存在其他D4成功/失败根；D3 bundle/A/B/dual SHA运行后仍全部匹配。其余字段真实计数完整保留在main-table.csv：N4-vs-N1 F 3/4/19/2、P 3/5/16/4、T 2/1/24/1、Q 4/4/16/4；vs Linear F 2/1/10/1、P 2/2/8/2、T 2/1/10/1、Q 2/2/8/2。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D4-v01/{aggregate,analysis,verification.json}；analysis/main-table.csv。
+- 下一步：生成不含逐题原始载荷的D4_IMPLEMENTATION_RECEIPT并更新总施工方案D4状态/实际CLI；随后运行最终全仓验收。
+
+
+## D4-ACCEPT-TEST-01
+
+- 时间：2026-09-04T16:15:05.3674161+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-TEST-01。
+- 行动/命令：在冻结源码提交7997698和已验证D4-v01真实输出下运行`uv run pytest -o addopts='' -q`。
+- 结果：退出码0，250 passed in 601.76s（10m01s）；全仓W1/E1/E2/Defense回归通过，D4未造成跨协议回归。真实artifacts保持Git忽略且测试未重跑真实分析。
+- 产物：全仓最终源码pytest回执。
+- 下一步：写D4_IMPLEMENTATION_RECEIPT并将总施工方案更新为D4正式验收完成/D5尚未启动；随后刷新静态、CLI、verifier和Git发布守卫。
+
+
+## D4-ACCEPT-DOC-01
+
+- 时间：2026-09-04T16:16:53.2467297+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-DOC-01。
+- 行动/命令：新增D4_IMPLEMENTATION_RECEIPT.md；将总施工方案更新为v1.4-d4-complete、实际D4 CLI和9月5日退出条件已满足，同时明确D5尚未启动。
+- 结果：回执记录预解封commit/config、唯一输入/输出SHA、42=32+10与28/14/7不变量、两family五字段主表/CI、五字段agreement/kappa、BT、失败案例、成本、验证/测试和局限。明确N4-vs-N1 overall tie-aware 0.554但CI跨0.5，vs Linear为0.5；低一致性和小样本完整保留。文档不含逐题原始答案、notes、private mapping、token或媒体。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_RECEIPT.md；docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md。
+- 下一步：运行文档事实/链接/敏感载荷/diff静态检查，再刷新compileall、CLI smoke、正式D3/D4 verifier及最终checksum。
+
+
+## D4-ACCEPT-DOC-TEST-01
+
+- 时间：2026-09-04T16:17:35.0646053+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-DOC-TEST-01。
+- 行动/命令：检查D4回执11个关键事实、6个链接、entry token、逐题comparison ID泄漏、总计划状态及`git diff --check`。
+- 结果：检查退出码1。10/11关键字匹配，链接/敏感载荷/raw comparison ID/diff均通过；唯一失败是回执用“没有自动开始D5”而校验器要求逐字“D5 尚未启动”。总计划已包含该短语。属于静态校验断言过窄，不是状态事实缺失；不修改回执语义，放宽为接受两种明确表述后重跑。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_RECEIPT.md；文档静态检查诊断。
+- 下一步：修正静态断言为接受“D5 尚未启动”或“没有自动开始 D5/D5”，重跑全部文档检查。
+
+
+## D4-ACCEPT-DOC-TEST-02
+
+- 时间：2026-09-04T16:18:04.3740824+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-DOC-TEST-02。
+- 行动/命令：放宽D5等价明确表述后重跑D4回执10项事实、6链接、总计划v1.4状态、D5边界、entry token/raw comparison ID及`git diff --check`。
+- 结果：退出码0；所有事实/链接/状态匹配，0 entry token，0逐题comparison ID，diff whitespace通过。回执只公开聚合统计与摘要。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_RECEIPT.md；docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md静态验证回执。
+- 下一步：运行最终compileall和D4 CLI/config smoke，再重复正式D3/D4 verifier到新的验收回执路径。
+
+
+## D4-ACCEPT-STATIC-01
+
+- 时间：2026-09-04T16:18:24.9201718+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-STATIC-01。
+- 行动/命令：`uv run python -m compileall -q src tests`。
+- 结果：退出码0，1.1秒；D4完成文档状态下最终源码/测试编译通过。
+- 产物：src/tests最终compileall回执。
+- 下一步：运行version、三个D4 CLI help和analysis配置加载smoke。
+
+
+## D4-ACCEPT-CLI-01
+
+- 时间：2026-09-04T16:18:47.6203365+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-CLI-01。
+- 行动/命令：并行运行defense version、aggregate/analyze/verify-analysis `--help`及严格加载analysis-v1配置。
+- 结果：5项退出码均为0；D4 CLI参数完整可发现，配置确认为defense-analysis-v1、seed 20260901、2000次、7 clusters、5 fields。
+- 产物：最终D4 CLI/config smoke回执。
+- 下一步：在不覆盖原verification.json的前提下，运行正式D3 verifier并将D4 verifier输出到新的verification-acceptance.json；随后核对两个verification内容与输入SHA。
+
+
+## D4-ACCEPT-VERIFY-FAIL-01
+
+- 时间：2026-09-04T16:19:45.3504841+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-VERIFY-FAIL-01。
+- 行动/命令：尝试用单个PowerShell命令运行D3/D4重复verifier、比较临时与正式回执，并在验证后递归删除系统临时目录。
+- 结果：进程启动前被工具策略拒绝，原因是复合命令包含递归删除；没有执行D3/D4 verifier，没有创建或删除临时目录，没有读取/修改正式输入输出。该失败不影响已通过的正式verification.json，但需用无删除命令重跑验收。
+- 产物：工具层CreateProcess rejection诊断；正式artifacts未变。
+- 下一步：分别运行D3 verifier和D4 verifier；D4 no-replace回执写入明确的系统Temp文件并保留，再只读比较其SHA/内容与正式verification.json及输入pins。
+
+
+## D4-ACCEPT-VERIFY-01
+
+- 时间：2026-09-04T16:20:14.0339517+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-VERIFY-01。
+- 行动/命令：最终再次运行`uv run defense verify-annotations`绑定formal bundle与A/B完整export。
+- 结果：退出码0，2.5秒；仍为formal/dual/complete、64真人+10共享自动、A/B各42/42、missing0；未输出具体答案值或notes。
+- 产物：D3正式源最终只读verifier回执。
+- 下一步：运行D4 verify-analysis到明确系统Temp no-replace文件，比较其内容与正式verification.json。
+
+
+## D4-ACCEPT-VERIFY-02
+
+- 时间：2026-09-04T16:20:45.6658782+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-VERIFY-02。
+- 行动/命令：确认`C:\Users\18531\AppData\Local\Temp\defense-d4-acceptance-20260904-v01.json`不存在后，运行完整`uv run defense verify-analysis`并将no-replace验收回执写入该系统Temp文件。
+- 结果：退出码0，4.3秒；status=passed，42=32+10、family28/14、7 clusters、agreement n32、bootstrap2000、BT ok；aggregate/analysis/summary SHA与正式verification.json声明一致。未覆盖正式回执，Temp文件保留为本次验收证据。
+- 产物：系统Temp/defense-d4-acceptance-20260904-v01.json；正式artifacts未增删。
+- 下一步：只读比较Temp与正式verification.json逐字节/哈希，复核D3四pins和D4各核心SHA后执行最终Git发布守卫。
+
+
+## D4-ACCEPT-VERIFY-FAIL-02
+
+- 时间：2026-09-04T16:21:21.5128022+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-VERIFY-FAIL-02。
+- 行动/命令：尝试用PowerShell Byte数组实例`SequenceEqual`比较Temp与正式verification，并同时核对8个D3/D4核心SHA、HEAD/origin和工作树。
+- 结果：检查退出码1；PowerShell将字节数组展开为单个Byte，实例方法调用失败，导致ByteIdentical为空。其余证据已成功：TempSHA与FormalSHA同为`bcb34778eb9370e062da72472756de9fec9b99663c6f55d2e0a7677da405183f`，8个核心SHA 0 mismatch，HEAD=origin/main=7997698。属于校验脚本API误用，正式文件未修改；不能把本次视为完整通过。
+- 产物：Temp与正式verification哈希诊断；正式artifacts未变。
+- 下一步：以SHA相等且文件长度相等作为字节身份检查，重跑8个核心SHA和工作树核对。
+
+
+## D4-ACCEPT-VERIFY-03
+
+- 时间：2026-09-04T16:21:56.9690825+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-VERIFY-03。
+- 行动/命令：用SHA-256+长度重跑Temp/正式verification身份比较，并核对D3 bundle/A/B/dual、D4 aggregate/analysis inventories、summary和verification共8个固定SHA以及HEAD/origin。
+- 结果：退出码0；Temp与正式verification均626字节且SHA同为bcb34778…，内容身份确认；8个核心SHA 0 mismatch；HEAD=origin/main=7997698。正式输入、统计产物和验证回执在最终验收中保持不变。
+- 产物：系统Temp验收回执与artifacts/defense_mvp/DEFENSE-MVP-D4-v01/verification.json身份核对。
+- 下一步：执行最终未暂存Git路径/大小/NUL/whitespace/敏感载荷守卫；fetch远端后只暂存DEVLOG、总计划和D4回执完成文档。
+
+
+## D4-ACCEPT-GIT-01
+
+- 时间：2026-09-04T16:22:27.7203996+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-GIT-01。
+- 行动/命令：最终未暂存allowlist、`git diff --check`、src/tests/config无后续diff、<1MiB/NUL、entry token、逐题comparison ID、screen/canonical/notes原始JSON载荷形态守卫。
+- 结果：退出码0。待发布仅DEVLOG、总计划、D4实现回执；源码/测试/冻结配置自7997698后无改动；无whitespace、意外路径、超限、NUL或敏感载荷。根tar/sidecar仍仅未跟踪并排除；artifacts未进入Git状态。
+- 产物：D4完成文档发布候选路径集合。
+- 下一步：fetch origin/main并核对7997698基线；显式暂存3文档，执行cached守卫后创建完成审计提交和普通push。
+
+
+## D4-ACCEPT-PUBLISH-01
+
+- 时间：2026-09-04T16:22:53.7194744+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-PUBLISH-01。
+- 行动/命令：`git fetch origin main`并核对HEAD/origin/main/工作树。
+- 结果：fetch退出码0；HEAD=origin/main=`79976982a3a438ffe13b596ea4389d3645d8847a`，远端未前移。待发布tracked仅DEVLOG/总计划，新增仅D4实现回执；tar/sidecar未跟踪排除。
+- 产物：Git main/origin main完成发布基线。
+- 下一步：显式暂存3文档，运行cached路径/文本/大小/NUL/敏感载荷/whitespace守卫。
+
+
+## D4-ACCEPT-PUBLISH-02
+
+- 时间：2026-09-04T16:23:24.1950501+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-PUBLISH-02。
+- 行动/命令：显式暂存DEVLOG、总计划、D4回执并运行cached路径/二进制/大小/NUL/敏感载荷/whitespace守卫。
+- 结果：守卫退出码1，未提交。三路径集合正确，但D4回执第3行Markdown硬换行含尾随空格且文件末尾多一空白行；后续安全检查不作为完整成功证据。仅格式问题，需修正后重跑全部守卫。
+- 产物：Git index三文档；docs/defense_mvp/D4_IMPLEMENTATION_RECEIPT.md。
+- 下一步：移除尾随空格和末尾额外空行，重新暂存并重跑完整cached守卫。
+
+
+## D4-ACCEPT-FIX-01
+
+- 时间：2026-09-04T16:23:48.9107523+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-FIX-01。
+- 行动/命令：将D4回执元数据硬换行改为段落空行并删除EOF额外空白行。
+- 结果：仅修正Markdown whitespace，不改变任何统计、SHA、验收结论或状态。
+- 产物：docs/defense_mvp/D4_IMPLEMENTATION_RECEIPT.md。
+- 下一步：重新显式暂存3文档并运行完整cached发布守卫。
+
+
+## D4-ACCEPT-PUBLISH-03
+
+- 时间：2026-09-04T16:24:16.0059958+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-PUBLISH-03。
+- 行动/命令：重新显式暂存3文档，运行cached精确路径、`git diff --cached --check`、二进制、<1MiB/NUL、entry token、逐题comparison ID和raw screen/canonical/notes payload守卫。
+- 结果：全部通过；暂存恰DEVLOG、总计划、D4实现回执，0二进制/异常大小/NUL/敏感载荷，最大文件DEVLOG 496981字节。tar、sidecar、artifacts和正式答案未暂存。
+- 产物：Git index中的D4完成发布候选。
+- 下一步：重新暂存本条DEVLOG，最终复核三路径/whitespace后创建D4完成审计提交。

@@ -1,18 +1,19 @@
 # Defense MVP 详细施工方案
 
 > 暂定题目：**基于约束式多目标排序的指令视频编辑候选选择与盲评系统**
-> 文档版本：v1.3-d3-complete（2026-09-04 正式标注收口）
+> 文档版本：v1.4-d4-complete（2026-09-04 正式统计收口）
 > 制定日期：2026-09-01
 > 目标完成日期：2026-09-08
 > 施工环境：本地 Windows、CPU-only
-> 当前状态：**D3 正式双人标注已完成并验证；D4 尚未启动**
+> 当前状态：**D4 正式聚合与统计分析已完成并验证；可以进入 D5，D5 尚未启动**
 
-D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评工程和正式标注已完成；
+D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评与 D4 正式统计已完成；
 最终为 `formal/dual/complete`，64 条真人确认记录 + 10 条共享自动平局，A/B 各42/42。
-统计报告与答辩材料尚未完成。D3 详细证据见 [正式标注完成回执](defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md)、
+最终报告与答辩材料尚未完成。D3 详细证据见 [正式标注完成回执](defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md)、
 [D3 实现回执](defense_mvp/D3_IMPLEMENTATION_RECEIPT.md) 与 [标注指南](defense_mvp/ANNOTATION_GUIDE.md)。
 实际运行、冻结身份、重建命令及 D3 接口见 [D2 实现回执](defense_mvp/D2_IMPLEMENTATION_RECEIPT.md)。
-D4 尚未执行；新对话施工入口见 [D4 施工提示词](defense_mvp/D4_IMPLEMENTATION_AGENT_PROMPT.md)。
+D4 正式统计、输出身份和诚实结论见 [D4 实现回执](defense_mvp/D4_IMPLEMENTATION_RECEIPT.md)；
+解封前协议见 [D4 施工方案](defense_mvp/D4_CONSTRUCTION_PLAN.md)。D5 尚未启动。
 
 ---
 
@@ -380,11 +381,17 @@ uv run defense export-annotations --bundle <dir> --session <dir> --output <new-d
 uv run defense verify-annotations --bundle <dir> --export <a-export> --export <b-export>
 ```
 
-以下为 D4–D6 待实现命令，不可当作现成接口：
+以下 D4 命令已经实现；都要求完整封存目录和关联输入，不接受裸 answers 文件：
 
 ```powershell
-uv run defense aggregate --plan <comparisons.json> --left <a.jsonl> --right <b.jsonl> --output <new-dir>
-uv run defense analyze --aggregate <dir> --selection <file> --output <new-dir>
+uv run defense aggregate --bundle <bundle-dir> --left <a-export-dir> --right <b-export-dir> --dual-verification <file> --selection <dir> --metrics <dir> --design <dir> --ingest <manifest> --output <new-dir>
+uv run defense analyze --aggregate <dir> --selection <dir> --metrics <dir> --design <dir> --ingest <manifest> --output <new-dir>
+uv run defense verify-analysis --bundle <bundle-dir> --left <a-export-dir> --right <b-export-dir> --dual-verification <file> --aggregate <dir> --analysis <dir> --selection <dir> --metrics <dir> --design <dir> --ingest <manifest> --output <new-file>
+```
+
+以下为 D5–D6 待实现命令，不可当作现成接口：
+
+```powershell
 uv run defense report --analysis <dir> --output <new-dir>
 uv run defense verify --experiment-root <dir> --output <new-file>
 ```
@@ -452,7 +459,10 @@ checksum 与冻结选择一致；最终双人验证 `formal/dual/complete`、各
 - 计算 kappa、Bradley–Terry、win rate、bootstrap 和成本；
 - 生成第一版主表与失败案例。
 
-**退出条件**：64 条真人原始回答 + 10 项共享 automatic tie，各人42 coverage；分析可由冻结输入完全重建。
+**退出条件**：64 条真人原始回答 + 10 项共享 automatic tie，各人42 coverage；分析可由冻结输入完全重建。**已满足。**
+
+正式输出为42个唯一聚合（32 human pair + 10 automatic）、family 28/14、7 sample clusters；
+独立 verifier 复算通过。主结果与局限见 D4_IMPLEMENTATION_RECEIPT；D5 尚未启动。
 
 ### 9 月 6 日：D5 report + slides draft
 
