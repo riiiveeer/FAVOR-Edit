@@ -13,7 +13,8 @@ D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评与 D4 正�
 [D3 实现回执](defense_mvp/D3_IMPLEMENTATION_RECEIPT.md) 与 [标注指南](defense_mvp/ANNOTATION_GUIDE.md)。
 实际运行、冻结身份、重建命令及 D3 接口见 [D2 实现回执](defense_mvp/D2_IMPLEMENTATION_RECEIPT.md)。
 D4 正式统计、输出身份和诚实结论见 [D4 实现回执](defense_mvp/D4_IMPLEMENTATION_RECEIPT.md)；
-解封前协议见 [D4 施工方案](defense_mvp/D4_CONSTRUCTION_PLAN.md)。D5 尚未启动。
+解封前协议见 [D4 施工方案](defense_mvp/D4_CONSTRUCTION_PLAN.md)。D5 尚未启动；新对话施工入口见
+[D5 施工提示词](defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md)。
 
 ---
 

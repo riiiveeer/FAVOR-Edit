@@ -11828,3 +11828,93 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：全部通过；暂存恰DEVLOG、总计划、D4实现回执，0二进制/异常大小/NUL/敏感载荷，最大文件DEVLOG 496981字节。tar、sidecar、artifacts和正式答案未暂存。
 - 产物：Git index中的D4完成发布候选。
 - 下一步：重新暂存本条DEVLOG，最终复核三路径/whitespace后创建D4完成审计提交。
+
+
+## D4-ACCEPT-PUBLISH-04
+
+- 时间：2026-09-04T16:24:38.2131588+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-PUBLISH-04。
+- 行动/命令：重新暂存最终DEVLOG，复核三路径集合/cached whitespace后执行`git commit -m "docs(defense): record D4 analysis acceptance"`。
+- 结果：提交成功`e9322821f5986f6939065b911a396b84f2981af1`，仅DEVLOG、总施工方案和D4实现回执，406行新增/9行删除；不含artifacts、原始答案、媒体、tar或敏感载荷。
+- 产物：Git commit e932282；docs/defense_mvp/D4_IMPLEMENTATION_RECEIPT.md。
+- 下一步：按Defense授权普通push origin main；随后核对HEAD/origin、工作树、D4/D3核心SHA和无D5产物。
+
+
+## D4-ACCEPT-PUBLISH-05
+
+- 时间：2026-09-04T16:25:27.3065090+08:00；环境：本地 Windows CPU-only；步骤 ID：D4-ACCEPT-PUBLISH-05。
+- 行动/命令：`git push origin main`后核对HEAD/origin、工作树、8个D3/D4核心SHA、正式verification、不重复D4根及完成提交路径。
+- 结果：普通push成功`7997698→e9322821f5986f6939065b911a396b84f2981af1`，无force；HEAD=origin/main=e932282。8个核心SHA 0 mismatch；verification仍passed（42=32+10、bootstrap2000、BT ok）；唯一D4根为DEFENSE-MVP-D4-v01。完成提交仅3文档。唯一tracked未提交为本push/最终身份DEVLOG回执；根tar/sidecar仍未跟踪。没有D5实现、报告、slides或录屏产物。
+- 产物：origin/main；Git commits 7997698与e932282；artifacts/defense_mvp/DEFENSE-MVP-D4-v01；docs/defense_mvp/D4_IMPLEMENTATION_RECEIPT.md。
+- 下一步：D4停止点已满足，可以由新的明确接续进入D5报告制作；本任务不自动启动D5。
+
+
+## D5-HANDOFF-DOC-01
+
+- 时间：2026-09-05T15:42:52.0743673+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-DOC-01。
+- 行动/命令：参考并完整核对 `D4_IMPLEMENTATION_AGENT_PROMPT.md`、根 `AGENTS.md`、D4 实现回执、总施工方案、D4/D2 正式身份、真实工作树与 DEVLOG 末尾，新增 D5 新对话施工提示词；冻结其事实来源、诚实叙事、图表、确定性案例选择/抽帧、8–10 页 slides、5–7 分钟讲稿、录屏方案、no-replace、测试和 D6 停止边界。
+- 结果：生成 384 行 `D5_IMPLEMENTATION_AGENT_PROMPT.md`，SHA-256=`f06c2655a57e199c6ee415b60d36f5824a347713b2bf9d3d449f509e765d2716`。提示词以 HEAD/origin `e932282` 为编制快照，要求新对话仍以现场为准；明确 D5 不修改 D1–D4、不读取/发布 notes/逐题原答、不挑有利案例、不录屏或自动进入 D6。
+- 产物：docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md；DEVLOG.md。
+- 下一步：对提示词运行结构、事实 SHA、路径、停止点、敏感载荷、Markdown whitespace 与 Git diff 静态检查；发现问题先记录再修正。
+
+
+## D5-HANDOFF-TEST-FAIL-01
+
+- 时间：2026-09-05T15:43:32.7573572+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-TEST-FAIL-01。
+- 行动/命令：运行 D5 提示词首轮结构、8 个正式输入 SHA、敏感载荷 regex 和 `git diff --check` 组合静态检查。
+- 结果：检查在结构断言阶段退出码 1；误把提示词文件自身 SHA 前缀 `f06c2655` 当成正文必须包含的内容，实际正文不应自引用自身哈希。正式输入 SHA 尚未进入本次完整检查，文件未被修改；这是测试断言错误，不是提示词缺陷。
+- 产物：D5 提示词静态检查失败诊断；docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md 保持不变。
+- 下一步：从 required 正文列表移除自哈希断言，单独核对文件 SHA，重新运行全部结构、正式 SHA、敏感载荷和 whitespace 检查。
+
+
+## D5-HANDOFF-TEST-01
+
+- 时间：2026-09-05T15:44:07.7425179+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-TEST-01。
+- 行动/命令：修正静态测试断言后，重新检查 10 个必需章节/门禁短语、8 个 D4/D2 正式文件实际 SHA 与正文 pin、提示词自身 SHA、4 类敏感载荷模式及 `git diff --check`。
+- 结果：退出码 0；required=10、pins=8、敏感载荷模式命中 0、Markdown/Git whitespace 通过、文件 384 行，SHA-256=`f06c2655a57e199c6ee415b60d36f5824a347713b2bf9d3d449f509e765d2716`。提示词内关键正式 SHA 与当前文件一致。
+- 产物：docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md；D5 handoff 静态验证回执。
+- 下一步：人工复核提示词与 D4 模板结构、D5/D6 边界、可执行性和 Git 发布范围；随后执行最终状态/差异守卫并按既有授权审计发布。
+
+
+## D5-HANDOFF-DOC-02
+
+- 时间：2026-09-05T15:44:43.2087003+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-DOC-02。
+- 行动/命令：在总施工方案当前状态段新增 D5 新对话施工提示词链接，同时保持文档版本 `v1.4-d4-complete` 和“D5 尚未启动”事实不变。
+- 结果：总计划现在可直接发现 D5 施工入口，未把提示词发布误记为 D5 实施开始；文件 SHA-256=`8366772060871ebf5f3df87c62b01cc950b0da04c4f5831fada42335d759d649`。
+- 产物：docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md；docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md。
+- 下一步：重跑文档链接/状态/结构/whitespace 检查并完成人工边界复核；随后检查 staged allowlist 后审计提交和普通 push。
+
+
+## D5-HANDOFF-TEST-02
+
+- 时间：2026-09-05T15:45:10.9895152+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-TEST-02。
+- 行动/命令：检查总计划 D5 链接/“尚未启动”状态、提示词 H2 章节 1–9 顺序、12 个关键事实/停止边界、相对 Markdown 链接存在性及 `git diff --check`。
+- 结果：退出码 0；H2 顺序 1–9、12 个事实/边界全部存在，总计划链接与 D5 尚未启动状态一致，缺失链接 0，whitespace 检查通过。人工复核确认提示词把 D4 machine-readable 结果设为唯一主事实源，案例采用预定稳定选择且同时覆盖 win/loss/uncertain/qualitative boundary，slides 初稿/讲稿在 D5，录屏和最终 manifest 明确保留 D6。
+- 产物：docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md；docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md；D5 handoff 文档验收回执。
+- 下一步：检查最终 Git diff、文件大小/NUL/敏感载荷和允许暂存路径；fetch 远端后显式暂存提示词、总计划和 DEVLOG，审计提交并普通 push main。
+
+
+## D5-HANDOFF-GIT-01
+
+- 时间：2026-09-05T15:45:46.7884640+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-GIT-01。
+- 行动/命令：运行未暂存 allowlist、文件 `<1MiB`、NUL、敏感载荷 regex、`git diff --check`、status 和 diff stat 守卫。
+- 结果：退出码 0。待发布 tracked 仅 `DEVLOG.md` 与总计划，新增仅 D5 提示词；根 tar/sidecar 是允许保留且明确排除的既有未跟踪文件。三份发布文档均无超限/NUL/敏感载荷/whitespace 问题；未发现其他工作树改动。
+- 产物：D5 handoff 发布候选路径集合；Git 工作树守卫回执。
+- 下一步：`git fetch origin main` 并核对远端仍为 e932282；然后显式暂存三份文档并执行 cached 守卫。
+
+
+## D5-HANDOFF-PUBLISH-01
+
+- 时间：2026-09-05T15:46:08.4680354+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-PUBLISH-01。
+- 行动/命令：执行 `git fetch origin main`，核对 HEAD、`origin/main` 与工作树。
+- 结果：fetch 退出码 0；HEAD=`e9322821f5986f6939065b911a396b84f2981af1`，`origin/main` 同值，远端未前移。发布候选仍仅 DEVLOG、总计划和新增 D5 提示词；tar/sidecar 未跟踪且排除。
+- 产物：Git main/origin main 发布基线。
+- 下一步：显式暂存 `DEVLOG.md`、总计划和 D5 提示词，运行 cached 路径/whitespace/大小/NUL/敏感载荷守卫。
+
+
+## D5-HANDOFF-PUBLISH-02
+
+- 时间：2026-09-05T15:46:32.5582666+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-PUBLISH-02。
+- 行动/命令：显式 `git add` 三份授权文档，运行 cached 精确路径、`git diff --cached --check`、`<1MiB`、NUL、敏感载荷和 diff stat 守卫。
+- 结果：退出码 0；暂存恰为 `DEVLOG.md`、`docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md`、`docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md`，467 行新增/1 行删除；无 whitespace、超限、NUL 或敏感载荷。tar/sidecar、artifacts 与媒体未暂存。
+- 产物：Git index 中的 D5 新对话施工提示词发布候选。
+- 下一步：重新暂存本条 DEVLOG，最终复核 cached 三路径/whitespace 后创建审计提交 `docs(defense): add D5 implementation handoff`。
