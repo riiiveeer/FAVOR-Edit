@@ -1,0 +1,132 @@
+schema_version: '1'
+protocol: defense-report-v1
+input_pins:
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/aggregate/SHA256SUMS: 17cd49237c975669c45e3cad6591db013333d6ba279f33660b6d2b3839e663d7
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/SHA256SUMS: 5954d64759e1b1310b7e752d96b223140a1b7a8a873cf70e375b42ce6d25d37b
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/summary.json: a329396cddbbe0eaca66430c7df0743c6e16c885f181f4fd90c49ab7e7326e17
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/main-table.csv: 8948b6807301e72df61bac749b628409f5b48e33df347895ebd699616819d968
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/agreement.csv: fc4ddb4a03e92d34781c01d7141233375ec43c86d3874ecaff4b394dec18c492
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/bootstrap.jsonl: 18ad2f59cc3d97317406d0114a70ebf5eb0e3e58fa39aeb03c9e21b548f9526a
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/bt.json: 21e8967a5c20d00d9b267d58ce52213f1e817b7b13ba753799d75a20781af791
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/costs.json: 12bb28c826e9bf6db5c810d7bb07791b5dcc6d3d2c76a1a42cf18c5607f7ecf1
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/failure-cases.json: b391905c91cc9b0f6b19a517d8489e88dd461e1f30e558ac16c21e46a220ae03
+  artifacts/defense_mvp/DEFENSE-MVP-D4-v01/verification.json: bcb34778eb9370e062da72472756de9fec9b99663c6f55d2e0a7677da405183f
+  artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json: b0eee7ab41aff575220957fae4dd67afd0fbaac85e4f756d023a9e42929f0b46
+  artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/INGEST_SHA256SUMS: c8eca842c9734ad8be85589bc928517000371051f86eb33909094ccdf676d1f2
+  artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/metrics.jsonl: c9828aaec312187fafa2e7f5d6a6c77170cb2ff7caf23d9ada8218d440515dac
+  artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/METRICS_SHA256SUMS: fd947a0d31be63b73e38c9e75e7404c20d4412c62018de97141bb53b3b085c0d
+  artifacts/defense_mvp/DEFENSE-MVP-v01/design/design.json: 891ee8b0d75acf5c825fd01d529d545f12a7fb1b72a4310364a805d8d6cd1ff5
+  artifacts/defense_mvp/DEFENSE-MVP-v01/design/DESIGN_SHA256SUMS: a1d41b96454a41a3693bfe210cbc58339c9e85490a815db45a7e482a45198910
+  artifacts/defense_mvp/DEFENSE-MVP-v01/selection/comparisons.json: 486dad879372b6f687a380ebe4e102d61b6df89392426c7cc3aea7e9aeffb9cb
+  artifacts/defense_mvp/DEFENSE-MVP-v01/selection/selection-lock.json: 99ce0522397707649aa34d82cfde3c3df4a5d898acbc702d6e53282f07741fb2
+  artifacts/defense_mvp/DEFENSE-MVP-v01/selection/SELECTION_SHA256SUMS: a94929c3bf7c3b716ba0e59f468156ea0855b8a8b23a7657df2039705c5b400d
+  configs/defense_mvp/pilot.yaml: 19f827d1ce84604eb68336fe549b7530a67d6b4074ad92b05b4cc8d63663feae
+  configs/defense_mvp/analysis-v1.yaml: 9b29f1fad47b35ff7ae75b928e1811b98347aec8c7e2fe175cf09a7f1a283fa0
+digits: 3
+ability_digits: 6
+font_family: Microsoft YaHei
+font_fallback:
+- Microsoft YaHei
+- SimHei
+figures:
+  width: 1600
+  height: 900
+  dpi: 160
+  background: white
+  ci_axis:
+  - 0.0
+  - 1.0
+  agreement_axis:
+  - -1.0
+  - 1.0
+  reference: 0.5
+  colors:
+    win: '#0072B2'
+    loss: '#D55E00'
+    tie: '#999999'
+    uncertain: '#CC79A7'
+  outcome_axis:
+  - 0
+  - 28
+cases:
+  family: proposed-n4-vs-n1
+  source: human_pair
+  outcomes:
+  - win
+  - loss
+  - uncertain
+  sort:
+  - family
+  - sample_id
+  - trial_id
+  - replicate
+  - comparison_id
+  qualitative_sort:
+  - sample_id
+  boundary_candidates: all-sort-candidate_id
+  positions:
+  - 0.0
+  - 0.3333333333333333
+  - 0.6666666666666666
+  - 1.0
+  rounding: floor((frame_count-1)*position+0.5)
+  expected_frames: 16
+  pixel_size:
+  - 512
+  - 512
+  missing: unavailable-with-reason
+slides:
+  count: 10
+  width: 1280
+  height: 720
+  order:
+  - conclusion
+  - scope
+  - system
+  - metrics
+  - selection
+  - blind
+  - results
+  - cases
+  - limitations
+  - next
+  titles:
+  - 描述性信号仍不足以支持稳定优势
+  - 定量范围是颜色与局部编辑
+  - 身份审计贯穿选择与评估
+  - 四维代理描述变化，语义仍需人评
+  - 约束门槛限制维度间补偿
+  - 保守聚合保留平局与不确定
+  - 相对线性方法未观察到差异
+  - 固定样例同时展示成功与局限
+  - 低一致性与小样本限制结论
+  - 工程闭环已形成，效果仍待验证
+script:
+  effective_characters_per_minute: 260
+  min_seconds: 300
+  max_seconds: 420
+privacy:
+  public_ids: false
+  raw_answers: false
+  notes: false
+  absolute_paths: false
+outputs:
+  report: report/DEFENSE_REPORT.md
+  slides: slides/DEFENSE_MVP_D5_DRAFT.pptx
+  script: script/DEFENSE_SCRIPT.md
+  recording: script/RECORDING_PLAN.md
+protocol_constants:
+  n1: 1
+  n2: 2
+  n4: 4
+  five: 5
+  two_reviewers: 2
+  ci_reference: 0.5
+  ci_level: 95
+  frame_count: 16
+  frame_first: 0
+  frame_third: 5
+  frame_twothirds: 10
+  frame_last: 15
+  f_quantile: 0.5
+  p_quantile: 0.25

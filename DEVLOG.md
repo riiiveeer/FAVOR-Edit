@@ -11918,3 +11918,357 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：退出码 0；暂存恰为 `DEVLOG.md`、`docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md`、`docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md`，467 行新增/1 行删除；无 whitespace、超限、NUL 或敏感载荷。tar/sidecar、artifacts 与媒体未暂存。
 - 产物：Git index 中的 D5 新对话施工提示词发布候选。
 - 下一步：重新暂存本条 DEVLOG，最终复核 cached 三路径/whitespace 后创建审计提交 `docs(defense): add D5 implementation handoff`。
+
+
+## D5-HANDOFF-PUBLISH-03
+
+- 时间：2026-09-05T15:46:56.1598248+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-PUBLISH-03。
+- 行动/命令：重新暂存最终 DEVLOG，复核 cached 三路径和 whitespace 后执行 `git commit -m "docs(defense): add D5 implementation handoff"`。
+- 结果：提交成功 `9f1f3c565ff133c7559635b0c48d52ca5b2ab511`，仅 DEVLOG、总施工方案和 D5 提示词，476 行新增/1 行删除；不含 artifacts、tar/sidecar、正式答案、媒体或敏感载荷。
+- 产物：Git commit `9f1f3c5`；docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md。
+- 下一步：按 Defense MVP 既有授权普通 push `origin main`；随后核对 HEAD/origin、工作树和 D4 核心输入 SHA。
+
+
+## D5-HANDOFF-PUBLISH-04
+
+- 时间：2026-09-05T15:47:30.7072946+08:00；环境：本地 Windows CPU-only；步骤 ID：D5-HANDOFF-PUBLISH-04。
+- 行动/命令：执行 `git push origin main`、随后 fetch，并核对 HEAD/origin、工作树与 D4 aggregate/analysis inventory、summary、verification 四个核心 SHA。
+- 结果：普通 push 成功 `e932282→9f1f3c565ff133c7559635b0c48d52ca5b2ab511`，无 force；HEAD=`origin/main`=`9f1f3c5`，D4 核心 SHA mismatch=0。工作树唯一 tracked 未提交为本次 commit/push 最终回执 `DEVLOG.md`；根 tar/sidecar 仍未跟踪且未暂存。没有启动 D5 实现、生成 D5 正式 artifact、修改 D1–D4 或进入 D6。
+- 产物：origin/main；Git commit `9f1f3c5`；docs/defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md。
+- 下一步：用户可在新对话要求完整阅读并执行 D5 提示词；新 agent 应以真实现场重新核对后从 D5.0/D5.1 开始。
+
+## D5.0-PREFLIGHT-01
+
+- 时间：2026-09-05T16:19:42.9543169+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.0-PREFLIGHT-01。
+- 行动/配置：完整读取 D5 提示词、AGENTS、D2–D4 回执/方案、相关源码/测试和 slides skill；检查 Git、工具字体与正式输入全部 pin，调用 D2 validate_inputs 和六个 inventory verifier。
+- 结果：预检退出码 1；HEAD/origin 为 9f1f3c5，已有 DEVLOG 与未跟踪 tar/sidecar 保留；D5 尚无输出。详细 pin 与清单结果见命令输出和系统 Temp defense-d5-preflight-identity.json。
+- 产物：系统 Temp 身份快照；D1–D4 只读。
+- 下一步：根据预检结果完成 D5 施工计划和版本化展示协议。
+
+## D5.0-PREFLIGHT-02
+
+- 时间：2026-09-05T16:20:12.1683081+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.0-PREFLIGHT-02。
+- 行动：修正预检脚本的 D2 inventory 路径，使用真实源码规定的 INGEST/METRICS/DESIGN/SELECTION_SHA256SUMS；未改文件或摘要。
+- 结果：退出码 0。前次仅因提示词表格使用 SHA256SUMS 简称而 FileNotFound，未产生此前描述的 Temp 身份文件；本次核对全部22个 pin 与六个完整清单，以及D2角色/候选/媒体关系。
+- 产物：系统 Temp defense-d5-preflight-identity.json。
+- 下一步：冻结 D5 计划/config 和案例展示规则，用 fixture 验证后再开正式媒体。
+
+## D5.0-D4-VERIFY-01
+
+- 时间：2026-09-05T16:20:39.9176177+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.0-D4-VERIFY-01。
+- 行动：运行原有 verify-analysis 到唯一系统 Temp 文件，完整重验 D3/D4；只让验证器内部处理封存记录，不向报告、终端或模型暴露原始答案、notes、私有映射。
+- 结果：退出码 0；临时回执与正式 verification SHA 相等。前项 preflight 实际 pin 数为21（此前日志22为记数笔误），6清单通过，42角色和60视频身份通过。
+- 产物：系统 Temp 新 D4 验证回执；D4 原文件未覆盖。
+- 下一步：新增独立 reporting 子包与模块 CLI，避免改变 D4 source_evidence 所冻结的顶层源码。
+
+## D5.1-PROTOCOL-01
+
+- 时间：2026-09-05T16:23:05.4988018+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.1-PROTOCOL-01。
+- 行动：新增 D5_CONSTRUCTION_PLAN.md 与 report-v1.yaml，固定21个输入SHA、案例稳定键、0/5/10/15帧规则、定性样本全部候选、图轴/配色/字体、10页顺序、讲稿语速和发布边界。
+- 结果：施工与展示协议落盘；选择独立子包/模块CLI和bundled Matplotlib/Node，保持D4顶层source identity。尚未打开正式案例媒体。
+- 产物：docs/defense_mvp/D5_CONSTRUCTION_PLAN.md；configs/defense_mvp/report-v1.yaml。
+- 下一步：实现并测试严格配置/输入门禁、事实注册和确定性案例选择。
+
+## D5.2-CORE-01
+
+- 时间：2026-09-05T16:26:27.6543881+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-CORE-01。
+- 行动：新增 reporting/core.py 与独立包，实现配置摘要严格门禁、21 pins映射、D4黑盒重验、D2完整身份链、全帧checksum、公开聚合投影、稳定案例选择、事实注册和叙事/讲稿守卫。
+- 结果：源码已写入，尚未测试或运行正式D5，不打开正式媒体。
+- 产物：src/defense_mvp/reporting/。
+- 下一步：核对源schema并建立synthetic协议/案例/事实测试，修正机械实现问题。
+
+## D5.2-CORE-FIX-01
+
+- 时间：2026-09-05T16:26:50.5066301+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-CORE-FIX-01。
+- 行动：修正配置SHA注入脚本，显式UTF-8读取源码；只读核对D4 summary和D2选择记录的schema键。
+- 结果：前次脚本因Windows默认GBK解码失败，未完成SHA注入；本次成功，不改变协议或正式输入。
+- 产物：reporting/core.py配置SHA常量；schema核对输出。
+- 下一步：完成源字段映射与fixture测试。
+
+## D5.2-FIXTURE-01
+
+- 时间：2026-09-05T16:28:22.5351667+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-FIXTURE-01。
+- 行动：按既有schema修正exact_five_field_agreement的rate.value和selection audit.fallback字段，新增D5 synthetic配置/帧/案例/排序扰动/方向/缺类/事实精度/叙事/时长/pin测试。
+- 结果：仅机械字段映射和fixture；无协议或正式输入修改。
+- 产物：reporting/core.py；tests/defense_mvp/test_d5_reporting.py。
+- 下一步：运行D5定向测试并记录实际结果。
+
+## D5.2-TEST-01
+
+- 时间：2026-09-05T16:28:26.3557005+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-TEST-01。
+- 命令：uv run pytest tests/defense_mvp/test_d5_reporting.py -o addopts='' -q。
+- 结果：退出码 0；实际测试数量和耗时见本次pytest输出。
+- 产物：D5配置/案例/事实fixture测试回执。
+- 下一步：通过后实现统一内容模板、表图和trace输出；失败则先修复机械问题。
+
+## D5.2-CONTENT-01
+
+- 时间：2026-09-05T16:32:37.2655700+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-CONTENT-01。
+- 行动：新增受控中文报告、10页slide-data、逐页讲稿与录屏方案模板，所有测量值经同一事实注册表展开。
+- 结果：前轮D5 fixture为22 passed/0.31秒；内容代码完成，包含主分母/WLTU/CI、失败与不确定、低一致性/BT/成本和代理边界，待完整synthetic展开验收。
+- 产物：reporting/content.py。
+- 下一步：实现Matplotlib图与案例trace/no-replace输出及独立验证器。
+
+## D5.2-ASSETS-01
+
+- 时间：2026-09-05T16:35:05.4957594+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-ASSETS-01。
+- 行动：新增bundled Matplotlib固定轴SVG/PNG生成器和案例页面/原帧复制/contact sheet/内部trace模块，定性样本展示全部候选。
+- 结果：统一配色与同帧对齐代码落盘；未执行正式媒体解码。
+- 产物：reporting/figures.py；reporting/cases.py。
+- 下一步：建立完整synthetic事实/媒体夹具，并展开内容、生成图与案例做工程验证。
+
+## D5.2-SYNTHETIC-01
+
+- 时间：2026-09-05T16:36:55.2672786+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-SYNTHETIC-01。
+- 行动：新增完全本地生成的synthetic事实和单色帧夹具，调用既有纯统计函数生成测试源；扩充全内容展开、像素/trace、状态/计数漂移测试。
+- 结果：测试源显式synthetic-engineering-only，不读取正式答案或媒体，不形成研究测量。
+- 产物：tests/defense_mvp/d5_fixture.py；D5测试扩充。
+- 下一步：运行定向测试，修正内容/时长等机械问题。
+
+## D5.2-TEST-02
+
+- 时间：2026-09-05T16:37:21.5601535+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-TEST-02。
+- 命令：uv run pytest tests/defense_mvp/test_d5_reporting.py -o addopts='' -q。
+- 结果：退出码 0；本轮pytest数量/耗时与失败诊断见输出。
+- 产物：synthetic全内容与案例工程回执。
+- 下一步：按本轮诊断修复机械问题；通过后做图和Slides工程。
+
+## D5.3-SLIDES-ENGINE-01
+
+- 时间：2026-09-05T16:40:21.1452839+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SLIDES-ENGINE-01。
+- 行动：新增Artifact Tool中文10页PPTX工程、skill finalizer、最终PPTX重新导入逐页渲染、layout/图像SHA回执和contact sheet；新增整个D5根staging/no-replace/失败保留输出工程。
+- 结果：代码落盘；图表复用任务指定PNG，文字与流程为原生可编辑对象，尚未执行实际PPTX生成。
+- 产物：reporting/slides.mjs；reporting/build.py。
+- 下一步：在纯synthetic资料上首次生成和渲染Slides，记录每次错误与修复。
+
+## D5.3-SYNTHETIC-RUN-01
+
+- 时间：2026-09-05T16:40:55.839580+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SYNTHETIC-RUN-01。
+- 行动：skill mark_artifact_operation_started成功后，在synthetic-v01/input上执行build_draft、图表和PPTX/render。
+- 结果：实际状态以draft目录或保留的.failed/FAILED.json为准；本次无正式D5数据/媒体。
+- 产物：artifacts/defense_mvp/d5-engineering/synthetic-v01。
+- 下一步：检查运行回执，失败先修复机械问题；成功后进行逐页视觉QA。
+
+## D5.3-SLIDES-FIX-01
+
+- 时间：2026-09-05T16:41:33.9831400+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SLIDES-FIX-01。
+- 行动：根据synthetic-v01失败诊断，为finalizer子进程显式传入RUNTIME_NODE_MODULES/NODE/PYTHON。
+- 结果：首次生成PPTX及结构/布局检查已运行，first-party import因缺环境变量失败；失败目录保留。修复仅运行时定位，与数据、案例或叙事无关。
+- 产物：reporting/slides.mjs；synthetic-v01/.draft-*.failed/FAILED.json。
+- 下一步：新建synthetic-v02再次完整生成；不覆盖首次失败。
+
+## D5.3-SYNTHETIC-RUN-02
+
+- 时间：2026-09-05T16:41:45.467981+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SYNTHETIC-RUN-02。
+- 行动：synthetic-v02全量生成报告/图/案例/PPTX及逐页渲染。
+- 结果：状态以draft或.failed回执为准，纯工程素材；正式媒体gate仍关闭。
+- 产物：artifacts/defense_mvp/d5-engineering/synthetic-v02。
+- 下一步：检查诊断或进行全页视觉验收。
+
+## D5.3-SLIDES-FIX-02
+
+- 时间：2026-09-05T16:42:38.3925027+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SLIDES-FIX-02。
+- 行动：synthetic-v02已输出10页、全部PNG、finalizer和slides回执后，Node原生canvas在进程退出阶段返回3221226505；改为全部await写入完成后显式process.exit(0)。
+- 结果：保留v02失败目录，未把异常退出接受为成功；修复仅进程收尾，需新fixture证明正常退出。
+- 产物：reporting/slides.mjs；synthetic-v02诊断和完整渲染。
+- 下一步：使用synthetic-v03完整重建并检查退出码与视觉。
+
+## D5.3-SYNTHETIC-RUN-03
+
+- 时间：2026-09-05T16:42:49.390200+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SYNTHETIC-RUN-03。
+- 行动：synthetic-v03全量生成报告/图/案例/PPTX及逐页渲染。
+- 结果：状态以draft或.failed回执为准；纯工程数据，无正式媒体。
+- 产物：artifacts/defense_mvp/d5-engineering/synthetic-v03。
+- 下一步：验证成功退出、完整输出和全页视觉。
+
+## D5.2-VERIFIER-01
+
+- 时间：2026-09-05T16:45:15.8887490+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-VERIFIER-01。
+- 行动：新增D5模块CLI与独立verifier，重建稳定文档/表/图/案例/讲稿，检查完整预期inventory、链接、PPTX逐页文本/数值/图片/notes、渲染SHA/contact sheet、source/config/input和视觉QA绑定。
+- 结果：代码落盘；无D6最终verify或交付manifest；正式运行仍未开始。
+- 产物：reporting/verification.py；reporting/__main__.py。
+- 下一步：使用synthetic-v03验证器回归与逐页视觉QA，补tamper/no-replace测试。
+
+## D5.3-SLIDES-FIX-03
+
+- 时间：2026-09-05T16:46:50.2343860+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SLIDES-FIX-03。
+- 行动：v03显式process.exit仍在全部产物写完后触发同一3221226505，保留诊断；改为renderer写完后保持idle，父进程核对PPTX/10个PNG SHA再终止辅助进程，完整记录受控关闭策略和退出码。并按实际skill回执schema验证各子检查。
+- 结果：未接受崩溃为成功；新策略待synthetic完整复验，输出语义和协议不变。
+- 产物：reporting/slides.mjs、build.py、verification.py。
+- 下一步：synthetic-v04验证受控辅助进程关闭、完整重建与内容视觉。
+
+## D5.3-SYNTHETIC-RUN-04
+
+- 时间：2026-09-05T16:47:03.692092+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-SYNTHETIC-RUN-04。
+- 行动：synthetic-v04全量生成及独立verify_stable跨路径重建。
+- 结果：状态以命令输出/draft/.failed回执为准；非正式数据，不打开正式媒体。
+- 产物：artifacts/defense_mvp/d5-engineering/synthetic-v04。
+- 下一步：修复verifier机械问题或开始视觉QA。
+
+## D5.3-VERIFY-FIX-01
+
+- 时间：2026-09-05T16:48:00.2139053+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-VERIFY-FIX-01。
+- 行动：修正PPTX关系解析，对合法包内绝对部件路径去除ZIP成员前导斜杠。
+- 结果：synthetic-v04生成器成功，1777有效字符/410.077秒；稳定文件跨路径重建已通过，verifier在包内image路径解析处报KeyError。仅验证器解析问题。
+- 产物：reporting/verification.py；synthetic-v04完整draft。
+- 下一步：复验PPTX包语义、视觉并补绝对部件路径测试。
+
+## D5.3-PPTX-VERIFY-01
+
+- 时间：2026-09-05T16:48:01.4732590+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-PPTX-VERIFY-01。
+- 行动：对已生成synthetic-v04执行verify_pptx，独立比较10页全部原生文字、数值、notes和图像绑定及contact sheet。
+- 结果：退出码 0；明细见输出。
+- 产物：synthetic-v04 PPTX语义回执。
+- 下一步：检查全页contact sheet和每页PNG，按视觉证据统一修复版式。
+
+## D5.3-VISUAL-QA-01
+
+- 时间：2026-09-05T22:09:09.5338557+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-VISUAL-QA-01。
+- 行动：完整查看synthetic-v04 contact sheet与10页1280×720逐页PNG，核对中文字体、图片比例、裁切和投影文字。
+- 结果：1/2/4–10页无裁切重叠；第3页第三箭头挤到三方法选择文字、末项覆盖二字断行不佳，需统一版式修正。fixture数据本身不作为真实叙事验收；将增加可见synthetic标识。
+- 产物：synthetic-v04/rendered；视觉诊断。
+- 下一步：调整第3页箭头/分栏及synthetic标识，补正文SHA引用与固定outcome图轴配置。
+
+## D5.3-POLISH-01
+
+- 时间：2026-09-05T22:09:11.1673099+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-POLISH-01。
+- 行动：调整第3页箭头/分栏换行；给synthetic材料可见非研究标识；补报告主表/summary SHA和family自动平局6/4来源；修正cost pointer，配置显式固定outcome轴0–28。
+- 结果：版式修正不改任何事实；协议配置补全显示轴，未改案例/帧/颜色/统计规则，正式媒体gate仍关闭。
+- 产物：reporting源码、report-v1.yaml与fixture。
+- 下一步：扩充no-replace/tamper/unknown inventory/源码漂移及渲染回归，生成新synthetic最终验收版本。
+
+## D5.2-TEST-EXPAND-01
+
+- 时间：2026-09-05T22:11:56.4265986+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.2-TEST-EXPAND-01。
+- 行动：新增公开文档确定性链接重写/字节副本/身份验证；增加bundled真实PPTX生成的synthetic集成测试，以及重算清单后的八类tamper、失败保留、no-replace、视觉QA缺失和CLI测试。
+- 结果：测试代码完成；只使用synthetic数据与ignored工程输出，不依赖真实答案。
+- 产物：reporting/publication.py；D5定向测试扩充。
+- 下一步：运行扩充D5测试并检查完整synthetic输出；发现机械错误先修复再冻结正式媒体gate。
+
+## D5.3-GUARD-FIX-01
+
+- 时间：2026-09-05T22:13:06.8739858+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-GUARD-FIX-01。
+- 行动：修正数值守卫将SHA-256算法名误当测量256的解析；仅排除完整算法标识，新增测试保证普通256样本仍被拒绝。保留第3页换行处原逗号以保持文本语义逐字校验。
+- 结果：前轮34 passed/1 failed/12 errors均由同一SHA名误报引起（7.97秒）；未生成正式输出，失败夹具保留。
+- 产物：core.py、slides.mjs、D5测试。
+- 下一步：重跑47项完整D5测试。
+
+## D5.3-TEST-03
+
+- 时间：2026-09-05T22:13:31.5046848+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-TEST-03。
+- 命令：uv run pytest tests/defense_mvp/test_d5_reporting.py -o addopts='' -q。
+- 结果：退出码 1；本轮包含真实bundled PPTX/render和重建/tamper测试，具体数量/耗时见输出。
+- 产物：ignored d5-engineering/pytest-*与测试回执。
+- 下一步：处理失败，随后回归Defense和冻结前身份。
+
+## D5.3-TEST-04
+
+- 时间：2026-09-05T22:14:13.4887336+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-TEST-04。
+- 命令：uv run pytest tests/defense_mvp/test_d5_reporting.py -o addopts='' -q --tb=short。
+- 结果：退出码 1；真实数量/耗时见本次输出。
+- 产物：D5全synthetic工程与篡改验证回执。
+- 下一步：通过后确认新版slide3视觉及最终输入gate，执行Defense回归。
+
+## D5.3-GUARD-FIX-02
+
+- 时间：2026-09-05T22:16:13.2109229+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-GUARD-FIX-02。
+- 行动：按新增CJK邻接测试修正SHA-256算法名边界；给renderer增加180秒超时清理；补修改PPTX正文并重算hash后仍由独立语义拒绝的测试。
+- 结果：前轮46 passed/1 failed，64.69秒；唯一失败为中文紧邻算法名的regex边界，集成生成/重建/八类篡改全部通过。
+- 产物：core.py、build.py、D5测试。
+- 下一步：48项D5最终定向回归；通过后冻结施工协议和媒体gate。
+
+## D5.3-TEST-05
+
+- 时间：2026-09-05T22:17:13.7264044+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-TEST-05。
+- 命令：uv run pytest tests/defense_mvp/test_d5_reporting.py -o addopts='' -q --tb=short。
+- 结果：退出码 0；实际测试数与耗时见输出。
+- 产物：最终synthetic功能/语义/篡改/渲染回执。
+- 下一步：验收新版视觉、运行Defense预冻结回归、记录正式媒体gate和审计发布。
+
+## D5.3-FACT-AUDIT-01
+
+- 时间：2026-09-05T22:19:35.8634826+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-FACT-AUDIT-01。
+- 行动：在48 passed/58.56秒基础上做验收覆盖审查，补每一fact的JSON/CSV/JSONL指针独立解析与raw值核验；把已有协议常量显式放入report-v1.yaml并绑定准确指针，避免含糊混合来源。
+- 结果：不改常量值、测量、案例、帧规则或轴；正式媒体gate仍关闭。增加raw篡改拒绝测试，生产生成器现在必须逐fact通过来源审计。
+- 产物：core.py/build.py、report-v1.yaml、D5测试。
+- 下一步：运行49项D5最终测试及Defense预冻结回归。
+
+## D5.3-TEST-06
+
+- 时间：2026-09-05T22:20:36.3024889+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-TEST-06。
+- 命令：uv run pytest tests/defense_mvp/test_d5_reporting.py -o addopts='' -q --tb=short。
+- 结果：退出码 0；实际数量/耗时见输出，包含逐fact来源指针审计。
+- 产物：D5完整测试及synthetic渲染。
+- 下一步：通过后执行Defense回归和正式媒体gate。
+
+## D5.3-VISUAL-QA-02
+
+- 时间：2026-09-05T22:22:47.2645960+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-VISUAL-QA-02。
+- 行动：检查最终49项测试生成的新版第3页PNG、系统图和W/L/T/U图，并与此前完整10页/contact sheet视觉检查对照。
+- 结果：D5定向49 passed/58.39秒；箭头/分栏修复已检查，合成素材均可见非研究标识，四outcome独立颜色/纹理和完整轴。未打开正式案例媒体。
+- 产物：d5-engineering/pytest-8940e990099348e0ae927c4f2b37997b。
+- 下一步：完成Defence预冻结回归与Git审计，随后正式媒体gate。
+
+## D5.3-STATIC-01
+
+- 时间：2026-09-05T22:23:59.0625718+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-STATIC-01。
+- 命令：compileall src/tests、两个D5 CLI help、原pilot validate-config、D5严格config smoke、git diff --check。
+- 结果：退出码序列 0,0,0,0,0,0；无模型或正式媒体解码。
+- 产物：最终源码静态/CLI/config检查回执。
+- 下一步：等待Defense回归，执行D4完整复验和冻结前Git守卫。
+
+## D5.3-D4-VERIFY-02
+
+- 时间：2026-09-05T22:25:39.4145699+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-D4-VERIFY-02。
+- 行动：在最终D5源码状态运行原verify-analysis到唯一Temp文件并比较正式回执SHA。
+- 结果：退出码 0；D5独立子包没有改变D4冻结的源码环境，完整D3/D4复验身份保持。
+- 产物：系统Temp D4 freeze验证回执（不覆盖D4）。
+- 下一步：等待Defense回归，完成审计冻结提交及普通push，再记录正式媒体gate。
+
+## D5.3-PLAN-ACCEPT-01
+
+- 时间：2026-09-05T22:25:40.5494853+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-PLAN-ACCEPT-01。
+- 行动：更新施工方案，写入49项实测、运行时/字体、原生canvas受控关闭、PPTX检查边界、仅追加视觉/验证阶段回执及公开副本身份。
+- 结果：文档与最终实现一致；没有更改数据、案例、分母、显示轴或正式输入。
+- 产物：docs/defense_mvp/D5_CONSTRUCTION_PLAN.md。
+- 下一步：完成Defense回归后fetch、allowlist/staged守卫并冻结审计发布。
+
+## D5.3-FREEZE-FETCH-01
+
+- 时间：2026-09-05T22:27:07.2123928+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-FREEZE-FETCH-01。
+- 行动：git fetch origin main并核对HEAD/origin与工作树。
+- 结果：fetch退出码 0；身份和差异见本次输出，未reset/clean/stash或覆盖用户文件。
+- 产物：Git远端冻结基线。
+- 下一步：等待Defense回归，显式暂存D5 15路径并运行完整cached守卫。
+
+## D5.3-FREEZE-GUARD-01
+
+- 时间：2026-09-05T22:27:09.0488282+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-FREEZE-GUARD-01。
+- 行动：检查15个显式D5文件的<1MiB/NUL/UTF-8、机器绝对路径/正式comparison/token载荷模式与Git待发布集合。
+- 结果：退出码 0；根tar/sidecar仍仅未跟踪且排除，D1–D4顶层源码/依赖/事实文件未改。
+- 产物：D5冻结allowlist与安全守卫回执。
+- 下一步：Defense回归结束后显式暂存15路径，检查cached whitespace、binary和内容。
+
+## D5.3-DEFENSE-REGRESSION-01
+
+- 时间：2026-09-05T22:33:32.8969260+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-DEFENSE-REGRESSION-01。
+- 命令：uv run pytest tests/defense_mvp -o addopts='' -q --tb=short。
+- 结果：退出码 0，wall=590.9959576秒；........................................................................ [ 36%] ........................................................................ [ 73%] ....................................................                     [100%] 196 passed in 588.07s (0:09:48)。
+- 产物：artifacts/defense_mvp/d5-engineering/defense-final-01.log。
+- 下一步：通过后核对D3/D4源身份和冻结源码commit；正式D5运行后完成全仓回归。
+
+## D5.3-FREEZE-STAGE-01
+
+- 时间：2026-09-05T22:34:51.4637403+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-FREEZE-STAGE-01。
+- 行动：在Defense196 passed/588.07秒后显式暂存15路径，检查cached精确集合、whitespace、UTF-8、大小/NUL、binary和敏感/绝对路径。
+- 结果：守卫退出码 0，whitespace退出码 0；tar/sidecar、artifacts、媒体和原始答案未暂存。
+- 产物：Git index中的D5冻结候选。
+- 下一步：重新暂存本DEVLOG并复核，创建审计冻结提交和普通push main。
+
+## D5.3-RESUME-VERIFY-01
+
+- 时间：2026-09-06T08:40:26.0477058+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-RESUME-VERIFY-01。
+- 行动：中断后复核真实Git/DEVLOG/正式根，重新fetch并比较最新49项测试生成回执的全部source文件、Python和platform。
+- 结果：fetch退出码 0，身份检查退出码 0；源码/配置/测试与49 passed和Defense196 passed时一致，HEAD/origin仍9f1f3c5，正式D5 v01不存在。前段工作有可验证进展，不是重复等待或重启任务。
+- 产物：现有15路径staging及测试身份回执。
+- 下一步：提交并普通push冻结工程，然后执行正式媒体gate和一次v01生成。
