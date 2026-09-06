@@ -107,5 +107,22 @@ bundled Windows canvas在输出全部渲染后有原生析构崩溃。工程保�
 
 整个成功D5根的SHA256SUMS固定覆盖所有生成文件。后续仅允许no-replace追加
 `visual-qa.json`和`verification.json`阶段回执；独立verifier检查其内容身份且拒绝其他未登记
-文件。视觉回执绑定具体PPTX和10张PNG，不能复用其他版本的验收。公开文档导出只改相对
-链接，其余讲稿/表/图为字节副本，`d5_generated/public-export.json`保存生成关系。
+文件。视觉回执绑定具体PPTX和10张PNG，不能复用其他版本的验收。公开文档原始导出只改相对
+链接，其余讲稿/表/图为字节副本；最终 Git 发布适配见下节，`d5_generated/public-export.json`保存生成关系。
+
+## 正式验收后的 Git 发布格式适配
+
+正式 v01 已独立验证通过，但 Matplotlib SVG 的 path 数据含行尾空白，cached whitespace 守卫
+因此失败。保留正式 v01 与冻结报告源码，新增独立 `scripts/defense_mvp/publish_d5_docs.py`，
+只对 Git 文档副本的 SVG 去行尾空格；逐 XML 节点、属性、文本证明语义相等，路径命令只允许
+等价空白归一化。PNG、CSV、讲稿、录屏方案仍是字节副本，报告仍仅改相对链接。
+
+版本 2 public-export 记录原 SVG SHA、最终全部文件 SHA、转换规则及发布脚本 SHA；新入口
+`--verify` 独立重建并校验最终副本，拒绝未知文件、内容篡改或用户编辑覆盖。原冻结 reporting
+publication helper 仍验证原始字节复制阶段，不修改正式 source identity。
+
+4 项独立 tiny 测试覆盖合法 path 空白等价、正文变化拒绝、用户修改零写入、篡改和未知文件。
+它们位于顶层 tests，正式 D5 的 13 个冻结 source/config/test 文件不变；新增发布代码后的最终
+全仓回归为 303 passed（pytest 661.89 秒，wall 685.363 秒）。公开文本、发布脚本与测试由
+`.gitattributes` 固定 LF，保证 `core.autocrlf` checkout 的版本 2 SHA 可复验；PNG 保持二进制。
+没有新正式输出版本、媒体规则或研究协议变化。

@@ -1,0 +1,44 @@
+{
+  "files": {
+    "DEFENSE_REPORT.md": "5b1d62e7e31ee89b7e38bee3656a0923b6ddc3d7de2dba72b0d6786051539230",
+    "DEFENSE_SCRIPT.md": "e8f7f89b6c47e874a6a7593dbad6effac15352e5175317a1392e8409756fa788",
+    "RECORDING_PLAN.md": "f9e5cf8464d470a277e8c7f839a23e85fc295ea2a94926c6bc6899857a500d35",
+    "d5_generated/figures/agreement.png": "6f147013401c51216ff0a9c663088fc10761f11a76c62142e4b94736f8aaca81",
+    "d5_generated/figures/agreement.svg": "c94bb4fabde8fc156e7550489eaeb1f5c6060abb7ac8d1122d01bd75275e9d9d",
+    "d5_generated/figures/outcomes.png": "b6d3cddb30ae8cff6039ae0c97918fa3f30a939636c65b6274fae036c48f77d0",
+    "d5_generated/figures/outcomes.svg": "80a84ec12b5912ef67eeba060a54139f5e0b52747e20c1c647eaecd1b89ddbe0",
+    "d5_generated/figures/overall-ci.png": "847de6909d6e056671d0029b8b24bb5b1e448d2ffb1f52eb782ef85b30d384c5",
+    "d5_generated/figures/overall-ci.svg": "fe0cd397bed14e3acad4e6f3c3c006bfa87959c39d6f97f9344d4a387e242e8b",
+    "d5_generated/figures/system-flow.png": "5b5c997229b212cbdd6c477ea2de178424f8132a2db657f50d253db7d6aafa44",
+    "d5_generated/figures/system-flow.svg": "4bb2e537b55e60359116b37543726a1edf4ad9a3fc44cc359d6763831bb12ed6",
+    "d5_generated/tables/agreement.csv": "0c1274d9c33bf5a78224ab287e9fbffa58f7784dd5ac719891f657ab2cfa37b7",
+    "d5_generated/tables/costs.csv": "3a6270449ac4fc03a32e2a0c3b39f3ba587ccd7acdd9bbae18cae4cb1717999e",
+    "d5_generated/tables/main-results.csv": "3b8cbd971d84953ff2fa4ac57da9908b271423824a53f93ce307f7048175149e"
+  },
+  "publisher": {
+    "path": "scripts/defense_mvp/publish_d5_docs.py",
+    "sha256": "26642ac9b6c11e4cee16c9db2d3c146351a83af861e51adf12404a53f94a7d7e"
+  },
+  "relationship": "report changes relative links only; SVG line-end whitespace normalized with XML semantics equality; script, plan, CSV and PNG are byte copies",
+  "schema_version": "2",
+  "source_report_sha256": "3adccebff901a4cd78f60a331165e26c0e275845042ed87c2a83e3108c800d7f",
+  "source_root": "artifacts/defense_mvp/DEFENSE-MVP-D5-v01",
+  "transformations": {
+    "d5_generated/figures/agreement.svg": {
+      "method": "rstrip horizontal line-end whitespace; XML semantics checked",
+      "source_sha256": "df9c2f71be2c9c362a09ded7ae7f3e7caba88d59f3310865efb42359ef39da92"
+    },
+    "d5_generated/figures/outcomes.svg": {
+      "method": "rstrip horizontal line-end whitespace; XML semantics checked",
+      "source_sha256": "d62d7b538cac21aa473c346b735d7500b4a8792cc5e1f04681349428f440d824"
+    },
+    "d5_generated/figures/overall-ci.svg": {
+      "method": "rstrip horizontal line-end whitespace; XML semantics checked",
+      "source_sha256": "34dc4a83420ae6542d0e6a0085515937e91b619e0a1a288fc23521cae04486d3"
+    },
+    "d5_generated/figures/system-flow.svg": {
+      "method": "rstrip horizontal line-end whitespace; XML semantics checked",
+      "source_sha256": "18594c56af39fba08362bf3f1940a39803fc95fb0914ebae4eea2edf6fb9679c"
+    }
+  }
+}

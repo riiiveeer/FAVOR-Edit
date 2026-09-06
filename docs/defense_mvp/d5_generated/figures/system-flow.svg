@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="720pt" height="405pt" viewBox="0 0 720 405" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>defense-report-v1</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 405
+L 720 405
+L 720 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="text_1">
+    <g id="patch_2">
+     <path d="M 20.71125 145.466766
+L 157.84875 145.466766
+L 157.84875 113.247234
+L 20.71125 113.247234
+z
+" style="fill: #f5f7fa; stroke: #0072b2; stroke-width: 1.5; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="89.28" y="133.487859" transform="rotate(-0 89.28 133.487859)">导入与 checksum</text>
+   </g>
+   <g id="text_2">
+    <g id="patch_3">
+     <path d="M 217.949203 145.466766
+L 326.082797 145.466766
+L 326.082797 113.247234
+L 217.949203 113.247234
+z
+" style="fill: #f5f7fa; stroke: #0072b2; stroke-width: 1.5; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="272.016" y="133.487859" transform="rotate(-0 272.016 133.487859)">F/P/T/Q 代理</text>
+   </g>
+   <g id="patch_4">
+    <path d="M 159.281027 129.357
+Q 178.149891 129.357 195.341705 129.357
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+    <path d="M 189.741705 126.557
+L 195.341705 129.357
+L 189.741705 132.157
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+   </g>
+   <g id="text_3">
+    <g id="patch_5">
+     <path d="M 428.775891 154.525594
+L 507.800109 154.525594
+L 507.800109 104.188406
+L 428.775891 104.188406
+z
+" style="fill: #f5f7fa; stroke: #0072b2; stroke-width: 1.5; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'" transform="translate(437.025891 124.429031)">N=1/2/4</text>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'" transform="translate(438.288 142.546687)">嵌套子集</text>
+   </g>
+   <g id="patch_6">
+    <path d="M 342.015168 129.357
+Q 367.650849 129.357 391.60948 129.357
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+    <path d="M 386.00948 126.557
+L 391.60948 129.357
+L 386.00948 132.157
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+   </g>
+   <g id="text_4">
+    <g id="patch_7">
+     <path d="M 584.97 145.466766
+L 676.47 145.466766
+L 676.47 113.247234
+L 584.97 113.247234
+z
+" style="fill: #f5f7fa; stroke: #0072b2; stroke-width: 1.5; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="630.72" y="133.487859" transform="rotate(-0 630.72 133.487859)">三方法选择</text>
+   </g>
+   <g id="patch_8">
+    <path d="M 538.286238 129.357
+Q 547.004089 129.357 554.044889 129.357
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+    <path d="M 548.444889 126.557
+L 554.044889 129.357
+L 548.444889 132.157
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+   </g>
+   <g id="text_5">
+    <g id="patch_9">
+     <path d="M 490.95 288.917766
+L 567.45 288.917766
+L 567.45 256.698234
+L 490.95 256.698234
+z
+" style="fill: #f5f7fa; stroke: #0072b2; stroke-width: 1.5; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="529.2" y="276.938859" transform="rotate(-0 529.2 276.938859)">双人盲评</text>
+   </g>
+   <g id="patch_10">
+    <path d="M 590.281469 186.497936
+Q 581.40389 199.042237 573.495097 210.217615
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+    <path d="M 579.015613 207.26399
+L 573.495097 210.217615
+L 574.444507 204.029027
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+   </g>
+   <g id="text_6">
+    <g id="patch_11">
+     <path d="M 262.043531 288.917766
+L 363.204469 288.917766
+L 363.204469 256.698234
+L 262.043531 256.698234
+z
+" style="fill: #f5f7fa; stroke: #0072b2; stroke-width: 1.5; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="312.624" y="276.938859" transform="rotate(-0 312.624 276.938859)">D4 冻结统计</text>
+   </g>
+   <g id="patch_12">
+    <path d="M 459.196805 272.808
+Q 423.410192 272.808 389.30063 272.808
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+    <path d="M 394.90063 275.608
+L 389.30063 272.808
+L 394.90063 270.008
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+   </g>
+   <g id="text_7">
+    <g id="patch_13">
+     <path d="M 52.235531 288.917766
+L 153.396469 288.917766
+L 153.396469 256.698234
+L 52.235531 256.698234
+z
+" style="fill: #f5f7fa; stroke: #0072b2; stroke-width: 1.5; stroke-linejoin: miter"/>
+    </g>
+    <text style="font-size: 15px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="102.816" y="276.938859" transform="rotate(-0 102.816 276.938859)">D5 报告初稿</text>
+   </g>
+   <g id="patch_14">
+    <path d="M 242.625039 272.808
+Q 210.222092 272.808 179.496197 272.808
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+    <path d="M 185.096197 275.608
+L 179.496197 272.808
+L 185.096197 270.008
+" style="fill: none; stroke: #666666; stroke-width: 1.5; stroke-linecap: round"/>
+   </g>
+  </g>
+  <g id="text_8">
+   <text style="font-size: 25px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="360" y="40.234375" transform="rotate(-0 360 40.234375)">只读输入到可追溯报告</text>
+  </g>
+  <g id="text_9">
+   <text style="font-size: 17px; font-family: 'Microsoft YaHei'; text-anchor: middle" x="360" y="376.65" transform="rotate(-0 360 376.65)">固定协议、媒体身份、方法角色与输出清单逐级校验</text>
+  </g>
+ </g>
+</svg>

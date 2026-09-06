@@ -1,20 +1,21 @@
 # Defense MVP 详细施工方案
 
 > 暂定题目：**基于约束式多目标排序的指令视频编辑候选选择与盲评系统**
-> 文档版本：v1.4-d4-complete（2026-09-04 正式统计收口）
+> 文档版本：v1.5-d5-draft-complete（2026-09-06 报告与 Slides 初稿收口）
 > 制定日期：2026-09-01
 > 目标完成日期：2026-09-08
 > 施工环境：本地 Windows、CPU-only
-> 当前状态：**D4 正式聚合与统计分析已完成并验证；可以进入 D5，D5 尚未启动**
+> 当前状态：**D5 报告与 Slides 初稿已完成并验证；可以进入 D6，D6 尚未启动**
 
 D1 兼容接收、D2 真实 CPU 评分/选择、D3 本地双人盲评与 D4 正式统计已完成；
 最终为 `formal/dual/complete`，64 条真人确认记录 + 10 条共享自动平局，A/B 各42/42。
-最终报告与答辩材料尚未完成。D3 详细证据见 [正式标注完成回执](defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md)、
+D5 报告、10 页中文 PPTX 初稿、逐页渲染及讲稿已完成；最终展示冻结、PDF、录屏与演练尚未完成。D3 详细证据见 [正式标注完成回执](defense_mvp/D3_FORMAL_ANNOTATION_RECEIPT.md)、
 [D3 实现回执](defense_mvp/D3_IMPLEMENTATION_RECEIPT.md) 与 [标注指南](defense_mvp/ANNOTATION_GUIDE.md)。
 实际运行、冻结身份、重建命令及 D3 接口见 [D2 实现回执](defense_mvp/D2_IMPLEMENTATION_RECEIPT.md)。
 D4 正式统计、输出身份和诚实结论见 [D4 实现回执](defense_mvp/D4_IMPLEMENTATION_RECEIPT.md)；
-解封前协议见 [D4 施工方案](defense_mvp/D4_CONSTRUCTION_PLAN.md)。D5 尚未启动；新对话施工入口见
-[D5 施工提示词](defense_mvp/D5_IMPLEMENTATION_AGENT_PROMPT.md)。
+解封前协议见 [D4 施工方案](defense_mvp/D4_CONSTRUCTION_PLAN.md)。D5 的正式输入、产物、测试与审计证据见
+[D5 实现回执](defense_mvp/D5_IMPLEMENTATION_RECEIPT.md)，展示协议见 [D5 施工方案](defense_mvp/D5_CONSTRUCTION_PLAN.md)。
+本轮仅完成 D5，不等同于整个 Defense MVP 完成。
 
 ---
 
@@ -151,12 +152,12 @@ CPU 低层指标与语义成功可能不一致，不进入定量胜率主表。
 - CPU 指标：`artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/`；
 - 设计与选择：`artifacts/defense_mvp/DEFENSE-MVP-v01/design/`；
 - 选择记录与比较计划：`artifacts/defense_mvp/DEFENSE-MVP-v01/selection/`；
-- 人工标注：`artifacts/defense_mvp/DEFENSE-MVP-v01/human/`；
-- 分析：`artifacts/defense_mvp/DEFENSE-MVP-v01/analysis/`；
-- 最终本地报告：`artifacts/defense_mvp/DEFENSE-MVP-v01/report/`。
+- 正式 D3 标注：`artifacts/defense_mvp/DEFENSE-MVP-D3-v01/`（bundle 与独立封存导出）；
+- 正式 D4 聚合/分析：`artifacts/defense_mvp/DEFENSE-MVP-D4-v01/{aggregate,analysis}/`；
+- 正式 D5 草稿：`artifacts/defense_mvp/DEFENSE-MVP-D5-v01/`（report/slides/script/verification）。
 
 `data/raw/` 和 `artifacts/` 已由 `.gitignore` 排除。Git 只跟踪代码、配置、测试、
-协议、匿名化小型摘要、slides 和必要的 checksum/身份记录。
+协议、匿名化小型摘要、slides 生成代码和必要的 checksum/身份记录；PPTX、逐页渲染、案例媒体留在忽略的 artifact。
 
 ---
 
@@ -347,14 +348,17 @@ tie 和 uncertain 在 tie-aware win rate 中均记为 0.5，但必须分别报�
 
 ## 8. 代码结构与 CLI
 
-计划新增：
+当前代码结构（D5 使用独立子包，以保留 D4 顶层源码身份）：
 
 ```text
 configs/defense_mvp/pilot.yaml
-src/defense_mvp/{cli,models,io,ingest,metrics,design,selection,annotations,analysis,reporting,verification}.py
+src/defense_mvp/{cli,models,io,ingest,metrics,design,selection,analysis,analysis_verification}.py
+src/defense_mvp/reporting/{__main__,core,content,figures,cases,build,verification,publication}.py
+src/defense_mvp/reporting/slides.mjs
+configs/defense_mvp/report-v1.yaml
 tests/defense_mvp/
 docs/defense_mvp/{DATA_HANDOFF,ANNOTATION_GUIDE,DEFENSE_REPORT,DEFENSE_SCRIPT}.md
-docs/defense_mvp/slides/
+docs/defense_mvp/d5_generated/{tables,figures}/
 ```
 
 允许复用 `w1_pipeline.hashing` 和 E1/E2 已测试的纯函数/算法思路。复用必须通过新模块
@@ -390,12 +394,14 @@ uv run defense analyze --aggregate <dir> --selection <dir> --metrics <dir> --des
 uv run defense verify-analysis --bundle <bundle-dir> --left <a-export-dir> --right <b-export-dir> --dual-verification <file> --aggregate <dir> --analysis <dir> --selection <dir> --metrics <dir> --design <dir> --ingest <manifest> --output <new-file>
 ```
 
-以下为 D5–D6 待实现命令，不可当作现成接口：
+D5 已实现独立模块 CLI，要求完整 D4/D2 输入，避免修改被 D4 锁定的顶层 CLI：
 
 ```powershell
-uv run defense report --analysis <dir> --output <new-dir>
-uv run defense verify --experiment-root <dir> --output <new-file>
+uv run python -m defense_mvp.reporting report --aggregate <d4-aggregate> --analysis <d4-analysis> --d4-verification <file> --selection <dir> --metrics <dir> --design <dir> --ingest <manifest> --config configs/defense_mvp/report-v1.yaml --output <new-dir> --runtime-python <bundled-python> --runtime-node <bundled-node> --runtime-modules <bundled-modules> --slides-skill <installed-skill>
+uv run python -m defense_mvp.reporting verify-report --report <d5-root> --aggregate <d4-aggregate> --analysis <d4-analysis> --d4-verification <file> --selection <dir> --metrics <dir> --design <dir> --ingest <manifest> --config configs/defense_mvp/report-v1.yaml --output <new-file>
 ```
+
+D6 顶层最终 `defense verify`、最终交付 manifest 尚未实现；不可当作现成接口。
 
 所有正式输出采用 no-replace。失败后保留诊断，不自动删除或覆盖。真实数据命令只有在
 回传包 checksum 验收通过后运行。
@@ -463,7 +469,7 @@ checksum 与冻结选择一致；最终双人验证 `formal/dual/complete`、各
 **退出条件**：64 条真人原始回答 + 10 项共享 automatic tie，各人42 coverage；分析可由冻结输入完全重建。**已满足。**
 
 正式输出为42个唯一聚合（32 human pair + 10 automatic）、family 28/14、7 sample clusters；
-独立 verifier 复算通过。主结果与局限见 D4_IMPLEMENTATION_RECEIPT；D5 尚未启动。
+独立 verifier 复算通过。主结果与局限见 D4_IMPLEMENTATION_RECEIPT；D5 已只读消费这些冻结事实。
 
 ### 9 月 6 日：D5 report + slides draft
 
@@ -472,9 +478,16 @@ checksum 与冻结选择一致；最终双人验证 `formal/dual/complete`、各
 - 选择录屏路径；
 - 完整本地回归。
 
-**退出条件**：每个图表可追溯；slides 不超出证据；负结果也有完整叙事。
+**退出条件：已满足。** 正式根 `DEFENSE-MVP-D5-v01` 包含 3 表、4 组 SVG/PNG、4 个固定案例、10 页 PPTX 初稿与全部渲染；独立 verifier 为 passed，88 个稳定文件跨路径重建一致、82 个链接通过。讲稿 1777 有效字符，按 260 字符/分钟估时 410.077 秒。
+
+49 项 D5 定向测试、196 项 Defense 回归通过；冻结报告工程全仓为 299 passed，加入 4 项独立
+发布适配测试后的最终全仓为 303 passed。实际耗时及审计发布见 D5_IMPLEMENTATION_RECEIPT 与
+DEVLOG。媒体 gate 及工程冻结 commit 为 `bd55d4f60963f05d92fc05615a35aa5ac616dfd7`。
+报告保留描述性结果、两个 CI 跨 0.5、低一致性、小样本和代理边界。可以进入 D6，但未启动。
 
 ### 9 月 7 日：D6 freeze + recording
+
+**尚未启动；以下为后续计划。**
 
 - 只修复展示问题，不改变冻结实验协议；
 - 运行全仓库 pytest、compileall、CLI、verifier、diff/checksum 审计；
@@ -522,7 +535,8 @@ uv run pytest tests/defense_mvp -q
 uv run pytest
 uv run python -m compileall -q src tests
 uv run defense validate-config
-uv run defense verify --experiment-root <root> --output <new-report>
+uv run python -m defense_mvp.reporting verify-report --help
+# 完整 D5 复验参数见第 8 节与 D5_IMPLEMENTATION_RECEIPT；D6 顶层 verify 尚未实现。
 git diff --check
 git status --short --branch
 ```
@@ -541,7 +555,9 @@ git status --short --branch
 
 ## 12. 答辩材料
 
-### 12.1 Slides：8–10 页
+### 12.1 Slides：10 页 D5 初稿已完成
+
+草稿与逐页渲染见 D5 正式根 `slides/`；已完成 contact sheet 和全部单页视觉 QA，尚未做桌面 PowerPoint、投影兼容测试或最终 PDF 冻结。
 
 1. 问题与动机；
 2. 数据与 50 个真实候选；
@@ -554,11 +570,15 @@ git status --short --branch
 9. 工程复现与审计；
 10. 结论、局限和后续扩展。
 
-### 12.2 录屏：60–90 秒
+### 12.2 录屏：60–90 秒（D6，尚未录制）
+
+D5 已编排 [录屏路径及降级方案](defense_mvp/RECORDING_PLAN.md)。
 
 依次展示冻结配置、checksum verifier、盲评页面、三方法选择、自动报告和最终主表。
 
 ### 12.3 5–7 分钟讲稿配时
+
+[D5 讲稿初稿](defense_mvp/DEFENSE_SCRIPT.md)与 10 页一一对应，静态估时约 6 分 50 秒；以下为初始配时建议，实际计时演练留在 D6。
 
 - 45 秒：问题；
 - 60 秒：数据与系统；

@@ -12272,3 +12272,334 @@ w1 run --backend anyv2v --plan <smoke-plan> \
 - 结果：fetch退出码 0，身份检查退出码 0；源码/配置/测试与49 passed和Defense196 passed时一致，HEAD/origin仍9f1f3c5，正式D5 v01不存在。前段工作有可验证进展，不是重复等待或重启任务。
 - 产物：现有15路径staging及测试身份回执。
 - 下一步：提交并普通push冻结工程，然后执行正式媒体gate和一次v01生成。
+
+## D5.3-FREEZE-COMMIT-01
+
+- 时间：2026-09-06T08:40:27.2088793+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-FREEZE-COMMIT-01。
+- 行动：重新暂存DEVLOG，复核15路径和cached whitespace，创建D5工程/显示协议冻结审计提交。
+- 结果：commit退出码 0；HEAD=bd55d4f60963f05d92fc05615a35aa5ac616dfd7；仅15个授权代码/配置/测试/文档文件，未提交媒体或正式产物。
+- 产物：Git冻结commit。
+- 下一步：普通push origin main并核对远端；之后记录媒体gate。
+
+## D5.3-FREEZE-PUSH-01
+
+- 时间：2026-09-06T08:41:21.0335798+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.3-FREEZE-PUSH-01。
+- 行动：普通git push origin main，不force。
+- 结果：退出码 0；冻结工程commit bd55d4f已发布，HEAD/origin身份见输出。正式媒体尚未打开，D5正式根仍未生成。
+- 产物：origin/main冻结工程。
+- 下一步：记录config/input/source/案例规则和下一条正式命令的媒体gate，再一次生成D5 v01。
+
+## D5.4-FORMAL-MEDIA-GATE-01
+
+- 时间：2026-09-06T08:41:23.758291+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.4-FORMAL-MEDIA-GATE-01。
+- 行动：正式案例媒体开启前冻结gate。source commit=bd55d4f60963f05d92fc05615a35aa5ac616dfd7；config SHA=000f4acee9b4b141382cbe1492863c7bc004b48edc5aad91a7a15c1321815005；所有源码/config/test文件与该Git commit blob一致。
+- 输入身份：{"artifacts/defense_mvp/DEFENSE-MVP-D4-v01/aggregate/SHA256SUMS": "17cd49237c975669c45e3cad6591db013333d6ba279f33660b6d2b3839e663d7", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/SHA256SUMS": "5954d64759e1b1310b7e752d96b223140a1b7a8a873cf70e375b42ce6d25d37b", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/agreement.csv": "fc4ddb4a03e92d34781c01d7141233375ec43c86d3874ecaff4b394dec18c492", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/bootstrap.jsonl": "18ad2f59cc3d97317406d0114a70ebf5eb0e3e58fa39aeb03c9e21b548f9526a", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/bt.json": "21e8967a5c20d00d9b267d58ce52213f1e817b7b13ba753799d75a20781af791", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/costs.json": "12bb28c826e9bf6db5c810d7bb07791b5dcc6d3d2c76a1a42cf18c5607f7ecf1", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/failure-cases.json": "b391905c91cc9b0f6b19a517d8489e88dd461e1f30e558ac16c21e46a220ae03", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/main-table.csv": "8948b6807301e72df61bac749b628409f5b48e33df347895ebd699616819d968", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis/summary.json": "a329396cddbbe0eaca66430c7df0743c6e16c885f181f4fd90c49ab7e7326e17", "artifacts/defense_mvp/DEFENSE-MVP-D4-v01/verification.json": "bcb34778eb9370e062da72472756de9fec9b99663c6f55d2e0a7677da405183f", "artifacts/defense_mvp/DEFENSE-MVP-v01/design/DESIGN_SHA256SUMS": "a1d41b96454a41a3693bfe210cbc58339c9e85490a815db45a7e482a45198910", "artifacts/defense_mvp/DEFENSE-MVP-v01/design/design.json": "891ee8b0d75acf5c825fd01d529d545f12a7fb1b72a4310364a805d8d6cd1ff5", "artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/INGEST_SHA256SUMS": "c8eca842c9734ad8be85589bc928517000371051f86eb33909094ccdf676d1f2", "artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json": "b0eee7ab41aff575220957fae4dd67afd0fbaac85e4f756d023a9e42929f0b46", "artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/METRICS_SHA256SUMS": "fd947a0d31be63b73e38c9e75e7404c20d4412c62018de97141bb53b3b085c0d", "artifacts/defense_mvp/DEFENSE-MVP-v01/metrics/metrics.jsonl": "c9828aaec312187fafa2e7f5d6a6c77170cb2ff7caf23d9ada8218d440515dac", "artifacts/defense_mvp/DEFENSE-MVP-v01/selection/SELECTION_SHA256SUMS": "a94929c3bf7c3b716ba0e59f468156ea0855b8a8b23a7657df2039705c5b400d", "artifacts/defense_mvp/DEFENSE-MVP-v01/selection/comparisons.json": "486dad879372b6f687a380ebe4e102d61b6df89392426c7cc3aea7e9aeffb9cb", "artifacts/defense_mvp/DEFENSE-MVP-v01/selection/selection-lock.json": "99ce0522397707649aa34d82cfde3c3df4a5d898acbc702d6e53282f07741fb2", "configs/defense_mvp/analysis-v1.yaml": "9b29f1fad47b35ff7ae75b928e1811b98347aec8c7e2fe175cf09a7f1a283fa0", "configs/defense_mvp/pilot.yaml": "19f827d1ce84604eb68336fe549b7530a67d6b4074ad92b05b4cc8d63663feae"}。
+- 规则：human_pair中的Proposed win/loss/uncertain按family/sample_id/trial_id/replicate/comparison_id升序各取首项；定性sample按sample_id取首项并展示全部candidate。16帧统一floor((n-1)*position+0.5)得到0/5/10/15，任何方法/案例均不换例或挑帧。
+- 结果：49项D5 fixture和196项Defense测试通过，合成版10页渲染/视觉、来源指针和tamper检查通过，D4原verifier完整复验passed且回执SHA相同。此gate记录前未打开正式案例媒体。
+- 下一条命令：uv run python -m defense_mvp.reporting report --aggregate artifacts/defense_mvp/DEFENSE-MVP-D4-v01/aggregate --analysis artifacts/defense_mvp/DEFENSE-MVP-D4-v01/analysis --d4-verification artifacts/defense_mvp/DEFENSE-MVP-D4-v01/verification.json --selection artifacts/defense_mvp/DEFENSE-MVP-v01/selection --metrics artifacts/defense_mvp/DEFENSE-MVP-v01/metrics --design artifacts/defense_mvp/DEFENSE-MVP-v01/design --ingest artifacts/defense_mvp/DEFENSE-MVP-v01/ingest/normalized-manifest.json --config configs/defense_mvp/report-v1.yaml --output artifacts/defense_mvp/DEFENSE-MVP-D5-v01 --runtime-python <bundled-python> --runtime-node <bundled-node> --runtime-modules <bundled-node_modules> --slides-skill <installed-presentations-skill>。实际runtime绝对位置只写忽略artifact receipt。
+- 预期：正式报告/3表/4组SVG和PNG/4案例trace/10页PPTX和渲染/5–7分钟讲稿/录屏方案，约30秒CPU，峰值显存不适用。
+- 产物：新的DEFENSE-MVP-D5-v01根；失败则保留唯一.failed目录，不能覆盖，先诊断后才考虑v02。
+- 下一步：执行该一次性正式D5生成，立刻记录结果，然后逐页视觉与独立verifier验收。
+
+## D5.4-FORMAL-RUN-01
+
+- 时间：2026-09-06T08:42:20.1127169+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.4-FORMAL-RUN-01。
+- 行动：严格按FORMAL-MEDIA-GATE-01的完整CLI，在唯一D4/D2正式输入上首次运行report；使用bundled Python/Node/Artifact Tool。
+- 结果：退出码 0，wall=30.0435825秒；具体report/slides/source/timing/SHA见生成receipt或保留失败诊断。无GPU/远程/新候选，无D1–D4修改。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D5-v01或同名唯一.failed诊断。
+- 下一步：成功后核对报告主数字/案例trace/10页PNG与contact sheet，追加no-replace视觉QA回执并运行独立verify-report。
+
+## D5.5-FORMAL-VISUAL-QA-01
+
+- 时间：2026-09-06T08:48:22.371033+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FORMAL-VISUAL-QA-01。
+- 行动：逐一目视检查最终PPTX重导入的10页PNG、全页contact sheet、4张正式图和4张固定案例sheet；读取公开HTML、报告及10节讲稿，执行truthfulness review。
+- 结果：通过；字体/比例/留白/对比度清晰，无裁切或重叠；第9页秒单位自然换行可读。保留两CI跨0.5、低一致性、小样本和CPU代理边界。未声称桌面PowerPoint或浏览器渲染测试。讲稿静态1777有效字符、410.076923秒，无演练。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D5-v01/visual-qa.json，no-replace，绑定真实PPTX和全部10张render SHA；QA SHA=bb5f1a5a6a7924686dd081917e98afbc98397444402f3185bf2fb9f549bc43df。
+- 下一步：完整独立verify-report，稳定数据跨路径重建和PPTX语义/资产/视觉身份校验。
+
+## D5.5-FORMAL-VERIFY-01
+
+- 时间：2026-09-06T08:48:34.1138270+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FORMAL-VERIFY-01。
+- 行动：完整CLI verify-report接收D4/D2正式目录、report-v1配置与D5 v01，向新verification.json输出；内部复验D3/D4、全部媒体身份、跨路径稳定重建、PPTX语义及QA绑定。
+- 结果：退出码 0；wall=11.1890779秒，详细计数与SHA见verification.json。
+- 产物：artifacts/defense_mvp/DEFENSE-MVP-D5-v01/verification.json。
+- 下一步：核对回执，导出可验证的公开文档，完成最终回归与审计发布。
+
+## D5.5-PUBLIC-EXPORT-01
+
+- 时间：2026-09-06T08:50:11.823804+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-PUBLIC-EXPORT-01。
+- 行动：正式verifier通过后调用export_public生成15个公开文档并内部verify_public。
+- 结果：导出已完成；随后临时日志脚本给sha256_file传str而非Path，AttributeError使该记录未写入。该错误仅在一次性日志代码，正式工程/产物未改；外层后续只读命令曾遮蔽进程退出码，此处按失败记录，不重跑no-replace导出。
+- 产物：docs/defense_mvp三份Markdown及d5_generated的3CSV、8图和导出映射。
+- 下一步：独立verify_public现有文件并补齐SHA回执。
+
+## D5.5-PUBLIC-VERIFY-01
+
+- 时间：2026-09-06T08:50:11.834668+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-PUBLIC-VERIFY-01。
+- 行动：verify_public独立重建导出映射与文件内容，临时记录脚本使用正确Path参数。
+- 结果：passed，15文件；报告仅改相对链接，其余字节复制，无案例媒体或私有trace。
+- 产物：docs/defense_mvp/d5_generated/public-export.json SHA=de4f52b6b30af4b710d8ff9a90c15a4f043e463e6b93accb5b2877fb9b87b9ea。
+- 下一步：D3独立复验、最终输入校验及总计划/验收回执。
+
+## D5.5-D3-VERIFY-01
+
+- 时间：2026-09-06T08:51:51.5064172+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-D3-VERIFY-01。
+- 行动：原CLI verify-annotations对D3 v01 formal-bundle与A/B v01正式导出做只读黑盒验证；不打印或叙事消费原始答案。
+- 结果：退出码 0，wall=2.2882099秒；正式覆盖率/完整状态见验证摘要。D4已在正式D5 verifier内完整复算并与封存回执字节同SHA。
+- 产物：终端验证摘要；D3/D4源保持只读。
+- 下一步：完成剩余全仓回归、总计划和D5实现回执。
+
+## D5.5-MASTER-PLAN-01
+
+- 时间：2026-09-06T08:51:52.442995+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-MASTER-PLAN-01。
+- 行动：将总施工方案更新到v1.5-d5-draft-complete，写入真实D4/D5输出路径、独立reporting CLI、88稳定文件/82链接/10页/讲稿静态时长及D6停止边界。
+- 结果：当前状态为D5草稿已完成并验证、可以进入D6但未启动；保留历史D1–D4协议和后续D6计划，不创建最终manifest或录屏。全仓实际结果与发布证据由专门回执承载。
+- 产物：docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md。
+- 下一步：汇总实际最终测试和正式SHA，生成D5_IMPLEMENTATION_RECEIPT并审计发布。
+
+## D5.5-REPOSITORY-REGRESSION-01
+
+- 时间：2026-09-06T08:52:19.7659099+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-REPOSITORY-REGRESSION-01。
+- 命令：uv run pytest -o addopts='' -q --tb=short，最终冻结源码bd55d4f。
+- 结果：退出码 0，wall=588.4395586秒；........................................................................ [ 24%] ........................................................................ [ 48%] ........................................................................ [ 72%] ........................................................................ [ 96%] ...........                                                              [100%] 299 passed in 585.06s (0:09:45)。
+- 产物：artifacts/defense_mvp/d5-engineering/repository-final-01.log。
+- 下一步：结合正式D5 verifier/视觉/输入SHA和公开产物检查完成回执、总计划状态与审计发布。
+
+## D5.5-FINAL-IDENTITY-01
+
+- 时间：2026-09-06T08:52:58.649704+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-IDENTITY-01。
+- 行动：正式生成后再核对21个输入pin、13个D5源码/config/test与bd55d4f commit blob、D4锁定26个旧代码/锁文件；重新验证公开导出和Markdown链接。
+- 结果：{"status": "passed", "input_pins": 21, "frozen_source_files": 13, "d4_legacy_files": 25, "public_links": 14, "seconds": 1.0711742999999387}；正式输入身份与开工gate和生成manifest一致，旧D4实现未动；无D1–D4事实重写。完整媒体集合与角色链已在D5正式verifier和D3/D4黑盒验证中通过。
+- 产物：终端摘要、原始不可覆盖manifest及公开导出映射。
+- 下一步：全仓测试结束后写最终回执与审计发布。
+
+## D5.5-FINAL-SMOKE-01
+
+- 时间：2026-09-06T08:53:50.767468+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-SMOKE-01。
+- 行动与结果：{"command": "uv run python -m compileall -q src tests", "exit_code": 0, "seconds": 0.749}。
+- 产物：本地命令输出，无正式输入写入。
+- 下一步：继续剩余静态检查或最终回执审计。
+
+## D5.5-FINAL-SMOKE-02
+
+- 时间：2026-09-06T08:53:51.747311+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-SMOKE-02。
+- 行动与结果：{"command": "uv run python -m defense_mvp.reporting report --help", "exit_code": 0, "seconds": 0.979}。
+- 产物：本地命令输出，无正式输入写入。
+- 下一步：继续剩余静态检查或最终回执审计。
+
+## D5.5-FINAL-SMOKE-03
+
+- 时间：2026-09-06T08:53:52.705997+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-SMOKE-03。
+- 行动与结果：{"command": "uv run python -m defense_mvp.reporting verify-report --help", "exit_code": 0, "seconds": 0.959}。
+- 产物：本地命令输出，无正式输入写入。
+- 下一步：继续剩余静态检查或最终回执审计。
+
+## D5.5-FINAL-SMOKE-04
+
+- 时间：2026-09-06T08:53:53.809473+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-SMOKE-04。
+- 行动与结果：{"command": "uv run defense validate-config", "exit_code": 0, "seconds": 1.102}。
+- 产物：本地命令输出，无正式输入写入。
+- 下一步：继续剩余静态检查或最终回执审计。
+
+## D5.5-FINAL-SMOKE-05
+
+- 时间：2026-09-06T08:53:54.792569+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-SMOKE-05。
+- 行动与结果：{"command": "uv run python -c from defense_mvp.reporting.core import load_config; load_config()", "exit_code": 0, "seconds": 0.983}。
+- 产物：本地命令输出，无正式输入写入。
+- 下一步：继续剩余静态检查或最终回执审计。
+
+## D5.5-FINAL-SMOKE-06
+
+- 时间：2026-09-06T08:53:54.896701+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-SMOKE-06。
+- 行动与结果：{"command": "git diff --check", "exit_code": 0, "seconds": 0.102}。
+- 产物：本地命令输出，无正式输入写入。
+- 下一步：继续剩余静态检查或最终回执审计。
+
+## D5.5-IMPLEMENTATION-RECEIPT-01
+
+- 时间：2026-09-06T08:56:42.626733+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-IMPLEMENTATION-RECEIPT-01。
+- 行动：生成D5实现回执，输入/输出SHA和主结果表由正式产物读取，写入49/196/299实际测试、88重建/82链接/10页、视觉边界和D6停止点。
+- 结果：回执完成；更正FINAL-IDENTITY-01行动行中的手写26为25个旧文件（该记录机器结果本已是25），以实测输出为准。没有改动源码或正式事实，发布commit身份留给后续真实Git回执。
+- 产物：docs/defense_mvp/D5_IMPLEMENTATION_RECEIPT.md。
+- 下一步：检查回执与公开文档链接/数字/隐私，fetch并显式暂存审计发布。
+
+## D5.5-MASTER-PLAN-FINAL-01
+
+- 时间：2026-09-06T08:57:35.469617+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-MASTER-PLAN-FINAL-01。
+- 行动：总计划补入已经结束的全仓299 passed，并把历史D3占位路径改成现场正式D3 v01根。
+- 结果：路径/测试状态与正式回执一致，不改变任何实验协议或输入。
+- 产物：docs/DEFENSE_MVP_CONSTRUCTION_PLAN.md。
+- 下一步：发布allowlist审查与fetch/stage/commit/push。
+
+## D5.5-COMPLETION-FETCH-01
+
+- 时间：2026-09-06T08:57:37.8181172+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-COMPLETION-FETCH-01。
+- 行动：git fetch origin main，读取真实HEAD/origin/branch以准备普通发布。
+- 结果：退出码 0，HEAD=bd55d4f60963f05d92fc05615a35aa5ac616dfd7，origin/main=bd55d4f60963f05d92fc05615a35aa5ac616dfd7，branch=main。
+- 产物：Git远端现场身份。
+- 下一步：确认两端仍是bd55d4f后显式allowlist守卫与暂存；不force、不覆盖。
+
+## D5.5-COMPLETION-GUARD-DIAG-01
+
+- 时间：2026-09-06T08:59:48.7248289+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-COMPLETION-GUARD-DIAG-01。
+- 行动：运行发布前18路径守卫。
+- 结果：退出码1；临时盘符正则缺少词边界，把SVG标准namespace的https冒号后斜杠误判成Windows盘符，尚未暂存或提交；未发现实际机器路径。
+- 产物：守卫断言诊断，工作树产物未改。
+- 下一步：给盘符正则增加前缀边界并验证真实盘符拒绝、标准namespace允许，再完整重跑守卫。
+
+## D5.5-COMPLETION-GUARD-01
+
+- 时间：2026-09-06T08:59:50.652092+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-COMPLETION-GUARD-01。
+- 行动：18路径显式allowlist检查大小<1MiB、NUL/UTF-8、二进制仅4个1600x900非媒体图、机器绝对路径/正式comparison ID/原答及凭证载荷；新旧文件集合精确检查；独立public副本/文档链接和diff whitespace验证。盘符正则已验证边界，标准SVG namespace允许而真实盘符拒绝。
+- 结果：{"paths": 18, "public_files": 15, "nonmedia_png": 4, "max_bytes": 549265, "markdown_links": 36, "status": "passed"}。根tar/sidecar为仅有的allowlist外未跟踪文件，均排除；DEVLOG只审查本次增量。
+- 产物：待暂存18个授权文档/非媒体图表路径。
+- 下一步：显式暂存同一allowlist，再验证cached集合和字节，创建草稿完成审计提交。
+
+## D5.5-COMPLETION-STAGE-DIAG-01
+
+- 时间：2026-09-06T09:00:13.5795272+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-COMPLETION-STAGE-DIAG-01。
+- 行动：18路径完整预检查通过后暂存，运行git diff --cached --check。
+- 结果：退出码 2；新文件whitespace检查诊断：docs/defense_mvp/d5_generated/figures/agreement.svg:23: trailing whitespace. | +   <path d="M 0 405  | docs/defense_mvp/d5_generated/figures/agreement.svg:24: trailing whitespace. | +L 720 405  | docs/defense_mvp/d5_generated/figures/agreement.svg:25: trailing whitespace. | +L 720 0  | docs/defense_mvp/d5_generated/figures/agreement.svg:26: trailing whitespace. | +L 0 0  | docs/defense_mvp/d5_generated/figures/agreement.svg:32: trailing whitespace. | +    <path d="M 100.8 303.75  | docs/defense_mvp/d5_generated/figures/agreement.svg:33: trailing whitespace. | +L 698.4 303.75  | docs/defense_mvp/d5_generated/figures/agreement.svg:34: trailing whitespace. | +L 698.4 93.15  | docs/defense_mvp/d5_generated/figures/agreement.svg:35: trailing whitespace. | +L 100.8 93.15  | docs/defense_mvp/d5_generated/figures/agreement.svg:43: trailing whitespace. | +       <path id="m4734f85830" d="M 0 0  | docs/defense_mvp/d5_generated/figures/agreement.svg:44: trailing whitespace. | +L 0 3.5  | docs/defense_mvp/d5_generated/figures/agreement.svg:99: trailing whitespace. | +      <path d="M 100.8 303.75  | docs/defense_mvp/d5_generated/figures/agreement.svg:100: trailing whitespace. | +L 698.4 303.75  | docs/defense_mvp/d5_generated/figures/agreement.svg:105: trailing whitespace. | +       <path id="mb484f5dda7" d="M 0 0  | docs/defense_mvp/d5_generated/figures/agreement.svg:106: trailing whitespace. | +L -3.5 0  | docs/defense_mvp/d5_generated/figures/agreement.svg:119: trailing whitespace. | +      <path d="M 100.8 251.1  | docs/defense_mvp/d5_generated/figures/agreement.svg:120: trailing whitespace. | +L 698.4 251.1  | docs/defense_mvp/d5_generated/figures/agreement.svg:134: trailing whitespace. | +      <path d="M 100.8 198.45  | docs/defense_mvp/d5_generated/figures/agreement.svg:135: trailing whitespace. | +L 698.4 198.45  | docs/defense_mvp/d5_generated/figures/agreement.svg:149: trailing whitespace. | +      <path d="M 100.8 145.8  | docs/defense_mvp/d5_generated/figures/agreement.svg:150: trailing whitespace. | +L 698.4 145.8  | docs/defense_mvp/d5_generated/figures/agreement.svg:164: trailing whitespace. | +      <path d="M 100.8 93.15  | docs/defense_mvp/d5_generated/figures/agreement.svg:165: trailing whitespace. | +L 698.4 93.15  | docs/defense_mvp/d5_generated/figures/agreement.svg:179: trailing whitespace. | +    <path d="M 127.963636 152.38125  | docs/defense_mvp/d5_generated/figures/agreement.svg:180: trailing whitespace. | +L 263.781818 155.671875  | docs/defense_mvp/d5_generated/figures/agreement.svg:181: trailing whitespace. | +L 399.6 145.8  | docs/defense_mvp/d5_generated/figures/agreement.svg:182: trailing whitespace. | +L 535.418182 158.9625  | docs/defense_mvp/d5_generated/figures/agreement.svg:183: trailing whitespace. | +L 671.236364 155.671875  | docs/defense_mvp/d5_generated/figures/agreement.svg:186: trailing whitespace. | +     <path id="m30c10b707a" d="M 0 4  | docs/defense_mvp/d5_generated/figures/agreement.svg:187: trailing whitespace. | +C 1.060812 4 2.078319 3.578535 2.828427 2.828427  | docs/defense_mvp/d5_generated/figures/agreement.svg:188: trailing whitespace. | +C 3.578535 2.078319 4 1.060812 4 0  | docs/defense_mvp/d5_generated/figures/agreement.svg:189: trailing whitespace. | +C 4 -1.060812 3.578535 -2.078319 2.828427 -2.828427  | docs/defense_mvp/d5_generated/figures/agreement.svg:190: trailing whitespace. | +C 2.078319 -3.578535 1.060812 -4 0 -4  | docs/defense_mvp/d5_generated/figures/agreement.svg:191: trailing whitespace. | +C -1.060812 -4 -2.078319 -3.578535 -2.828427 -2.828427  | docs/defense_mvp/d5_generated/figures/agreement.svg:192: trailing whitespace. | +C -3.578535 -2.078319 -4 -1.060812 -4 0  | docs/defense_mvp/d5_generated/figures/agreement.svg:193: trailing whitespace. | +C -4 1.060812 -3.578535 2.078319 -2.828427 2.828427  | docs/defense_mvp/d5_generated/figures/agreement.svg:194: trailing whitespace. | +C -2.078319 3.578535 -1.060812 4 0 4  | docs/defense_mvp/d5_generated/figures/agreement.svg:207: trailing whitespace. | +    <path d="M 127.963636 181.180189  | docs/defense_mvp/d5_generated/figures/agreement.svg:208: trailing whitespace. | +L 263.781818 185.268561  | docs/defense_mvp/d5_generated/figures/agreement.svg:209: trailing whitespace. | +L 399.6 168.871348  | docs/defense_mvp/d5_generated/figures/agreement.svg:210: trailing whitespace. | +L 535.418182 194.036228  | docs/defense_mvp/d5_generated/figures/agreement.svg:211: trailing whitespace. | +L 671.236364 183.705021  | docs/defense_mvp/d5_generated/figures/agreement.svg:214: trailing whitespace. | +     <path id="m7384d90654" d="M -4 4  | docs/defense_mvp/d5_generated/figures/agreement.svg:215: trailing whitespace. | +L 4 4  | docs/defense_mvp/d5_generated/figures/agreement.svg:216: trailing whitespace. | +L 4 -4  | docs/defense_mvp/d5_generated/figures/agreement.svg:217: trailing whitespace. | +L -4 -4  | docs/defense_mvp/d5_generated/figures/agreement.svg:230: trailing whitespace. | +    <path d="M 100.8 198.45  | docs/defense_mvp/d5_generated/figures/agreement.svg:231: trailing whitespace. | +L 698.4 198.45  | docs/defense_mvp/d5_generated/figures/agreement.svg:235: trailing whitespace. | +    <path d="M 100.8 303.75  | docs/defense_mvp/d5_generated/figures/agreement.svg:236: trailing whitespace. | +L 100.8 93.15  | docs/defense_mvp/d5_generated/figures/agreement.svg:240: trailing whitespace. | +    <path d="M 100.8 303.75  | docs/defense_mvp/d5_generated/figures/agreement.svg:241: trailing whitespace. | +L 698.4 303.75  | docs/defense_mvp/d5_generated/figures/agreement.svg:276: trailing whitespace. | +     <path d="M 228.214844 362.65525  | docs/defense_mvp/d5_generated/figures/agreement.svg:277: trailing whitespace. | +L 242.214844 362.65525  | docs/defense_mvp/d5_generated/figures/agreement.svg:278: trailing whitespace. | +L 256.214844 362.65525  | docs/defense_mvp/d5_generated/figures/agreement.svg:288: trailing whitespace. | +     <path d="M 434.581406 362.65525  | docs/defense_mvp/d5_generated/figures/agreement.svg:289: trailing whitespace. | +L 448.581406 362.65525  | docs/defense_mvp/d5_generated/figures/agreement.svg:290: trailing whitespace. | +L 462.581406 362.65525  | docs/defense_mvp/d5_generated/figures/outcomes.svg:23: trailing whitespace. | +   <path d="M 0 405  | docs/defense_mvp/d5_generated/figures/outcomes.svg:24: trailing whitespace. | +L 720 405  | docs/defense_mvp/d5_generated/figures/outcomes.svg:25: trailing whitespace. | +L 720 0  | docs/defense_mvp/d5_generated/figures/outcomes.svg:26: trailing whitespace. | +L 0 0  | docs/defense_mvp/d5_generated/figures/outcomes.svg:32: trailing whitespace. | +    <path d="M 208.8 311.85  | docs/defense_mvp/d5_generated/figures/outcomes.svg:33: trailing whitespace. | +L 676.8 311.85  | docs/defense_mvp/d5_generated/figures/outcomes.svg:34: trailing whitespace. | +L 676.8 89.1  | docs/defense_mvp/d5_generated/figures/outcomes.svg:35: trailing whitespace. | +L 208.8 89.1  | docs/defense_mvp/d5_generated/figures/outcomes.svg:40: trailing whitespace. | +    <path d="M 208.8 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:41: trailing whitespace. | +L 292.371429 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:42: trailing whitespace. | +L 292.371429 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:43: trailing whitespace. | +L 208.8 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:48: trailing whitespace. | +    <path d="M 292.371429 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:49: trailing whitespace. | +L 325.8 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:50: trailing whitespace. | +L 325.8 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:51: trailing whitespace. | +L 292.371429 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:56: trailing whitespace. | +    <path d="M 325.8 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:57: trailing whitespace. | +L 609.942857 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:58: trailing whitespace. | +L 609.942857 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:59: trailing whitespace. | +L 325.8 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:64: trailing whitespace. | +    <path d="M 609.942857 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:65: trailing whitespace. | +L 676.8 164.900676  | docs/defense_mvp/d5_generated/figures/outcomes.svg:66: trailing whitespace. | +L 676.8 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:67: trailing whitespace. | +L 609.942857 99.225  | docs/defense_mvp/d5_generated/figures/outcomes.svg:72: trailing whitespace. | +    <path d="M 208.8 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:73: trailing whitespace. | +L 242.228571 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:74: trailing whitespace. | +L 242.228571 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:75: trailing whitespace. | +L 208.8 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:80: trailing whitespace. | +    <path d="M 242.228571 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:81: trailing whitespace. | +L 275.657143 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:82: trailing whitespace. | +L 275.657143 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:83: trailing whitespace. | +L 242.228571 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:88: trailing whitespace. | +    <path d="M 275.657143 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:89: trailing whitespace. | +L 426.085714 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:90: trailing whitespace. | +L 426.085714 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:91: trailing whitespace. | +L 275.657143 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:96: trailing whitespace. | +    <path d="M 426.085714 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:97: trailing whitespace. | +L 442.8 301.725  | docs/defense_mvp/d5_generated/figures/outcomes.svg:98: trailing whitespace. | +L 442.8 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:99: trailing whitespace. | +L 426.085714 236.049324  | docs/defense_mvp/d5_generated/figures/outcomes.svg:107: trailing whitespace. | +       <path id="m4734f85830" d="M 0 0  | docs/defense_mvp/d5_generated/figures/outcomes.svg:108: trailing whitespace. | +L 0 3.5  | docs/defense_mvp/d5_generated/figures/outcomes.svg:167: trailing whitespace. | +       <path id="mb484f5dda7" d="M 0 0  | docs/defense_mvp/d5_generated/figures/outcomes.svg:168: trailing whitespace. | +L -3.5 0  | docs/defense_mvp/d5_generated/figures/outcomes.svg:191: trailing whitespace. | +    <path d="M 208.8 311.85  | docs/defense_mvp/d5_generated/figures/outcomes.svg:192: trailing whitespace. | +L 208.8 89.1  | docs/defense_mvp/d5_generated/figures/outcomes.svg:196: trailing whitespace. | +    <path d="M 208.8 311.85  | docs/defense_mvp/d5_generated/figures/outcomes.svg:197: trailing whitespace. | +L 676.8 311.85  | docs/defense_mvp/d5_generated/figures/outcomes.svg:226: trailing whitespace. | +     <path d="M 252.159375 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:227: trailing whitespace. | +L 280.159375 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:228: trailing whitespace. | +L 280.159375 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:229: trailing whitespace. | +L 252.159375 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:237: trailing whitespace. | +     <path d="M 351.749687 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:238: trailing whitespace. | +L 379.749687 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:239: trailing whitespace. | +L 379.749687 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:240: trailing whitespace. | +L 351.749687 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:248: trailing whitespace. | +     <path d="M 444.276562 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:249: trailing whitespace. | +L 472.276562 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:250: trailing whitespace. | +L 472.276562 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:251: trailing whitespace. | +L 444.276562 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:259: trailing whitespace. | +     <path d="M 537.645625 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:260: trailing whitespace. | +L 565.645625 380.19125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:261: trailing whitespace. | +L 565.645625 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:262: trailing whitespace. | +L 537.645625 370.39125  | docs/defense_mvp/d5_generated/figures/outcomes.svg:286: trailing whitespace. | +   <path d="M -36 36  | docs/defense_mvp/d5_generated/figures/outcomes.svg:287: trailing whitespace. | +L 36 -36  | docs/defense_mvp/d5_generated/figures/outcomes.svg:288: trailing whitespace. | +M -30 42  | docs/defense_mvp/d5_generated/figures/outcomes.svg:289: trailing whitespace. | +L 42 -30  | docs/defense_mvp/d5_generated/figures/outcomes.svg:290: trailing whitespace. | +M -24 48  | docs/defense_mvp/d5_generated/figures/outcomes.svg:291: trailing whitespace. | +L 48 -24  | docs/defense_mvp/d5_generated/figures/outcomes.svg:292: trailing whitespace. | +M -18 54  | docs/defense_mvp/d5_generated/figures/outcomes.svg:293: trailing whitespace. | +L 54 -18  | docs/defense_mvp/d5_generated/figures/outcomes.svg:294: trailing whitespace. | +M -12 60  | docs/defense_mvp/d5_generated/figures/outcomes.svg:295: trailing whitespace. | +L 60 -12  | docs/defense_mvp/d5_generated/figures/outcomes.svg:296: trailing whitespace. | +M -6 66  | docs/defense_mvp/d5_generated/figures/outcomes.svg:297: trailing whitespace. | +L 66 -6  | docs/defense_mvp/d5_generated/figures/outcomes.svg:298: trailing whitespace. | +M 0 72  | docs/defense_mvp/d5_generated/figures/outcomes.svg:299: trailing whitespace. | +L 72 0  | docs/defense_mvp/d5_generated/figures/outcomes.svg:300: trailing whitespace. | +M 6 78  | docs/defense_mvp/d5_generated/figures/outcomes.svg:301: trailing whitespace. | +L 78 6  | docs/defense_mvp/d5_generated/figures/outcomes.svg:302: trailing whitespace. | +M 12 84  | docs/defense_mvp/d5_generated/figures/outcomes.svg:303: trailing whitespace. | +L 84 12  | docs/defense_mvp/d5_generated/figures/outcomes.svg:304: trailing whitespace. | +M 18 90  | docs/defense_mvp/d5_generated/figures/outcomes.svg:305: trailing whitespace. | +L 90 18  | docs/defense_mvp/d5_generated/figures/outcomes.svg:306: trailing whitespace. | +M 24 96  | docs/defense_mvp/d5_generated/figures/outcomes.svg:307: trailing whitespace. | +L 96 24  | docs/defense_mvp/d5_generated/figures/outcomes.svg:308: trailing whitespace. | +M 30 102  | docs/defense_mvp/d5_generated/figures/outcomes.svg:309: trailing whitespace. | +L 102 30  | docs/defense_mvp/d5_generated/figures/outcomes.svg:310: trailing whitespace. | +M 36 108  | docs/defense_mvp/d5_generated/figures/outcomes.svg:311: trailing whitespace. | +L 108 36  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:23: trailing whitespace. | +   <path d="M 0 405  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:24: trailing whitespace. | +L 720 405  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:25: trailing whitespace. | +L 720 0  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:26: trailing whitespace. | +L 0 0  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:32: trailing whitespace. | +    <path d="M 208.8 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:33: trailing whitespace. | +L 676.8 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:34: trailing whitespace. | +L 676.8 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:35: trailing whitespace. | +L 208.8 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:42: trailing whitespace. | +      <path d="M 208.8 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:43: trailing whitespace. | +L 208.8 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:48: trailing whitespace. | +       <path id="m4734f85830" d="M 0 0  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:49: trailing whitespace. | +L 0 3.5  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:62: trailing whitespace. | +      <path d="M 302.4 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:63: trailing whitespace. | +L 302.4 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:77: trailing whitespace. | +      <path d="M 396 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:78: trailing whitespace. | +L 396 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:92: trailing whitespace. | +      <path d="M 489.6 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:93: trailing whitespace. | +L 489.6 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:107: trailing whitespace. | +      <path d="M 583.2 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:108: trailing whitespace. | +L 583.2 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:122: trailing whitespace. | +      <path d="M 676.8 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:123: trailing whitespace. | +L 676.8 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:143: trailing whitespace. | +       <path id="mb484f5dda7" d="M 0 0  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:144: trailing whitespace. | +L -3.5 0  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:169: trailing whitespace. | +    <path d="M 434.442857 145.8  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:170: trailing whitespace. | +L 509.657143 145.8  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:175: trailing whitespace. | +     <path id="m712253aecf" d="M 0 8  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:176: trailing whitespace. | +L 0 -8  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:189: trailing whitespace. | +    <path d="M 375.942857 259.2  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:190: trailing whitespace. | +L 509.657143 259.2  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:204: trailing whitespace. | +    <path d="M 442.8 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:205: trailing whitespace. | +L 442.8 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:210: trailing whitespace. | +     <path id="mff03eb224b" d="M 0 5  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:211: trailing whitespace. | +C 1.326016 5 2.597899 4.473168 3.535534 3.535534  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:212: trailing whitespace. | +C 4.473168 2.597899 5 1.326016 5 0  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:213: trailing whitespace. | +C 5 -1.326016 4.473168 -2.597899 3.535534 -3.535534  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:214: trailing whitespace. | +C 2.597899 -4.473168 1.326016 -5 0 -5  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:215: trailing whitespace. | +C -1.326016 -5 -2.597899 -4.473168 -3.535534 -3.535534  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:216: trailing whitespace. | +C -4.473168 -2.597899 -5 -1.326016 -5 0  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:217: trailing whitespace. | +C -5 1.326016 -4.473168 2.597899 -3.535534 3.535534  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:218: trailing whitespace. | +C -2.597899 4.473168 -1.326016 5 0 5  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:232: trailing whitespace. | +    <path d="M 208.8 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:233: trailing whitespace. | +L 208.8 89.1  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:237: trailing whitespace. | +    <path d="M 208.8 315.9  | docs/defense_mvp/d5_generated/figures/overall-ci.svg:238: trailing whitespace. | +L 676.8 315.9  | docs/defense_mvp/d5_generated/figures/system-flow.svg:23: trailing whitespace. | +   <path d="M 0 405  | docs/defense_mvp/d5_generated/figures/system-flow.svg:24: trailing whitespace. | +L 720 405  | docs/defense_mvp/d5_generated/figures/system-flow.svg:25: trailing whitespace. | +L 720 0  | docs/defense_mvp/d5_generated/figures/system-flow.svg:26: trailing whitespace. | +L 0 0  | docs/defense_mvp/d5_generated/figures/system-flow.svg:33: trailing whitespace. | +     <path d="M 20.71125 145.466766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:34: trailing whitespace. | +L 157.84875 145.466766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:35: trailing whitespace. | +L 157.84875 113.247234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:36: trailing whitespace. | +L 20.71125 113.247234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:44: trailing whitespace. | +     <path d="M 217.949203 145.466766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:45: trailing whitespace. | +L 326.082797 145.466766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:46: trailing whitespace. | +L 326.082797 113.247234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:47: trailing whitespace. | +L 217.949203 113.247234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:54: trailing whitespace. | +    <path d="M 159.281027 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:55: trailing whitespace. | +Q 178.149891 129.357 195.341705 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:57: trailing whitespace. | +    <path d="M 189.741705 126.557  | docs/defense_mvp/d5_generated/figures/system-flow.svg:58: trailing whitespace. | +L 195.341705 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:59: trailing whitespace. | +L 189.741705 132.157  | docs/defense_mvp/d5_generated/figures/system-flow.svg:64: trailing whitespace. | +     <path d="M 428.775891 154.525594  | docs/defense_mvp/d5_generated/figures/system-flow.svg:65: trailing whitespace. | +L 507.800109 154.525594  | docs/defense_mvp/d5_generated/figures/system-flow.svg:66: trailing whitespace. | +L 507.800109 104.188406  | docs/defense_mvp/d5_generated/figures/system-flow.svg:67: trailing whitespace. | +L 428.775891 104.188406  | docs/defense_mvp/d5_generated/figures/system-flow.svg:75: trailing whitespace. | +    <path d="M 342.015168 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:76: trailing whitespace. | +Q 367.650849 129.357 391.60948 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:78: trailing whitespace. | +    <path d="M 386.00948 126.557  | docs/defense_mvp/d5_generated/figures/system-flow.svg:79: trailing whitespace. | +L 391.60948 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:80: trailing whitespace. | +L 386.00948 132.157  | docs/defense_mvp/d5_generated/figures/system-flow.svg:85: trailing whitespace. | +     <path d="M 584.97 145.466766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:86: trailing whitespace. | +L 676.47 145.466766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:87: trailing whitespace. | +L 676.47 113.247234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:88: trailing whitespace. | +L 584.97 113.247234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:95: trailing whitespace. | +    <path d="M 538.286238 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:96: trailing whitespace. | +Q 547.004089 129.357 554.044889 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:98: trailing whitespace. | +    <path d="M 548.444889 126.557  | docs/defense_mvp/d5_generated/figures/system-flow.svg:99: trailing whitespace. | +L 554.044889 129.357  | docs/defense_mvp/d5_generated/figures/system-flow.svg:100: trailing whitespace. | +L 548.444889 132.157  | docs/defense_mvp/d5_generated/figures/system-flow.svg:105: trailing whitespace. | +     <path d="M 490.95 288.917766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:106: trailing whitespace. | +L 567.45 288.917766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:107: trailing whitespace. | +L 567.45 256.698234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:108: trailing whitespace. | +L 490.95 256.698234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:115: trailing whitespace. | +    <path d="M 590.281469 186.497936  | docs/defense_mvp/d5_generated/figures/system-flow.svg:116: trailing whitespace. | +Q 581.40389 199.042237 573.495097 210.217615  | docs/defense_mvp/d5_generated/figures/system-flow.svg:118: trailing whitespace. | +    <path d="M 579.015613 207.26399  | docs/defense_mvp/d5_generated/figures/system-flow.svg:119: trailing whitespace. | +L 573.495097 210.217615  | docs/defense_mvp/d5_generated/figures/system-flow.svg:120: trailing whitespace. | +L 574.444507 204.029027  | docs/defense_mvp/d5_generated/figures/system-flow.svg:125: trailing whitespace. | +     <path d="M 262.043531 288.917766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:126: trailing whitespace. | +L 363.204469 288.917766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:127: trailing whitespace. | +L 363.204469 256.698234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:128: trailing whitespace. | +L 262.043531 256.698234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:135: trailing whitespace. | +    <path d="M 459.196805 272.808  | docs/defense_mvp/d5_generated/figures/system-flow.svg:136: trailing whitespace. | +Q 423.410192 272.808 389.30063 272.808  | docs/defense_mvp/d5_generated/figures/system-flow.svg:138: trailing whitespace. | +    <path d="M 394.90063 275.608  | docs/defense_mvp/d5_generated/figures/system-flow.svg:139: trailing whitespace. | +L 389.30063 272.808  | docs/defense_mvp/d5_generated/figures/system-flow.svg:140: trailing whitespace. | +L 394.90063 270.008  | docs/defense_mvp/d5_generated/figures/system-flow.svg:145: trailing whitespace. | +     <path d="M 52.235531 288.917766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:146: trailing whitespace. | +L 153.396469 288.917766  | docs/defense_mvp/d5_generated/figures/system-flow.svg:147: trailing whitespace. | +L 153.396469 256.698234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:148: trailing whitespace. | +L 52.235531 256.698234  | docs/defense_mvp/d5_generated/figures/system-flow.svg:155: trailing whitespace. | +    <path d="M 242.625039 272.808  | docs/defense_mvp/d5_generated/figures/system-flow.svg:156: trailing whitespace. | +Q 210.222092 272.808 179.496197 272.808  | docs/defense_mvp/d5_generated/figures/system-flow.svg:158: trailing whitespace. | +    <path d="M 185.096197 275.608  | docs/defense_mvp/d5_generated/figures/system-flow.svg:159: trailing whitespace. | +L 179.496197 272.808  | docs/defense_mvp/d5_generated/figures/system-flow.svg:160: trailing whitespace. | +L 185.096197 270.008 。未commit或push，正式产物未改。
+- 产物：staging及精确diff诊断。
+- 下一步：定位whitespace，保持生成文件身份关系处理后重验，不跳过检查。
+
+## D5.5-SVG-PUBLISH-DECISION-01
+
+- 时间：2026-09-06T09:01:37.4712556+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-SVG-PUBLISH-DECISION-01。
+- 行动：定位cached whitespace为Matplotlib SVG路径数据的行尾空格；决定增加独立公开文档发布适配器，仅规范化docs副本中4个SVG行尾空白，证明XML语义等价并更新公开导出映射。
+- 结果：正式D5 v01、report-v1、13个冻结源码与D1–D4均保持原样；不禁用whitespace守卫、不修改图表内容/轴/案例或正式报告，不需正式v02。适配器单独记录source SHA并支持verify，检查原始v01与公开副本生成关系。
+- 产物：计划scripts/defense_mvp/publish_d5_docs.py及对应发布说明/映射；旧失败诊断保留。
+- 下一步：实现纯SVG空白转换与验证、小fixture方向/篡改/失败检查，再规范化当前公开副本并重跑发布守卫。
+
+## D5.5-SVG-PUBLISH-IMPLEMENT-01
+
+- 时间：2026-09-06T09:03:16.4493238+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-SVG-PUBLISH-IMPLEMENT-01。
+- 行动：增加独立publish_d5_docs适配器，基于冻结public_files生成原稿，仅规范化SVG行尾空白并逐XML节点/属性/正文证明语义相等；发布映射绑定适配器SHA，预检拒绝用户修改，支持独立verify与未知文件拒绝。新增4项tiny发布测试，置于顶层tests，避免改动D5正式source锁。
+- 结果：仅新增发布代码与测试，正式reporting13文件/config/输出均未改。
+- 产物：scripts/defense_mvp/publish_d5_docs.py、tests/test_defense_publication.py。
+- 下一步：定向4项测试，然后发布docs副本，重新运行最终全仓回归；正式D5 verifier继续保持v01。
+
+## D5.5-SVG-PUBLISH-COUNT-01
+
+- 时间：2026-09-06T09:04:09.8072188+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-SVG-PUBLISH-COUNT-01。
+- 行动：适配器verify的SVG计数从实际文件集合派生，避免tiny fixture也报告正式4图。
+- 结果：只更正工程验收计数生成方式，正式图/源码不变。
+- 产物：独立发布脚本。
+- 下一步：运行4项tiny测试后冻结发布适配器并复验。
+
+## D5.5-SVG-PUBLISH-TEST-01
+
+- 时间：2026-09-06T09:04:12.5015814+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-SVG-PUBLISH-TEST-01。
+- 行动：pytest tests/test_defense_publication.py，检验合法path空白等价、正文空白变化拒绝、用户编辑零写入拒绝、篡改/未知文件拒绝。
+- 结果：退出码 0，wall=2.64185秒，实际数量见pytest摘要。
+- 产物：4项tiny fixture测试摘要，无正式媒体解码。
+- 下一步：测试通过后规范化公开SVG副本，重跑最终全仓pytest。
+
+## D5.5-SVG-PUBLISH-RUN-01
+
+- 时间：2026-09-06T09:04:14.3946676+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-SVG-PUBLISH-RUN-01。
+- 行动：独立publish_d5_docs对当前已生成15份docs执行有前置字节校验的发布规范化。
+- 结果：退出码 0，wall=1.3080171秒；4 SVG仅去行尾空白、XML语义等价，最终15文件逐字节与确定性期望相等。正式D5根未写入。
+- 产物：docs/defense_mvp/d5_generated中4SVG及public-export.json版本2，绑定发布脚本SHA。
+- 下一步：最终全仓pytest/静态检查、正式D5复验及回执更新。
+
+## D5.5-SVG-PUBLISH-DOCS-01
+
+- 时间：2026-09-06T09:06:05.673217+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-SVG-PUBLISH-DOCS-01。
+- 行动：D5施工方案与实现回执说明正式v01保持原样、公开SVG空白规范化及XML语义验证；写入版本2导出SHA、新verify入口与4项实测，最终全仓状态保持运行中直至真实结束。
+- 结果：公开副本关系准确，区分原字节复制helper与最终Git发布适配器；没有把尚未结束回归写通过。
+- 产物：D5_CONSTRUCTION_PLAN.md、D5_IMPLEMENTATION_RECEIPT.md。
+- 下一步：正式v01再次独立复验、最终静态和发布守卫；等待唯一全仓回归结束。
+
+## D5.5-SVG-FORMAL-REVERIFY-01
+
+- 时间：2026-09-06T09:06:18.7838723+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-SVG-FORMAL-REVERIFY-01。
+- 行动：增加公开SVG适配器后再次完整verify-report到新系统Temp文件，与正式v01 verification SHA比较。
+- 结果：退出码 0，wall=12.3985683秒；临时与原回执SHA=77bf8d37a9f304d06e67bdc606aaa5e4aa47958dd8802e9452c6e57d1acc1fb9，正式源码/输入/文件清单/88稳定文件/82链接/10页/视觉身份保持完全相同。
+- 产物：系统Temp独立回执、d5-engineering/verify-publication-01.log；v01未写入。
+- 下一步：等待最终全仓回归，完成独立发布适配器和cached守卫，审计普通发布。
+
+## D5.5-PUBLISH-SMOKE-01
+
+- 时间：2026-09-06T09:07:04.918722+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-PUBLISH-SMOKE-01。
+- 行动与结果：{"command": "uv run python -m compileall -q src tests scripts/defense_mvp", "exit_code": 0, "seconds": 0.46}。
+- 产物：最终公开发布适配器静态/CLI/完整15文件4SVG验证摘要。
+- 下一步：最后的cached守卫与审计发布。
+
+## D5.5-PUBLISH-SMOKE-02
+
+- 时间：2026-09-06T09:07:05.973083+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-PUBLISH-SMOKE-02。
+- 行动与结果：{"command": "uv run python scripts/defense_mvp/publish_d5_docs.py --help", "exit_code": 0, "seconds": 1.053}。
+- 产物：最终公开发布适配器静态/CLI/完整15文件4SVG验证摘要。
+- 下一步：最后的cached守卫与审计发布。
+
+## D5.5-PUBLISH-SMOKE-03
+
+- 时间：2026-09-06T09:07:07.081154+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-PUBLISH-SMOKE-03。
+- 行动与结果：{"command": "uv run python scripts/defense_mvp/publish_d5_docs.py --root artifacts/defense_mvp/DEFENSE-MVP-D5-v01 --destination docs/defense_mvp --verify", "exit_code": 0, "seconds": 1.108}。
+- 产物：最终公开发布适配器静态/CLI/完整15文件4SVG验证摘要。
+- 下一步：最后的cached守卫与审计发布。
+
+## D5.5-COMPLETION-STAGE-02
+
+- 时间：2026-09-06T09:08:22.788878+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-COMPLETION-STAGE-02。
+- 行动：规范化SVG后完整审查并显式暂存21路径（18文档/图表及D5方案更新、独立发布脚本/4项测试），检查cached集合/whitespace/字节、<1MiB/NUL/二进制仅4PNG、机器路径/敏感载荷、全部Markdown链接、版本2公开副本和13个正式D5源码身份。
+- 结果：{"status": "passed", "paths": 21, "max_bytes": 583998, "markdown_links": 36, "public_files": 15, "svg_semantics": 4, "frozen_D5_files": 13}；git diff --check与cached --check均0。正式v01/source lock不变，根tar/sidecar排除，无任何媒体/正式导出暂存。
+- 产物：21路径staging，等待最终全仓测试结果更新回执。
+- 下一步：全仓唯一运行结束后据实更新回执、重暂存文档并复核，commit/push。
+
+## D5.5-RECEIPT-STATIC-UPDATE-01
+
+- 时间：2026-09-06T09:11:35.737591+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-RECEIPT-STATIC-UPDATE-01。
+- 行动：实现回执补齐发布适配后的最终compileall、help、15文件/4SVG校验、D5回执同SHA和21路径36链接cached守卫实测结果。
+- 结果：仅完善文档验证证据；全仓唯一运行仍待实际结束，不改源码/正式产物。
+- 产物：D5_IMPLEMENTATION_RECEIPT.md。
+- 下一步：全仓结束后一次补入数量/时间并commit/push。
+
+## D5.5-COMPLETION-FETCH-02
+
+- 时间：2026-09-06T09:13:12.8607554+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-COMPLETION-FETCH-02。
+- 行动：发布适配和回归期间再次fetch，防止远端在审计中途改变。
+- 结果：退出码 0，HEAD=bd55d4f60963f05d92fc05615a35aa5ac616dfd7，origin/main=bd55d4f60963f05d92fc05615a35aa5ac616dfd7。
+- 产物：真实远端身份。
+- 下一步：确认仍bd55d4f且回归成功后最终文档暂存、普通commit/push。
+
+## D5.5-REPOSITORY-REGRESSION-02
+
+- 时间：2026-09-06T09:15:40.3685132+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-REPOSITORY-REGRESSION-02。
+- 命令：uv run pytest -o addopts='' -q --tb=short；冻结D5源码bd55d4f保持不变，新增公开SVG发布适配器及4项测试后的最终全仓复跑。
+- 结果：退出码 0，wall=685.3625251秒；........................................................................ [ 23%] ........................................................................ [ 47%] ........................................................................ [ 71%] ........................................................................ [ 95%] ...............                                                          [100%] 303 passed in 661.89s (0:11:01)。
+- 产物：artifacts/defense_mvp/d5-engineering/repository-final-02.log。
+- 下一步：结合D5正式verifier与公开导出验证完成审计commit和普通push，停在D5。
+
+## D5.5-REPOSITORY-PROGRESS-01
+
+- 时间：2026-09-06T09:16:10.1296620+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-REPOSITORY-PROGRESS-01。
+- 行动：全仓第二次运行超过前次耗时后，只读查询本次pytest进程及子进程的PID/创建时间/CPU计数和已有日志，不读取无关进程参数。
+- 结果：保留唯一既有运行，不kill/重启或启动重复测试；尚无失败回执，以最终退出状态为准。
+- 产物：当前运行诊断摘要及repository-final-02.log。
+- 下一步：等待该运行完成，只有出现真实失败再定位。
+
+## D5.5-FINAL-RESULTS-DOC-01
+
+- 时间：2026-09-06T15:02:49.6646039+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-FINAL-RESULTS-DOC-01。
+- 行动：把发布适配后的最终全仓结果写入D5实现回执、总施工方案和D5施工方案；增加精确`.gitattributes`规则，将15份公开输出中的文本、发布脚本和测试固定为LF，使`core.autocrlf=true`的新checkout仍能按版本2 SHA复验。
+- 结果：最终全仓303 passed（pytest 661.89秒，wall 685.363秒，退出码0）；`.gitattributes`只覆盖明确D5公开文本/脚本/测试，PNG仍为二进制。D5正式v01及其13个冻结source/config/test SHA不变。
+- 产物：`.gitattributes`、D5_IMPLEMENTATION_RECEIPT.md、DEFENSE_MVP_CONSTRUCTION_PLAN.md、D5_CONSTRUCTION_PLAN.md。
+- 下一步：验证Git attributes、index/checkout字节身份和最终22路径staging，然后commit/push。
+
+## D5.5-EOL-VERIFY-01
+
+- 时间：2026-09-06T15:04:00+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-EOL-VERIFY-01。
+- 行动：`git check-attr text eol`核对公开Markdown/SVG/CSV/JSON、发布脚本和测试均为`text eol=lf`，PNG为unspecified；重新运行版本2发布适配器`--verify`并执行工作树`git diff --check`。
+- 结果：退出码0；15个公开文件和4个SVG语义检查passed，PNG未被文本规则覆盖，工作树whitespace通过。其余历史文档受本机autocrlf提示但Git规范化正常，不进入版本2逐字节公开映射。
+- 产物：Git attributes与最终公开副本验证摘要。
+- 下一步：显式暂存最终22路径并核对index字节、敏感边界与cached whitespace。
+
+## D5.5-COMPLETION-STAGE-03
+
+- 时间：2026-09-06T15:05:00+08:00；环境：本地 Windows CPU-only；步骤 ID：D5.5-COMPLETION-STAGE-03。
+- 行动：仅用22路径显式allowlist执行`git add`；核对cached/HEAD差异精确集合、cached与工作树whitespace、大小/NUL、二进制仅4个非媒体PNG、敏感载荷、版本2全部15个index字节，以及index内发布脚本SHA与public-export绑定。
+- 结果：passed；22个staged路径、15个公开index文件，publisher index SHA=`26642ac9b6c11e4cee16c9db2d3c146351a83af861e51adf12404a53f94a7d7e`。根tar和sidecar是仅有的其他未跟踪文件，未暂存；无artifacts、PPTX/PDF、案例媒体、contact sheet、正式答案/导出或私有映射。
+- 产物：最终D5验收发布staging。
+- 下一步：重暂存本记录并做最后cached检查，创建D5草稿完成审计commit。

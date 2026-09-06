@@ -1,0 +1,8 @@
+docs/defense_mvp/DEFENSE_REPORT.md text eol=lf
+docs/defense_mvp/DEFENSE_SCRIPT.md text eol=lf
+docs/defense_mvp/RECORDING_PLAN.md text eol=lf
+docs/defense_mvp/d5_generated/**/*.csv text eol=lf
+docs/defense_mvp/d5_generated/**/*.svg text eol=lf
+docs/defense_mvp/d5_generated/**/*.json text eol=lf
+scripts/defense_mvp/publish_d5_docs.py text eol=lf
+tests/test_defense_publication.py text eol=lf

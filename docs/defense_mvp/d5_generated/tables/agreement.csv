@@ -1,0 +1,7 @@
+field,n,diagonal,observed_agreement,kappa_status,cohen_kappa,kappa_reason
+overall,32,14,0.4375,defined,0.16400580551523947,
+faithfulness,32,13,0.40625,defined,0.1251798561151079,
+preservation,32,16,0.5,defined,0.2808988764044944,
+temporal_consistency,32,12,0.375,defined,0.041916167664670656,
+visual_quality,32,13,0.40625,defined,0.14002828854314003,
+exact_five_field_vector,32,7,0.21875,not_applicable,,vector exact agreement only
